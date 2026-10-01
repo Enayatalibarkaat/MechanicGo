@@ -1,0 +1,2 @@
+import {Home,CalendarDays,MessageCircle,UserRound} from "lucide-react";
+export function Bottom({active}:{active:string}){return <nav className="bottomNav"><a className={active==="home"?"on":""} href="/home"><Home/><span>Home</span></a><a className={active==="bookings"?"on":""} href="/service-history"><CalendarDays/><span>Bookings</span></a><a href="/chat"><MessageCircle/><span>Chat</span></a><a href="/profile"><UserRound/><span>Profile</span></a></nav>}
