@@ -1,23 +1,8 @@
 "use client";
-
 import {useState} from "react";
 import {ArrowLeft,ArrowRight,CheckCircle2,LockKeyhole,Phone,UserRound} from "lucide-react";
-
 export default function Auth(){
-  const[register,setRegister]=useState(false);
-  return <main className="authPage">
-    <div className="authTop"><a href="/" className="backLink"><ArrowLeft size={18}/> Back</a><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div>
-    <section className="authCard">
-      <div className="authLogo"><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div>
-      <div className="authBrand">Mechanic<span>Go</span></div>
-      <p className="authTag">Fast. Reliable. Anytime.</p>
-      <div className="authTabs"><button className={!register?"selected":""} onClick={()=>setRegister(false)}>Login</button><button className={register?"selected":""} onClick={()=>setRegister(true)}>Register</button></div>
-      {register&&<label><span>Name</span><div className="input"><UserRound size={18}/><input placeholder="Your full name"/></div></label>}
-      <label><span>Mobile number</span><div className="input"><Phone size={18}/><input inputMode="tel" placeholder="+91 00000 00000"/></div></label>
-      <button className="authPrimary">Continue with OTP <ArrowRight size={18}/></button>
-      <div className="secureNote"><LockKeyhole size={15}/> Secure OTP verification</div>
-      <div className="guest"><button>Explore services as a guest</button></div>
-      <div className="authTrust"><span><CheckCircle2 size={15}/> Certified experts</span><span><CheckCircle2 size={15}/> Express booking</span><span><CheckCircle2 size={15}/> Premium support</span></div>
-    </section>
-  </main>
+ const[register,setRegister]=useState(false);const[otp,setOtp]=useState(false);const[phone,setPhone]=useState("");const[name,setName]=useState("");
+ if(otp)return <main className="authPage"><div className="authTop"><a href="/auth" className="backLink"><ArrowLeft size={18}/> Change number</a><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div><section className="authCard"><div className="authLogo"><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div><div className="authBrand">Verify<span> OTP</span></div><p className="authTag">We've sent a 6-digit code to +91 {phone||"00000 00000"}</p><div className="otpBoxes">{[0,1,2,3,4,5].map(i=><input key={i} maxLength={1} inputMode="numeric" autoFocus={i===0}/>)}</div><button className="authPrimary" onClick={()=>location.href="/home"}>Verify & Continue <ArrowRight size={18}/></button><div className="secureNote"><LockKeyhole size={15}/> OTP verification protects your account</div><button className="resend">Resend OTP in 30s</button></section></main>;
+ return <main className="authPage"><div className="authTop"><a href="/" className="backLink"><ArrowLeft size={18}/> Back</a><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div><section className="authCard"><div className="authLogo"><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div><div className="authBrand">Mechanic<span>Go</span></div><p className="authTag">Fast. Reliable. Anytime.</p><div className="authTabs"><button className={!register?"selected":""} onClick={()=>setRegister(false)}>Login</button><button className={register?"selected":""} onClick={()=>setRegister(true)}>Register</button></div>{register&&<label><span>Name</span><div className="input"><UserRound size={18}/><input value={name} onChange={e=>setName(e.target.value)} placeholder="Your full name"/></div></label>}<label><span>Mobile number</span><div className="input"><Phone size={18}/><input value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,"").slice(-10))} inputMode="numeric" placeholder="00000 00000"/></div></label><button className="authPrimary" onClick={()=>setOtp(true)}>Get OTP <ArrowRight size={18}/></button><div className="secureNote"><LockKeyhole size={15}/> Secure OTP verification</div><div className="guest"><button onClick={()=>location.href="/home"}>Explore services as a guest</button></div><div className="authTrust"><span><CheckCircle2 size={15}/> Certified experts</span><span><CheckCircle2 size={15}/> Express booking</span><span><CheckCircle2 size={15}/> Premium support</span></div></section></main>
 }
