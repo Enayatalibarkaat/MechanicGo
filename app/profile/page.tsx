@@ -1,2 +1,23 @@
-"use client";import {LogOut,MapPin,CarFront,WalletCards,Ticket,Settings,HelpCircle,ChevronRight} from "lucide-react";
-export default function Profile(){const logout=()=>{try{localStorage.removeItem("mechanicgo_user");localStorage.removeItem("mechanicgo_booking")}catch{}location.href="/auth"};return <main className="appPage"><header className="pageHeader"><h1>Profile</h1><a href="/settings"><Settings/></a></header><section className="profileHero"><div className="profileBig">J</div><h2>John</h2><p>+91 98XXXXXX21</p><a href="/profile/edit">Edit Profile</a></section><div className="menuList">{[[CarFront,"My Vehicles","/vehicles"],[MapPin,"Saved Addresses","#"],[WalletCards,"Wallet & Payments","#"],[Ticket,"Coupons & Offers","#"],[HelpCircle,"Help & Support","/support"],[Settings,"Settings","/settings"]].map(([I,t,u])=><a href={u as string} key={t as string}><I/><span>{t}</span><ChevronRight/></a>)}<button className="menuListLogout logout" onClick={logout}><LogOut/><span>Logout</span></button></div></main>}
+"use client";
+import {LogOut,MapPin,CarFront,WalletCards,Ticket,Settings,HelpCircle,ChevronRight,type LucideIcon} from "lucide-react";
+
+const menuItems: Array<[LucideIcon,string,string]> = [
+  [CarFront,"My Vehicles","/vehicles"],
+  [MapPin,"Saved Addresses","#"],
+  [WalletCards,"Wallet & Payments","#"],
+  [Ticket,"Coupons & Offers","#"],
+  [HelpCircle,"Help & Support","/support"],
+  [Settings,"Settings","/settings"]
+];
+
+export default function Profile(){
+  const logout=()=>{try{localStorage.removeItem("mechanicgo_user");localStorage.removeItem("mechanicgo_booking")}catch{}location.href="/auth"};
+  return <main className="appPage">
+    <header className="pageHeader"><h1>Profile</h1><a href="/settings"><Settings/></a></header>
+    <section className="profileHero"><div className="profileBig">J</div><h2>John</h2><p>+91 98XXXXXX21</p><a href="/profile/edit">Edit Profile</a></section>
+    <div className="menuList">
+      {menuItems.map(([Icon,t,u])=><a href={u} key={t}><Icon/><span>{t}</span><ChevronRight/></a>)}
+      <button className="menuListLogout logout" onClick={logout}><LogOut/><span>Logout</span></button>
+    </div>
+  </main>
+}
