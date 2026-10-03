@@ -1,5 +1,0 @@
-import {NextResponse} from "next/server";
-import type {NextRequest} from "next/server";
-const protectedPaths=["/home","/bookings","/services","/mechanics","/mechanic","/booking-summary","/booking-confirmed","/tracking","/chat","/review","/service-history","/vehicles","/profile","/settings","/support"];
-export function middleware(request:NextRequest){const path=request.nextUrl.pathname;const protectedRoute=protectedPaths.some(p=>path===p||path.startsWith(p+"/"));if(!protectedRoute)return NextResponse.next();const auth=request.cookies.get("mechanicgo_auth")?.value==="1";const profile=request.cookies.get("mechanicgo_profile")?.value==="1";if(!auth)return NextResponse.redirect(new URL("/auth",request.url));if(!profile)return NextResponse.redirect(new URL("/profile-setup",request.url));return NextResponse.next();}
-export const config={matcher:["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"]};
