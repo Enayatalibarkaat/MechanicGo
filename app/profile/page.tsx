@@ -1,23 +1,6 @@
 "use client";
+import {useEffect,useState} from "react";
 import {LogOut,MapPin,CarFront,WalletCards,Ticket,Settings,HelpCircle,ChevronRight,type LucideIcon} from "lucide-react";
-
-const menuItems: Array<[LucideIcon,string,string]> = [
-  [CarFront,"My Vehicles","/vehicles"],
-  [MapPin,"Saved Addresses","#"],
-  [WalletCards,"Wallet & Payments","#"],
-  [Ticket,"Coupons & Offers","#"],
-  [HelpCircle,"Help & Support","/support"],
-  [Settings,"Settings","/settings"]
-];
-
-export default function Profile(){
-  const logout=()=>{try{localStorage.removeItem("mechanicgo_user");localStorage.removeItem("mechanicgo_booking")}catch{}location.href="/auth"};
-  return <main className="appPage">
-    <header className="pageHeader"><h1>Profile</h1><a href="/settings"><Settings/></a></header>
-    <section className="profileHero"><div className="profileBig">J</div><h2>John</h2><p>+91 98XXXXXX21</p><a href="/profile/edit">Edit Profile</a></section>
-    <div className="menuList">
-      {menuItems.map(([Icon,t,u])=><a href={u} key={t}><Icon/><span>{t}</span><ChevronRight/></a>)}
-      <button className="menuListLogout logout" onClick={logout}><LogOut/><span>Logout</span></button>
-    </div>
-  </main>
-}
+import {Bottom} from "../components";
+const menuItems:Array<[LucideIcon,string,string]>=[[CarFront,"My Vehicles","/vehicles"],[MapPin,"Saved Addresses","#"],[WalletCards,"Wallet & Payments","#"],[Ticket,"Coupons & Offers","#"],[HelpCircle,"Help & Support","/support"],[Settings,"Settings","/settings"]];
+export default function Profile(){const[name,setName]=useState("John");const[photo,setPhoto]=useState("");useEffect(()=>{try{const p=JSON.parse(localStorage.getItem("mechanicgo_profile")||"{}");if(p.name)setName(p.name);if(p.photo)setPhoto(p.photo)}catch{}},[]);const logout=()=>{localStorage.clear();document.cookie="mechanicgo_auth=; Max-Age=0; path=/";document.cookie="mechanicgo_profile=; Max-Age=0; path=/";location.href="/auth"};return <main className="appPage"><header className="pageHeader"><h1>Profile</h1><a href="/settings"><Settings/></a></header><section className="profileHero"><div className="profileBig">{photo?<img src={photo} alt="Profile"/>:name[0]}</div><h2>{name}</h2><p>+91 ••••• ••921</p><a href="/profile/edit">Edit Profile</a></section><div className="profileCompletion"><div><b>Your profile is complete</b><span>Keep your vehicle details updated for faster bookings.</span></div><strong>100%</strong></div><div className="menuList">{menuItems.map(([Icon,t,u])=><a href={u} key={t}><Icon/><span>{t}</span><ChevronRight/></a>)}<button className="menuListLogout logout" onClick={logout}><LogOut/><span>Logout</span></button></div><Bottom active="profile"/></main>}
