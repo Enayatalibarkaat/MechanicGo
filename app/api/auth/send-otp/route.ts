@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const existing = await User.findOne({ email }).select("_id username role accountStatus").lean();
+    const existing: any = await User.findOne({ email }).select("_id username role accountStatus").lean();
     if (purpose === "register" && existing) {
       return NextResponse.json({ error: "An account already exists with this email. Please log in instead." }, { status: 409 });
     }
