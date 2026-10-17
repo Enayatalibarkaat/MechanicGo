@@ -70,6 +70,7 @@ export default function Auth() {
       if (!response.ok) throw new Error(data.error || "That code could not be verified.");
       localStorage.setItem("mechanicgo_auth", "1");
       localStorage.setItem("mechanicgo_email", email.trim().toLowerCase());
+      localStorage.setItem("mechanicgo_email_verified", "1");
       if (name.trim()) localStorage.setItem("mechanicgo_pending_name", name.trim());
       location.href = "/profile-setup";
     } catch (e) {
