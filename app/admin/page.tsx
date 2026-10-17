@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ShieldCheck, RefreshCw, UserRound, CheckCircle2, Ban, RotateCcw } from "lucide-react";
-type Mechanic={_id:string;name:string;email?:string;phone?:string;accountStatus:string;vehicleTypes:string[];isOnDuty:boolean;documents?:{idProofFileId?:string;shopPhotoFileId?:string;profilePhotoFileId?:string};createdAt:string};\ntype AdminBooking={_id:string;vehicleType:string;issueDescription:string;status:string;issuePhotoFileId?:string;createdAt:string;customerId?:{name?:string;phone?:string};mechanicId?:{name?:string;phone?:string};location?:{address?:string}};
+type Mechanic={_id:string;name:string;email?:string;phone?:string;accountStatus:string;vehicleTypes:string[];isOnDuty:boolean;documents?:{idProofFileId?:string;shopPhotoFileId?:string;profilePhotoFileId?:string};createdAt:string};
+type AdminBooking={_id:string;vehicleType:string;issueDescription:string;status:string;issuePhotoFileId?:string;createdAt:string;customerId?:{name?:string;phone?:string};mechanicId?:{name?:string;phone?:string};location?:{address?:string}};
 export default function AdminDashboard(){
  const [items,setItems]=useState<Mechanic[]>([]);const [bookings,setBookings]=useState<AdminBooking[]>([]);const [status,setStatus]=useState("PENDING_VERIFICATION");const [error,setError]=useState("");const [notice,setNotice]=useState("");const [busy,setBusy]=useState("");
  const load=async()=>{setError("");try{const [r,br]=await Promise.all([fetch("/api/admin/manage-staff?status="+encodeURIComponent(status),{cache:"no-store"}),fetch("/api/admin/bookings",{cache:"no-store"})]);const d=await r.json();const bd=await br.json();if(!r.ok)throw new Error(d.error||"Admin access denied.");setItems(d.mechanics||[]);if(br.ok)setBookings(bd.bookings||[]);}catch(e){setError(e instanceof Error?e.message:"Could not load admin data.");}};
