@@ -39,9 +39,10 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
     const existing = await User.findOne({ email });
-    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-    const role = (adminEmail && email === adminEmail) || existing?.role === "ADMIN" ? "ADMIN" : existing?.role === "MECHANIC" ? "MECHANIC" : requestedRole;
-    if (role === "ADMIN" && adminEmail !== email) return NextResponse.json({error:"This account cannot claim administrator access."},{status:403});
+    if (existing?.role === "ADMIN") {
+      return NextResponse.json({ error: "This account belongs to the separate owner portal." }, { status: 403 });
+    }
+    const role = existing?.role === "MECHANIC" ? "MECHANIC" : requestedRole;
     const accountStatus = existing?.accountStatus || (role === "MECHANIC" ? "PENDING_VERIFICATION" : "ACTIVE");
     const update: Record<string, unknown> = {
       name, email, dob, gender, role, accountStatus, emailVerified: true,
