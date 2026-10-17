@@ -140,6 +140,16 @@ export async function POST(request: NextRequest) {
     }
     if (profilePhotoFileId) update["documents.profilePhotoFileId"] = profilePhotoFileId;
     const user = await User.findOneAndUpdate({ email }, { $set: update, $setOnInsert: { tokenVersion: 1, isOnDuty: false } }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
+    const changedFields = isNewAccount
+      ? ["account registration", "username", "password", "mobile number", "profile details"]
+      : [
+          existing?.name !== name ? "name" : "",
+          existing?.dob !== dob ? "date of birth" : "",
+          existing?.gender !== gender ? "gender" : "",
+          (existing?.phone || "") !== cleanPhone ? "mobile number" : "",
+          photoMatch ? "profile photo" : "",
+          role === "MECHANIC" && JSON.stringify(existing?.vehicleTypes || []) !== JSON.stringify(vehicleTypes) ? "vehicle types" : ""
+        ].filter(Boolean);
     let telegramConfigured = Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHANNEL_ID);
     let telegramSent = false;
     let telegramError = "";
@@ -152,6 +162,7 @@ export async function POST(request: NextRequest) {
           "Role: <b>" + escapeHtml(user.role) + "</b>",
           "Name: " + escapeHtml(name),
           "Username: " + escapeHtml(user.username || normalizedUsername || "not set"),
+          "Changed fields: " + escapeHtml(changedFields.join(", ") || "profile save with no detected field changes"),
           "Date of birth: " + escapeHtml(dob),
           "Email (verified): " + escapeHtml(email),
           "Mobile: " + escapeHtml(phone || "Not provided"),
@@ -182,7 +193,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Save profile error", error);
-    const message = error instanceof Error && error.message.includes("duplicate key") ? "This phone number or email is already linked to another account." : "Could not save profile. Please try again.";
+    const duplicate = error && typeof error === "object" && "code" in error && (error as {code?:number}).code === 11000;
+    const keyPattern = duplicate && "keyPattern" in error ? (error as {keyPattern?:Record<string,unknown>}).keyPattern : undefined;
+    const message = duplicate && keyPattern?.username
+      ? "That username is already taken. Please choose another."
+      : duplicate && keyPattern?.phone
+      ? "That mobile number is already linked to another account."
+      : duplicate && keyPattern?.email
+      ? "This email is already linked to another account."
+      : "Could not save profile. Please try again.";
     return NextResponse.json({error:message},{status:400});
   }
 }
