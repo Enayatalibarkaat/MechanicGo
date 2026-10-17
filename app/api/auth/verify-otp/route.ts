@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     let tokenVersion = 1;
     try {
       await connectDB();
-      const existingUser = await User.findOne({ email: normalizedEmail }).select("tokenVersion").lean();
+      const existingUser: any = await User.findOne({ email: normalizedEmail }).select("tokenVersion").lean();
       if (existingUser) tokenVersion = Number(existingUser.tokenVersion || 1);
     } catch (error) {
       console.error("Could not read account session version", error);
