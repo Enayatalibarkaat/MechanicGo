@@ -14,7 +14,7 @@ function ageAtLeast18(dob: string) {
   if (now.getUTCMonth() < birth.getUTCMonth() || (now.getUTCMonth() === birth.getUTCMonth() && now.getUTCDate() < birth.getUTCDate())) age--;
   return age >= 18 && dob <= now.toISOString().slice(0, 10);
 }
-function escapeHtml(value: string) { return value.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] || c)); }
+function escapeHtml(value: string) { const entities: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"' : "&quot;" }; return value.replace(/[&<>"]/g, c => entities[c] || c); }
 
 export async function POST(request: NextRequest) {
   try {
