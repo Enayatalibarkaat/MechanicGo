@@ -1,1 +1,17 @@
-import {CarFront,Download} from "lucide-react";import {Bottom} from "../components";export default function HistoryPage(){return <main className="appPage"><header className="appHeader"><span>☰</span><h1>Service History</h1><div className="profileDot">J</div></header><section className="healthCard"><label>● OPTIMAL CONDITION</label><h2>98% Score</h2><p>Your vehicle is in strong mechanical condition. Next routine check in 4,200 km.</p><div><span>LAST SCAN<b>Oct 12, 2026</b></span><span>ACTIVE ALERTS<b>None</b></span></div></section><div className="statRow"><div>Total Spent<strong>₹2,450</strong></div><div>Total Visits<strong>12</strong></div></div><section className="historyList"><div className="rowTitle"><h2>Past Services</h2><a><Download size={14}/> Download All</a></div>{[["Car General Service","₹850"],["Oil & Filter Change","₹320"],["Brake Pad Replacement","₹1,280"]].map(x=><article className="historyCard" key={x[0]}><CarFront/><div><h3>{x[0]}</h3><span>Vehicle · Chassis #P911-042</span><small>▣ Oct 12, 2026 · 10:30 AM<br/>Mechanic: Arun Kumar</small></div><strong>{x[1]}<a>View Invoice →</a></strong></article>)}</section><Bottom active="bookings"/></main>}
+"use client";
+import {useEffect,useState} from "react";
+import {CarFront,Bike,CalendarClock,RefreshCw} from "lucide-react";
+import {Bottom} from "../components";
+type Booking={_id:string;vehicleType:string;issueDescription:string;status:string;createdAt:string;location?:{address?:string};mechanicId?:{name?:string}|string|null};
+export default function HistoryPage(){
+ const[items,setItems]=useState<Booking[]>([]);const[loading,setLoading]=useState(true);const[error,setError]=useState("");
+ const load=async()=>{setError("");try{const r=await fetch("/api/bookings",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load service history.");setItems((d.bookings||[]).filter((b:Booking)=>b.status==="COMPLETED"));}catch(e){setError(e instanceof Error?e.message:"Could not load service history.");}finally{setLoading(false);}};
+ useEffect(()=>{void load();},[]);
+ return <main className="appPage"><header className="appHeader"><a href="/home">‹</a><h1>Service History</h1><button className="iconBtn" onClick={()=>void load()} aria-label="Refresh"><RefreshCw size={17}/></button></header>
+ <section className="healthCard"><label>YOUR SERVICE RECORD</label><h2>{loading?"Loading…":items.length+" completed service"+(items.length===1?"":"s")}</h2><p>This list is based on completed bookings saved to your account. Costs and invoices are not shown unless recorded by the platform.</p></section>
+ {error&&<p className="setupError">{error}</p>}
+ <section className="historyList"><div className="rowTitle"><h2>Completed bookings</h2></div>
+ {loading?<p>Loading service history…</p>:items.length===0?<div className="formCard" style={{padding:20}}><p>No completed bookings yet.</p><a className="primaryWide" href="/customer/book">Book a service</a></div>:items.map(b=><article className="historyCard" key={b._id}>{b.vehicleType==="CAR"?<CarFront/>:<Bike/>}<div><h3>{b.vehicleType} repair</h3><span>{b.issueDescription}</span><small><CalendarClock size={13}/> {new Date(b.createdAt).toLocaleString()}<br/>{b.location?.address||"Service address not recorded"}</small></div><strong>COMPLETED<small>{typeof b.mechanicId==="object"&&b.mechanicId?.name?"Mechanic: "+b.mechanicId.name:"Booking ID: "+b._id}</small></strong></article>)}
+ </section><Bottom active="bookings"/>
+ </main>;
+}

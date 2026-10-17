@@ -1,60 +1,35 @@
 "use client";
-import {CalendarClock,ChevronRight,MapPin,Star} from "lucide-react";
+import {useCallback,useEffect,useState} from "react";
+import {CalendarClock,ChevronRight,MapPin,RefreshCw,Wrench} from "lucide-react";
 import {Bottom} from "../components";
 
-const active={service:"Car General Service",mechanic:"Arun Kumar",status:"On the Way",eta:"8 mins",price:"₹1,649"};
-const past=[["Oil & Filter Change","Sep 18, 2026","₹320","Completed"],["Brake Pad Replacement","Aug 04, 2026","₹1,280","Completed"]];
+type Booking={
+ _id:string;vehicleType:string;issueDescription:string;status:string;createdAt:string;
+ location?:{address?:string};mechanicId?:{name?:string;phone?:string}|string|null;
+};
+const labels:Record<string,string>={SEARCHING:"Finding a mechanic",ACCEPTED:"Mechanic assigned",IN_PROGRESS:"Service in progress",COMPLETED:"Completed",CANCELLED:"Cancelled"};
 
 export default function Bookings(){
-  return (
-    <main className="appPage">
-      <header className="pageHeader">
-        <h1>My Bookings</h1>
-        <a href="/services">+ New</a>
-      </header>
-
-      <section className="bookingSection">
-        <div className="sectionLabel">ACTIVE BOOKING</div>
-        <article className="activeBooking">
-          <div className="bookingTop">
-            <div className="miniAvatar">AK</div>
-            <div>
-              <b>{active.service}</b>
-              <span>{active.mechanic} · Verified Expert</span>
-            </div>
-            <strong>{active.price}</strong>
-          </div>
-
-          <div className="bookingStatus">
-            <span className="liveStatus"><i/> {active.status}</span>
-            <span><CalendarClock size={14}/> ETA {active.eta}</span>
-          </div>
-
-          <div className="bookingLocation"><MapPin size={15}/> Kanpur, Uttar Pradesh</div>
-
-          <div className="bookingButtons">
-            <a href="/tracking">Track</a>
-            <a href="/chat">Chat</a>
-          </div>
-        </article>
-      </section>
-
-      <section className="bookingSection">
-        <div className="sectionLabel">PAST BOOKINGS</div>
-        {past.map(x=>(
-          <article className="pastBooking" key={x[0]}>
-            <div className="pastIcon"><CalendarClock/></div>
-            <div>
-              <b>{x[0]}</b>
-              <span>{x[1]} · Arun Kumar</span>
-              <small><Star size={12}/> 4.9 · {x[3]}</small>
-            </div>
-            <strong>{x[2]}<ChevronRight/></strong>
-          </article>
-        ))}
-      </section>
-
-      <Bottom active="bookings"/>
-    </main>
-  );
+ const[items,setItems]=useState<Booking[]>([]);const[loading,setLoading]=useState(true);const[error,setError]=useState("");
+ const load=useCallback(async()=>{setError("");try{const r=await fetch("/api/bookings",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load bookings.");setItems(d.bookings||[]);}catch(e){setError(e instanceof Error?e.message:"Network error. Please try again.");}finally{setLoading(false);}},[]);
+ useEffect(()=>{void load();const timer=window.setInterval(()=>void load(),20000);return()=>window.clearInterval(timer);},[load]);
+ const active=items.filter(b=>!["COMPLETED","CANCELLED"].includes(b.status));const past=items.filter(b=>["COMPLETED","CANCELLED"].includes(b.status));
+ const card=(b:Booking)=><article className="activeBooking" key={b._id}>
+  <div className="bookingTop"><div className="miniAvatar"><Wrench size={20}/></div><div><b>{b.vehicleType} repair</b><span>{labels[b.status]||b.status.replaceAll("_"," ")}</span></div></div>
+  <p>{b.issueDescription}</p>
+  {b.location?.address&&<div className="bookingLocation"><MapPin size={15}/>{b.location.address}</div>}
+  <div className="bookingStatus"><span><CalendarClock size={14}/>{new Date(b.createdAt).toLocaleString()}</span><span className="liveStatus"><i/> {labels[b.status]||b.status}</span></div>
+  {typeof b.mechanicId==="object"&&b.mechanicId?.name&&<div className="bookingLocation"><Wrench size={15}/>Assigned mechanic: {b.mechanicId.name}{b.mechanicId.phone?" · "+b.mechanicId.phone:""}</div>}
+  <small>Booking ID: {b._id}</small>
+ </article>;
+ return <main className="appPage">
+  <header className="pageHeader"><h1>My Bookings</h1><a href="/customer/book">+ New</a></header>
+  <section className="bookingSection"><div className="rowTitle"><div className="sectionLabel">ACTIVE BOOKINGS</div><button className="iconBtn" onClick={()=>void load()} aria-label="Refresh bookings"><RefreshCw size={16}/></button></div>
+   {loading?<p>Loading your bookings…</p>:error?<div className="formCard" style={{padding:18}}><p className="setupError">{error}</p><button className="secondaryWide" onClick={()=>void load()}>Try again</button></div>:active.length?active.map(card):<div className="formCard" style={{padding:20}}><h2>No active bookings</h2><p>Your upcoming mechanic requests will appear here. Create a booking to get started.</p><a className="primaryWide" href="/customer/book">Book a mechanic <ChevronRight size={16}/></a></div>}
+  </section>
+  <section className="bookingSection"><div className="sectionLabel">BOOKING HISTORY</div>
+   {loading?null:past.length?past.map(card):<p>No completed or cancelled bookings yet.</p>}
+  </section>
+  <Bottom active="bookings"/>
+ </main>;
 }

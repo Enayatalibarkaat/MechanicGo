@@ -15,12 +15,14 @@ export async function POST(request: NextRequest) {
     const issueDescription = String(body.issueDescription || "").trim().slice(0, 2000);
     const issuePhotoFileId = String(body.issuePhotoFileId || "").slice(0, 300);
     const location = body.location || {};
-    if (!["BIKE", "CAR"].includes(vehicleType) || !issueDescription) return NextResponse.json({ error: "Vehicle type and issue description are required." }, { status: 400 });
+    if (!["BIKE", "CAR"].includes(vehicleType) || issueDescription.length < 5) return NextResponse.json({ error: "Choose a vehicle and describe the issue in at least 5 characters." }, { status: 400 });
     const lat = location.lat === undefined ? undefined : Number(location.lat);
     const lng = location.lng === undefined ? undefined : Number(location.lng);
+    const address = String(location.address || "").trim().slice(0, 500);
+    if (!address) return NextResponse.json({ error: "Please enter the service address so the mechanic can find you." }, { status: 400 });
     if ((lat !== undefined && (!Number.isFinite(lat) || lat < -90 || lat > 90)) || (lng !== undefined && (!Number.isFinite(lng) || lng < -180 || lng > 180))) return NextResponse.json({ error: "Location coordinates are invalid." }, { status: 400 });
     await connectDB();
-    const booking = await Booking.create({ customerId: auth.user._id, vehicleType, issueDescription, issuePhotoFileId, location: { lat, lng, address: String(location.address || "").slice(0, 500) }, status: "SEARCHING" });
+    const booking = await Booking.create({ customerId: auth.user._id, vehicleType, issueDescription, issuePhotoFileId, location: { lat, lng, address }, status: "SEARCHING" });
     let telegramAlertSent = true;
     try {
       await sendTelegramAlert(`<b>New MechanicGo booking</b>\nBooking: <code>${booking._id}</code>\nCustomer: ${escapeHtml(auth.user.name)}\nPhone: ${escapeHtml(auth.user.phone || "Not provided")}\nVehicle: ${vehicleType}\nIssue: ${escapeHtml(issueDescription)}\nStatus: SEARCHING`);
@@ -34,7 +36,9 @@ export async function GET(request: NextRequest) {
     if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
     await connectDB();
     const filter = auth.user.role === "MECHANIC" ? { $or: [{ mechanicId: auth.user._id }, { status: "SEARCHING", vehicleType: { $in: auth.user.vehicleTypes.includes("BOTH") ? ["BIKE", "CAR"] : auth.user.vehicleTypes } }] } : { customerId: auth.user._id };
-    const bookings = await Booking.find(filter).sort({ createdAt: -1 }).limit(100).lean();
+    const bookingQuery = Booking.find(filter).sort({ createdAt: -1 }).limit(100);
+    if (auth.user.role === "CUSTOMER") bookingQuery.populate("mechanicId", "name phone");
+    const bookings = await bookingQuery.lean();
     return NextResponse.json({ bookings });
   } catch (error) { console.error("List bookings error", error); return NextResponse.json({ error: "Could not load bookings." }, { status: 500 }); }
 }

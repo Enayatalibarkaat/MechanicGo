@@ -1,2 +1,6 @@
-import {ArrowLeft,MoreVertical,CheckCircle2,MapPin,Phone,MessageCircle,CalendarClock,Star} from "lucide-react";import {Bottom} from "../components";
-export default function Confirmed(){return <main className="appPage"><header className="pageHeader"><a href="/home"><ArrowLeft/></a><h1>Booking Confirmed</h1><MoreVertical/></header><div className="confirmedHero"><div className="checkBig"><CheckCircle2/></div><h2>You're all set!</h2><p>Arun Kumar has accepted your request.</p><div className="bookingId">BOOKING ID · MG-48291</div></div><section className="statusCard"><div><CalendarClock/><span>Arriving in<strong>8 minutes</strong></span></div><div><MapPin/><span>Service location<strong>Kanpur, Uttar Pradesh</strong></span></div></section><div className="actionGrid"><a href="/tracking"><MapPin/>Track Mechanic</a><a href="/chat"><MessageCircle/>Chat</a><a href="tel:+919999999999"><Phone/>Call</a></div><a className="primaryWide" href="/tracking">View Live Tracking</a><a className="secondaryWide" href="/review"><Star/> Rate mechanic after service</a><Bottom active="bookings"/></main>}
+"use client";
+import {useEffect} from "react";
+export default function BookingConfirmed(){
+ useEffect(()=>{location.replace("/bookings");},[]);
+ return <main className="appPage"><section className="formCard" style={{padding:24}}><h1>Checking booking status…</h1><p>Your real booking status is available in My Bookings.</p><a className="primaryWide" href="/bookings">Open My Bookings</a></section></main>;
+}

@@ -63,15 +63,47 @@ export async function POST(request: NextRequest) {
     }
 
     let tokenVersion = 1;
+    let existingUser: any = null;
     try {
       await connectDB();
-      const existingUser: any = await User.findOne({ email: normalizedEmail }).select("tokenVersion").lean();
+      existingUser = await User.findOne({ email: normalizedEmail })
+        .select("tokenVersion role accountStatus name email phone dob gender vehicleTypes")
+        .lean();
+      if (existingUser && existingUser.role === "ADMIN") {
+        const response = NextResponse.json({ error: "This account belongs to the separate owner portal. Use the owner portal to continue." }, { status: 403 });
+        response.cookies.delete(COOKIE);
+        return response;
+      }
+      if (existingUser && ["BLOCKED", "TERMINATED", "INACTIVE"].includes(existingUser.accountStatus)) {
+        const response = NextResponse.json({ error: "This account is currently inactive. Please contact support." }, { status: 403 });
+        response.cookies.delete(COOKIE);
+        return response;
+      }
       if (existingUser) tokenVersion = Number(existingUser.tokenVersion || 1);
     } catch (error) {
       console.error("Could not read account session version", error);
       return NextResponse.json({ error: "Account service is temporarily unavailable. Please try again." }, { status: 503 });
     }
-    const response = NextResponse.json({ ok: true, message: "Email verified." });
+    const existingAccount = Boolean(existingUser);
+    const nextPath = existingUser
+      ? existingUser.role === "MECHANIC" ? "/mechanic/dashboard" : "/home"
+      : "/profile-setup";
+    const response = NextResponse.json({
+      ok: true,
+      message: "Email verified.",
+      existingAccount,
+      nextPath,
+      user: existingUser ? {
+        name: existingUser.name,
+        email: existingUser.email,
+        phone: existingUser.phone || "",
+        dob: existingUser.dob || "",
+        gender: existingUser.gender || "Prefer not to say",
+        role: existingUser.role,
+        accountStatus: existingUser.accountStatus,
+        vehicleTypes: existingUser.vehicleTypes || []
+      } : null
+    });
     response.cookies.delete(COOKIE);
     setSessionCookie(response, normalizedEmail, tokenVersion);
     response.cookies.set("mechanicgo_verified_email", normalizedEmail, {
@@ -82,6 +114,17 @@ export async function POST(request: NextRequest) {
       httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax",
       path: "/", maxAge: 60 * 60 * 24 * 30
     });
+    if (existingAccount) {
+      response.cookies.set("mechanicgo_profile", "1", {
+        httpOnly: false, secure: process.env.NODE_ENV === "production", sameSite: "lax",
+        path: "/", maxAge: 60 * 60 * 24 * 30
+      });
+    } else {
+      response.cookies.set("mechanicgo_profile", "", {
+        httpOnly: false, secure: process.env.NODE_ENV === "production", sameSite: "lax",
+        path: "/", maxAge: 0
+      });
+    }
     return response;
   } catch {
     return NextResponse.json({ error: "Could not verify this code. Please request a new one." }, { status: 400 });

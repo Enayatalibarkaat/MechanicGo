@@ -1,4 +1,18 @@
 "use client";
-import {ArrowLeft,MapPin,Star,ShieldCheck,Clock3,ChevronRight} from "lucide-react";import {Bottom} from "../components";
-const mechanics=[["Arun Kumar","4.9","1,200+ jobs","1.2 km","8 min","₹299","AK"],["Aman Auto Care","4.9","860+ jobs","1.8 km","12 min","₹349","AA"],["Khan Motors","4.8","640+ jobs","2.4 km","16 min","₹399","KM"]];
-export default function Mechanics(){return <main className="appPage"><header className="pageHeader"><a href="/services"><ArrowLeft/></a><h1>Nearby Mechanics</h1><span>Map</span></header><div className="filterBar"><button className="filterOn">Nearest</button><button>Top Rated</button><button>Lowest Price</button></div><div className="mechanicMap"><div className="mapRoad rA"/><div className="mapRoad rB"/><MapPin className="youPin"/><div className="mapBubble">12 mechanics nearby</div></div><section className="mechanicList">{mechanics.map(m=><article className="mechanicLarge" key={m[0]}><div className="largeAvatar">{m[6]}</div><div className="largeInfo"><div className="largeTitle"><b>{m[0]}</b><ShieldCheck size={15}/></div><span>Verified roadside expert</span><div className="largeMeta"><span><Star size={13} fill="currentColor"/> {m[1]}</span><span>• {m[2]}</span><span>• {m[3]}</span></div><div className="largeEta"><Clock3 size={13}/> {m[4]} arrival <b>{m[5]}</b></div></div><a href="/mechanic/arun-kumar"><ChevronRight/></a></article>)}</section><Bottom active="services"/></main>}
+import {useEffect,useState} from "react";
+import {ArrowLeft,MapPin,Wrench,RefreshCw,ChevronRight,ShieldCheck} from "lucide-react";
+import {Bottom} from "../components";
+type Mechanic={id:string;name:string;vehicleTypes:string[]};
+export default function Mechanics(){
+ const[mechanics,setMechanics]=useState<Mechanic[]>([]);const[loading,setLoading]=useState(true);const[error,setError]=useState("");
+ const load=async()=>{setLoading(true);setError("");try{const r=await fetch("/api/mechanics",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load available mechanics.");setMechanics(d.mechanics||[]);}catch(e){setError(e instanceof Error?e.message:"Could not load available mechanics.");}finally{setLoading(false);}};
+ useEffect(()=>{void load();},[]);
+ return <main className="appPage">
+  <header className="pageHeader"><a href="/services" aria-label="Back to services"><ArrowLeft/></a><h1>Available Mechanics</h1><button className="iconBtn" aria-label="Refresh" onClick={()=>void load()}><RefreshCw size={17}/></button></header>
+  <section className="serviceIntro"><span className="eyebrow">APPROVED PARTNERS</span><h2>Mechanics currently on duty</h2><p>Only verified partners who are active and online appear here. Requests are offered to eligible mechanics, who can accept them.</p></section>
+  <section className="mechanicList">
+   {loading?<p>Loading available mechanics…</p>:error?<div className="formCard" style={{padding:18}}><p className="setupError">{error}</p><button className="secondaryWide" onClick={()=>void load()}>Try again</button></div>:mechanics.length===0?<div className="formCard" style={{padding:22}}><div className="setupIcon"><MapPin/></div><h2>No mechanics are online right now</h2><p>Your booking request can still be created. We will notify the configured dispatch channel, and an approved mechanic can accept it when available.</p><a className="primaryWide" href="/customer/book">Request roadside help <ChevronRight size={17}/></a></div>:mechanics.map(m=><article className="mechanicLarge" key={m.id}><div className="largeAvatar"><Wrench/></div><div className="largeInfo"><div className="largeTitle"><b>{m.name}</b><ShieldCheck size={15}/></div><span>Approved · On duty</span><div className="largeMeta">{m.vehicleTypes.map(v=><span key={v}>{v==="BOTH"?"Car & Bike":v==="BIKE"?"Bike":"Car"}</span>)}</div><div className="largeEta">Accepts suitable repair requests</div></div><a href="/customer/book" aria-label={"Request help for "+m.name}><ChevronRight/></a></article>)}
+  </section>
+  <Bottom active="services"/>
+ </main>;
+}

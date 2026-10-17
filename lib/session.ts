@@ -32,6 +32,7 @@ export async function currentUser(request: NextRequest, allowPending = false) {
   await connectDB();
   const user = await User.findOne({ email: session.email });
   if (!user) return { error: "Complete your profile before continuing.", status: 401 as const };
+  if (user.role === "ADMIN") return { error: "This account uses the separate owner portal.", status: 403 as const };
   if (["BLOCKED", "TERMINATED", "INACTIVE"].includes(user.accountStatus)) {
     const message = user.accountStatus === "TERMINATED"
       ? "Your partner account has been terminated by Admin. Please contact support."
@@ -44,17 +45,9 @@ export async function currentUser(request: NextRequest, allowPending = false) {
   if (!allowPending && user.role === "MECHANIC" && user.accountStatus !== "ACTIVE") return { error: "Your mechanic account is awaiting admin approval.", status: 403 as const };
   return { user, session };
 }
-export async function requireAdmin(request: NextRequest) {
-  const session = readSession(request);
-  const configuredAdmin = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  if (!session || !configuredAdmin || session.email !== configuredAdmin) return { error: "Admin access required. Configure ADMIN_EMAIL and sign in with that verified email.", status: 403 as const };
-  await connectDB();
-  const user = await User.findOne({ email: session.email });
-  if (user && Number(user.tokenVersion ?? 1) !== session.tokenVersion) return { error: "Admin session expired. Sign in again.", status: 401 as const };
-  return { email: session.email, user };
-}
 export function clearSession(response: NextResponse) {
   response.cookies.set(COOKIE, "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
   response.cookies.set("mechanicgo_auth", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
   response.cookies.set("mechanicgo_verified_email", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
+  response.cookies.set("mechanicgo_profile", "", { httpOnly: false, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
 }
