@@ -18,6 +18,7 @@ export default function ProfileSetup() {
   const [gender, setGender] = useState("Prefer not to say");
   const [photo, setPhoto] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -32,13 +33,14 @@ export default function ProfileSetup() {
     setName(localStorage.getItem("mechanicgo_pending_name") || "");
     const verifiedEmail = localStorage.getItem("mechanicgo_email") || "";
     setEmail(verifiedEmail);
-    setEmailVerified(Boolean(verifiedEmail));
+    setEmailVerified(Boolean(verifiedEmail && localStorage.getItem("mechanicgo_email_verified") === "1"));
     try {
       const saved = JSON.parse(localStorage.getItem("mechanicgo_profile") || "{}");
       if (saved.dob) setDob(saved.dob);
       if (saved.gender) setGender(saved.gender);
       if (saved.photo) setPhoto(saved.photo);
       if (saved.name) setName(saved.name);
+      if (saved.phone) setPhone(saved.phone);
     } catch {}
   }, []);
 
@@ -92,6 +94,7 @@ export default function ProfileSetup() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Email verification failed.");
       setEmailVerified(true); setOtpSent(false); localStorage.setItem("mechanicgo_email", email.trim().toLowerCase());
+      localStorage.setItem("mechanicgo_email_verified", "1");
       setNotice("Email verified successfully.");
     } catch (e) { setError(e instanceof Error ? e.message : "Email verification failed."); }
     finally { setSaving(false); }
@@ -105,7 +108,7 @@ export default function ProfileSetup() {
     if (!terms) { setError("Please read and accept the Terms & Conditions to continue."); return; }
     if (!telegramConsent) { setError("Please confirm the profile-data notice so we can process profile changes transparently."); return; }
     setSaving(true);
-    const profile = { name:name.trim(), dob, gender, photo, email:email.trim().toLowerCase(), termsAccepted:true, profileNotificationsConsent:true, termsAcceptedAt:new Date().toISOString() };
+    const profile = { name:name.trim(), dob, gender, photo, email:email.trim().toLowerCase(), phone:phone.trim(), event:"new_profile", termsAccepted:true, profileNotificationsConsent:true, termsAcceptedAt:new Date().toISOString() };
     try {
       const response = await fetch("/api/profile/save", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(profile)});
       const data = await response.json();
@@ -141,6 +144,7 @@ export default function ProfileSetup() {
       <label className="setupLabel">Date of birth <span className="setupOptional">18+ only</span><div className="setupInput"><CalendarDays size={20}/><input type="date" value={dob} max={today()} onChange={e=>setDob(e.target.value)} required/></div></label>
       {dob && <p className={isAdult(dob)?"authNotice":"setupError"}>{isAdult(dob)?"Age requirement met (18+).":"You must be at least 18 years old to register."}</p>}
       <label className="setupLabel">Gender <span className="setupOptional">Optional</span><div className="genderGrid">{["Male","Female","Other","Prefer not to say"].map(g=><button type="button" key={g} className={gender===g?"gender active":"gender"} onClick={()=>setGender(g)}>{g}{gender===g&&<CheckCircle2 size={17}/>}</button>)}</div></label>
+      <label className="setupLabel">Mobile number <span className="setupOptional">Optional</span><div className="setupInput"><UserRound size={20}/><input type="tel" autoComplete="tel" inputMode="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Enter mobile number" maxLength={20}/></div></label>
       <label className="setupLabel">Email address <span className="setupOptional">{emailVerified?"Verified ✓":"Required"}</span><div className="setupInput"><Mail size={20}/><input type="email" autoComplete="email" value={email} onChange={e=>{setEmail(e.target.value);setEmailVerified(false);setNotice("");}} placeholder="you@example.com" required/></div></label>
       {!emailVerified && <button type="button" className="secondaryWide" onClick={sendOtp} disabled={saving}>{saving?"Sending…":"Send verification code to email"}</button>}
       {otpSent && <><div className="otpBoxes">{Array.from({length:6},(_,i)=><input key={i} ref={el=>{otpInputs.current[i]=el}} value={otp[i]||""} maxLength={1} inputMode="numeric" aria-label={"OTP digit "+(i+1)} onChange={e=>{const d=e.target.value.replace(/\D/g,"").slice(-1);const a=otp.split("");a[i]=d;setOtp(Array.from({length:6},(_,j)=>a[j]||"").join(""));if(d&&i<5)otpInputs.current[i+1]?.focus();}} />)}</div><button type="button" className="secondaryWide" onClick={verifyOtp} disabled={saving||otp.length!==6}>{saving?"Verifying…":"Verify email"}</button></>}
