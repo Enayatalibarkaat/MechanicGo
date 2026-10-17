@@ -3,7 +3,12 @@ function config() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const channelId = process.env.TELEGRAM_CHANNEL_ID;
   if (!token || !channelId) throw new Error("Telegram integration is missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHANNEL_ID.");
-  return { token, channelId };
+  // This app sends private account details only to a Telegram channel/supergroup,
+  // never to a personal user's chat ID.
+  if (!/^-100\d+$/.test(channelId.trim())) {
+    throw new Error("TELEGRAM_CHANNEL_ID is not a private channel ID. Set it to the channel's numeric ID (usually starts with -100), not a personal user ID.");
+  }
+  return { token, channelId: channelId.trim() };
 }
 export async function sendTelegramAlert(text: string) {
   const { token, channelId } = config();
