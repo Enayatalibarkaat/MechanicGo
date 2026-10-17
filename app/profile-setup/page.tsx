@@ -133,8 +133,8 @@ export default function ProfileSetup() {
       if (!data.telegramConfigured || !data.telegramSent) {
         setSaved(true);
         setNotice(!data.telegramConfigured
-          ? "Profile saved on this device, but admin Telegram notifications are not configured yet."
-          : "Profile saved on this device, but the Telegram notification could not be delivered. Please contact support.");
+          ? "Profile saved to your account, but Telegram is not configured."
+          : "Profile saved to your account, but Telegram delivery failed: " + (data.telegramError || "No delivery confirmation.") + (data.profilePhotoError ? " Profile photo: " + data.profilePhotoError : ""));
         return;
       }
       location.href = data.user?.role === "MECHANIC" ? "/mechanic/dashboard" : "/home";
