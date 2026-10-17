@@ -38,4 +38,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ bookings });
   } catch (error) { console.error("List bookings error", error); return NextResponse.json({ error: "Could not load bookings." }, { status: 500 }); }
 }
-function escapeHtml(value: string) { return value.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] || c)); }
+function escapeHtml(value: string) { const entities: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"' : "&quot;" }; return value.replace(/[&<>"]/g, c => entities[c] || c); }
