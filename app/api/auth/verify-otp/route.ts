@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { setSessionCookie } from "@/lib/session";
+import connectDB from "@/lib/mongodb";
+import User from "@/models/User";
 
 export const runtime = "nodejs";
 const COOKIE = "mechanicgo_email_otp";
@@ -59,8 +62,18 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    let tokenVersion = 1;
+    try {
+      await connectDB();
+      const existingUser = await User.findOne({ email: normalizedEmail }).select("tokenVersion").lean();
+      if (existingUser) tokenVersion = Number(existingUser.tokenVersion || 1);
+    } catch (error) {
+      console.error("Could not read account session version", error);
+      return NextResponse.json({ error: "Account service is temporarily unavailable. Please try again." }, { status: 503 });
+    }
     const response = NextResponse.json({ ok: true, message: "Email verified." });
     response.cookies.delete(COOKIE);
+    setSessionCookie(response, normalizedEmail, tokenVersion);
     response.cookies.set("mechanicgo_verified_email", normalizedEmail, {
       httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax",
       path: "/", maxAge: 60 * 60 * 24 * 30
