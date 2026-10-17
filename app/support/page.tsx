@@ -1,1 +1,8 @@
-import {MessageCircle,Phone,ChevronRight,Sparkles} from "lucide-react";export default function Support(){return <main className="appPage"><header className="pageHeader"><a href="/profile">‹</a><h1>Help & Support</h1></header><section className="supportHero"><Sparkles/><h2>MechanicGo AI Assistant</h2><p>Company help desk for bookings, vehicle issues, payments and roadside assistance.</p><a href="/support/ai">Chat with AI Assistant <ChevronRight/></a></section><div className="supportCards"><a href="/chat"><MessageCircle/><b>Chat Support</b><span>Talk to our support team</span></a><a href="tel:18001234567"><Phone/><b>Helpline</b><span>1800-123-4567</span></a></div></main>}
+import {MessageCircle,ChevronRight,Sparkles,CalendarClock,ShieldCheck} from "lucide-react";
+export default function Support(){
+ return <main className="appPage"><header className="pageHeader"><a href="/profile">‹</a><h1>Help & Support</h1></header>
+ <section className="supportHero"><Sparkles/><h2>MechanicGo Support Assistant</h2><p>Ask a question about repair requests, account setup, or vehicle information. AI replies depend on the support service configuration.</p><a href="/support/ai">Open support assistant <ChevronRight/></a></section>
+ <div className="supportCards"><a href="/bookings"><CalendarClock/><b>My Bookings</b><span>Check the latest saved request status</span></a><a href="/terms"><ShieldCheck/><b>Terms & Privacy</b><span>Review account and data information</span></a></div>
+ <section className="formCard" style={{padding:18,marginTop:16}}><b>Not connected yet</b><p>There is no live customer–mechanic chat or verified call-centre number configured in this version. We don't display placeholder phone numbers or claim messages were sent.</p></section>
+ </main>;
+}
