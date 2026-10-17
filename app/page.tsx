@@ -12,7 +12,7 @@ export default function Entry(){
           return;
         }
         const role=data.user?.role;
-        location.replace(role==="MECHANIC"?"/mechanic/dashboard":role==="ADMIN"?"/admin":"/home");
+        location.replace(role==="MECHANIC"?"/mechanic/dashboard":"/home");
       })
       .catch(()=>{
         if(active) location.replace("/auth");
