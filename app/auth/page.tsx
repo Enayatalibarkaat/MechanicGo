@@ -30,7 +30,18 @@ export default function Auth() {
       localStorage.setItem("mechanicgo_auth", "1");
       localStorage.setItem("mechanicgo_username", data.username);
       localStorage.setItem("mechanicgo_profile_name", data.name || data.username);
-      location.href = "/home";
+      if (data.email) {
+        localStorage.setItem("mechanicgo_email", data.email);
+        localStorage.setItem("mechanicgo_email_verified", "1");
+      }
+      if (data.needsProfile) {
+        localStorage.removeItem("mechanicgo_profile_complete");
+        localStorage.setItem("mechanicgo_pending_name", data.name || data.username);
+        location.href = "/profile-setup";
+      } else {
+        localStorage.setItem("mechanicgo_profile_complete", "1");
+        location.href = "/admin";
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to log in. Please try again.");
     } finally { setBusy(false); }
