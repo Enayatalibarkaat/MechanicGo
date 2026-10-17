@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, LockKeyhole, Mail, UserRound, ShieldCheck, KeyRound, Phone } from "lucide-react";
 
 type View = "login" | "register" | "otp-login" | "forgot";
@@ -20,7 +20,12 @@ export default function Auth() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState(typeof window !== "undefined" && window.location.search.includes("reset=success") ? "Password changed successfully. You can now log in." : "");
+  const [notice, setNotice] = useState("");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("forgot") === "1") setView("forgot");
+    if (params.get("reset") === "success") setNotice("Password changed successfully. You can now log in.");
+  }, []);
   const [needsUsername, setNeedsUsername] = useState(false);
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
 
