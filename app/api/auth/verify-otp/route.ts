@@ -61,6 +61,10 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ ok: true, message: "Email verified." });
     response.cookies.delete(COOKIE);
+    response.cookies.set("mechanicgo_verified_email", normalizedEmail, {
+      httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax",
+      path: "/", maxAge: 60 * 60 * 24 * 30
+    });
     response.cookies.set("mechanicgo_auth", "1", {
       httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax",
       path: "/", maxAge: 60 * 60 * 24 * 30
