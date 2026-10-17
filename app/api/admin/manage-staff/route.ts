@@ -51,4 +51,4 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ ok: true, mechanic: { id: String(mechanic._id), name: mechanic.name, accountStatus: mechanic.accountStatus, isOnDuty: mechanic.isOnDuty, tokenVersion: mechanic.tokenVersion }, telegramAlertSent });
   } catch (error) { console.error("Manage staff error", error); return NextResponse.json({ error: "Could not update mechanic status." }, { status: 500 }); }
 }
-function escapeHtml(value: string) { return value.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] || c)); }
+function escapeHtml(value: string) { const entities: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"' : "&quot;" }; return value.replace(/[&<>"]/g, c => entities[c] || c); }
