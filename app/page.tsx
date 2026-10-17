@@ -2,13 +2,22 @@
 import {useEffect} from "react";
 export default function Entry(){
   useEffect(()=>{
-    const auth=localStorage.getItem("mechanicgo_auth")==="1";
-    const profile=localStorage.getItem("mechanicgo_profile_complete")==="1";
-    let role="CUSTOMER";
-    try{role=JSON.parse(localStorage.getItem("mechanicgo_profile")||"{}").role||"CUSTOMER"}catch{}
-    if(!auth){location.replace("/auth");return;}
-    if(!profile){location.replace("/profile-setup");return;}
-    location.replace(role==="MECHANIC"?"/mechanic/dashboard":role==="ADMIN"?"/admin":"/home");
+    let active=true;
+    fetch("/api/auth/status",{cache:"no-store"})
+      .then(async response=>{
+        const data=await response.json();
+        if(!active)return;
+        if(!response.ok||!data.authenticated){
+          location.replace("/auth");
+          return;
+        }
+        const role=data.user?.role;
+        location.replace(role==="MECHANIC"?"/mechanic/dashboard":role==="ADMIN"?"/admin":"/home");
+      })
+      .catch(()=>{
+        if(active) location.replace("/auth");
+      });
+    return ()=>{active=false;};
   },[]);
-  return <main className="entryScreen"><img src="/mechanicgo-mark.svg" alt="MechanicGo"/><h1>Mechanic<span>Go</span></h1><p>Fast. Reliable. Anytime.</p></main>;
+  return <main className="entryScreen"><img src="/mechanicgo-mark.svg" alt="MechanicGo"/><h1>Mechanic<span>Go</span></h1><p>Checking your secure session…</p></main>;
 }
