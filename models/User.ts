@@ -10,6 +10,8 @@ const DocumentsSchema = new Schema({
 const UserSchema = new Schema({
   name: { type: String, required: true, trim: true, maxlength: 80 },
   email: { type: String, trim: true, lowercase: true, sparse: true, unique: true, index: true },
+  username: { type: String, trim: true, lowercase: true, sparse: true, unique: true, index: true },
+  passwordHash: { type: String, default: "", select: false },
   phone: { type: String, trim: true, sparse: true, unique: true, index: true },
   dob: { type: String, default: "" },
   gender: { type: String, default: "Prefer not to say" },
