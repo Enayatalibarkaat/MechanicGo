@@ -193,8 +193,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Save profile error", error);
-    const duplicate = error && typeof error === "object" && "code" in error && (error as {code?:number}).code === 11000;
-    const keyPattern = duplicate && "keyPattern" in error ? (error as {keyPattern?:Record<string,unknown>}).keyPattern : undefined;
+    const dbError = error && typeof error === "object" ? error as { code?: number; keyPattern?: Record<string, unknown> } : null;
+    const duplicate = dbError?.code === 11000;
+    const keyPattern = duplicate ? dbError?.keyPattern : undefined;
     const message = duplicate && keyPattern?.username
       ? "That username is already taken. Please choose another."
       : duplicate && keyPattern?.phone
