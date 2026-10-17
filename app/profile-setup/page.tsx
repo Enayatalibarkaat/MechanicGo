@@ -27,6 +27,7 @@ export default function ProfileSetup() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const otpInputs = useRef<Array<HTMLInputElement | null>>([]);
 
   useEffect(() => {
@@ -124,7 +125,13 @@ export default function ProfileSetup() {
       localStorage.setItem("mechanicgo_telegram_consent","1");
       document.cookie = "mechanicgo_profile=1; path=/; max-age=2592000; samesite=lax";
       localStorage.removeItem("mechanicgo_pending_name");
-      if (!data.telegramConfigured) setNotice("Profile saved on this device. Admin Telegram notifications still need to be configured.");
+      if (!data.telegramConfigured || !data.telegramSent) {
+        setSaved(true);
+        setNotice(!data.telegramConfigured
+          ? "Profile saved on this device, but admin Telegram notifications are not configured yet."
+          : "Profile saved on this device, but the Telegram notification could not be delivered. Please contact support.");
+        return;
+      }
       location.href="/home";
     } catch (e) { setError(e instanceof Error ? e.message : "Could not save your profile."); }
     finally { setSaving(false); }
@@ -151,7 +158,7 @@ export default function ProfileSetup() {
       <div className="termsCheck"><input id="mg-terms" type="checkbox" checked={terms} onChange={e=>setTerms(e.target.checked)}/><label htmlFor="mg-terms">I confirm that I am at least 18 years old, the information I provided is accurate, and I agree to the <a href="/terms" target="_blank" rel="noreferrer">Terms & Conditions</a> and <a href="/terms" target="_blank" rel="noreferrer">Privacy Notice <ExternalLink size={12}/></a>.</label></div>
       <div className="termsCheck"><input id="mg-telegram-consent" type="checkbox" checked={telegramConsent} onChange={e=>setTelegramConsent(e.target.checked)}/><label htmlFor="mg-telegram-consent">I understand that the profile details I submit (including name, date of birth, email, gender and profile photo status) may be sent to the MechanicGo administrator’s Telegram channel for account support and security. Access to that channel is controlled by the administrator.</label></div>
       {error&&<p className="setupError" role="alert">{error}</p>}{notice&&<p className="authNotice" role="status">{notice}</p>}
-      <button className="setupContinue" disabled={saving||!emailVerified||!terms||!telegramConsent||!isAdult(dob)} onClick={save}>{saving?"Saving profile…":"Create my account"} <ArrowRight size={21}/></button>
+      {saved ? <button className="setupContinue" onClick={()=>location.href="/home"}>Continue to MechanicGo <ArrowRight size={21}/></button> : <button className="setupContinue" disabled={saving||!emailVerified||!terms||!telegramConsent||!isAdult(dob)} onClick={save}>{saving?"Saving profile…":"Create my account"} <ArrowRight size={21}/></button>}
       <div className="privacyHint"><ShieldCheck size={15}/> Email verification and age checks are required before account creation.</div>
     </section>
   </main>;
