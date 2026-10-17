@@ -1,45 +1,38 @@
 # MechanicGo
 
-Premium roadside assistance and mechanic booking platform built with Next.js.
+Customer and mechanic-partner web app built with Next.js.
 
-## Authentication: real email OTP
+## Current features
 
-Login and registration use a six-digit code sent by Gmail SMTP. No mock or hard-coded OTP is accepted.
+- Email OTP sign-in and registration using Gmail SMTP; six-digit codes expire after five minutes, are limited to five verification attempts, and use a signed, HTTP-only cookie.
+- MongoDB-backed customer/mechanic profile persistence, age 18+ validation, and Terms & Conditions consent.
+- Mechanic verification workflow: mechanic registrations start as `PENDING_VERIFICATION`. A separate owner portal is being developed; pending mechanics cannot go online until an owner approves them.
+- MongoDB-backed repair bookings, customer booking history, and mechanic availability/acceptance.
+- Telegram-backed profile alerts, booking alerts, and private file uploads. A private channel must be configured and the bot must be allowed to post there.
+- Optional AI support through Gemini.
 
-Add these environment variables in **Vercel → Project → Settings → Environment Variables** for Production and Preview:
+## Required Vercel environment variables
 
-- `GMAIL_USER` — the Gmail address that sends verification email.
-- `GMAIL_APP_PASSWORD` — a Google App Password for that Gmail account (enable 2-Step Verification first; do not use your normal Gmail password).
-- `OTP_SECRET` — a long, random secret used to sign OTP sessions and hash codes.
+Add these under **Vercel → Project → Settings → Environment Variables**. Set Production; also set Preview if you test preview deployments.
 
-Redeploy after setting these variables. If any are missing, the send endpoint intentionally returns a configuration error instead of pretending an email was sent. Never commit these values to GitHub.
+- `MONGODB_URI` — MongoDB Atlas connection string for the app database.
+- `GMAIL_USER` — Gmail address that sends OTP emails.
+- `GMAIL_APP_PASSWORD` — Google App Password for that Gmail account; do not use the normal Gmail login password.
+- `OTP_SECRET` — long, random server-only secret used to sign OTP and session tokens.
+- `TELEGRAM_BOT_TOKEN` — bot token from BotFather; keep it secret.
+- `TELEGRAM_CHANNEL_ID` — private channel chat ID, typically in the `-100…` format. This is a channel ID, not a personal Telegram user ID. Add the bot as a channel administrator with permission to post.
 
-Email codes expire after five minutes, are limited to five verification attempts, and are validated server-side. Gmail SMTP uses TLS.
+Optional:
+- `GEMINI_API_KEY` — enables AI support. Without it, the support endpoint returns a non-AI fallback response.
+- `GEMINI_MODEL` — defaults to `gemini-2.5-flash-lite`.
 
-## App screens
+After changing environment variables, create a fresh deployment. Never commit real environment values to GitHub or share them in screenshots.
 
-- Login / Register / email OTP verification
-- Home and vehicle categories
-- Nearby mechanics
-- Booking summary and Indian ₹ pricing
-- UPI / card / cash payment selection UI
-- Booking confirmation and mechanic tracking
-- Mechanic chat, reviews, service history and vehicle management
-- Profile / edit profile / settings / logout
-- MechanicGo AI customer-support assistant
+## Known integration boundaries
 
-## Other integrations
-
-The booking UI still needs production integrations for Google Maps, MongoDB/database persistence, Razorpay/UPI, realtime messaging, FCM, Firebase Storage, and mechanic/admin dashboards. Do not treat these UI screens as completed payment or dispatch integrations.
-
-## AI Support
-
-The server route `/api/assistant` uses the Gemini API. Set:
-
-- `GEMINI_API_KEY`
-- `GEMINI_MODEL=gemini-2.5-flash-lite`
-
-Do not commit API keys.
+- The separate owner/admin portal is not part of this repository. Mechanic approvals, blocks, and terminations must wait for that portal to be created and deployed.
+- This app does not currently provide payment processing, live GPS tracking, or real-time customer–mechanic chat. Screens must not imply that a payment was charged or a mechanic is live-tracked.
+- Service prices, ETA, distance and ratings should come from real backend data before being presented as facts.
 
 ## Local setup
 
