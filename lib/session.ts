@@ -32,8 +32,15 @@ export async function currentUser(request: NextRequest, allowPending = false) {
   await connectDB();
   const user = await User.findOne({ email: session.email });
   if (!user) return { error: "Complete your profile before continuing.", status: 401 as const };
-  if (Number(user.tokenVersion ?? 1) !== session.tokenVersion) return { error: "Your session has expired. Please sign in again.", status: 401 as const };
-  if (["BLOCKED", "TERMINATED", "INACTIVE"].includes(user.accountStatus)) return { error: "Your account is suspended or inactive. Please contact support.", status: 403 as const };
+  if (["BLOCKED", "TERMINATED", "INACTIVE"].includes(user.accountStatus)) {
+    const message = user.accountStatus === "TERMINATED"
+      ? "Your partner account has been terminated by Admin. Please contact support."
+      : user.accountStatus === "BLOCKED"
+      ? "Your partner account has been suspended by Admin. Please contact support."
+      : "Your account is inactive. Please contact support.";
+    return { error: message, status: 403 as const };
+  }
+  if (Number(user.tokenVersion ?? 1) !== session.tokenVersion) return { error: "Your session has been invalidated. Please sign in again.", status: 401 as const };
   if (!allowPending && user.role === "MECHANIC" && user.accountStatus !== "ACTIVE") return { error: "Your mechanic account is awaiting admin approval.", status: 403 as const };
   return { user, session };
 }
