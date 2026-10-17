@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
     if (existing?.role === "ADMIN") {
       return NextResponse.json({ error: "This account belongs to the separate owner portal." }, { status: 403 });
     }
-    const role = existing?.role === "MECHANIC" ? "MECHANIC" : requestedRole;
+    // Existing users cannot upgrade their own role through a profile-update payload.
+    // Role selection is only accepted when the account is first created.
+    const role = existing ? existing.role : requestedRole;
     const accountStatus = existing?.accountStatus || (role === "MECHANIC" ? "PENDING_VERIFICATION" : "ACTIVE");
     const update: Record<string, unknown> = {
       name, email, dob, gender, role, accountStatus, emailVerified: true,
