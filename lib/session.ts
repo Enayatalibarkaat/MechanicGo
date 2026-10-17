@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
@@ -45,6 +45,50 @@ export async function currentUser(request: NextRequest, allowPending = false) {
   if (!allowPending && user.role === "MECHANIC" && user.accountStatus !== "ACTIVE") return { error: "Your mechanic account is awaiting admin approval.", status: 403 as const };
   return { user, session };
 }
+
+const PASSWORD_KEY_LENGTH = 64;
+
+function derivePasswordKey(password: string, salt: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    scryptCallback(password, salt, PASSWORD_KEY_LENGTH, (error, key) => {
+      if (error) reject(error);
+      else resolve(key as Buffer);
+    });
+  });
+}
+
+export function normalizeUsername(value: string) {
+  return value.trim().toLowerCase();
+}
+
+export function validUsername(value: string) {
+  return /^[a-z0-9][a-z0-9_.]{2,19}$/.test(value);
+}
+
+export function validAccountPassword(value: string) {
+  return value.length >= 8 && value.length <= 128 && /[A-Za-z]/.test(value) && /\d/.test(value);
+}
+
+export async function hashAccountPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const key = await derivePasswordKey(password, salt);
+  return "scrypt$" + salt + "$" + key.toString("hex");
+}
+
+export async function verifyAccountPassword(password: string, stored: string | undefined | null) {
+  if (!stored) return false;
+  const parts = stored.split("$");
+  if (parts.length !== 3 || parts[0] !== "scrypt" ||
+      !/^[a-f0-9]{32}$/.test(parts[1]) || !/^[a-f0-9]{128}$/.test(parts[2])) return false;
+  try {
+    const expected = Buffer.from(parts[2], "hex");
+    const actual = await derivePasswordKey(password, parts[1]);
+    return expected.length === actual.length && timingSafeEqual(expected, actual);
+  } catch {
+    return false;
+  }
+}
+
 export function clearSession(response: NextResponse) {
   response.cookies.set(COOKIE, "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
   response.cookies.set("mechanicgo_auth", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });

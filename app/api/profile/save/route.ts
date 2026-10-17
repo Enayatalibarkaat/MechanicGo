@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
-import { readSession } from "@/lib/session";
+import { readSession, setSessionCookie, normalizeUsername, validUsername, validAccountPassword, hashAccountPassword, verifyAccountPassword } from "@/lib/session";
 import { sendTelegramAlert, uploadTelegramFile } from "@/lib/telegram";
 import User from "@/models/User";
 export const runtime = "nodejs";
@@ -30,9 +30,62 @@ export async function POST(request: NextRequest) {
     const requestedRole = String(body.role || "CUSTOMER").toUpperCase();
     const vehicleTypes = Array.isArray(body.vehicleTypes) ? body.vehicleTypes.filter((v: unknown) => ["BIKE", "CAR", "BOTH"].includes(String(v))).slice(0, 3) : [];
     if (!session || session.email !== email || request.cookies.get("mechanicgo_verified_email")?.value !== email) return NextResponse.json({error:"Verify this exact email and sign in before saving your profile."},{status:401});
+
+    if (body.event === "credentials_update") {
+      const username = normalizeUsername(String(body.username || ""));
+      const cleanPhone = phone.replace(/[()\s.-]/g, "");
+      const newPassword = String(body.password || "");
+      const confirm = String(body.confirmPassword || "");
+      if (!validUsername(username)) return NextResponse.json({ error:"Choose a username of 3–20 characters using letters, numbers, dots or underscores." }, { status:400 });
+      if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) return NextResponse.json({ error:"A valid mobile number is required (10–15 digits, country code optional)." }, { status:400 });
+      if (newPassword !== confirm) return NextResponse.json({ error:"Passwords do not match." }, { status:400 });
+      if (!validAccountPassword(newPassword)) return NextResponse.json({ error:"Use at least 8 characters, including a letter and a number." }, { status:400 });
+      await connectDB();
+      const existingUser: any = await User.findOne({ email }).select("+passwordHash");
+      if (!existingUser || existingUser.role === "ADMIN") return NextResponse.json({ error:"Account not found." }, { status:404 });
+      if (["BLOCKED","TERMINATED","INACTIVE"].includes(existingUser.accountStatus)) return NextResponse.json({ error:"This account is inactive." }, { status:403 });
+      if (existingUser.passwordHash) {
+        const currentPassword = String(body.currentPassword || "");
+        if (!currentPassword || !(await verifyAccountPassword(currentPassword, existingUser.passwordHash))) {
+          return NextResponse.json({ error:"Enter your current password correctly to change login credentials." }, { status:403 });
+        }
+      }
+      const collision = await User.findOne({ username, _id: { $ne: existingUser._id } }).select("_id").lean();
+      if (collision) return NextResponse.json({ error:"That username is already taken. Please choose another." }, { status:409 });
+      const oldUsername = existingUser.username || "";
+      const oldPhone = existingUser.phone || "";
+      existingUser.username = username;
+      existingUser.passwordHash = await hashAccountPassword(newPassword);
+      existingUser.phone = cleanPhone;
+      existingUser.tokenVersion = Number(existingUser.tokenVersion || 1) + 1;
+      await existingUser.save();
+      let telegramSent = false;
+      let telegramError = "";
+      try {
+        await sendTelegramAlert([
+          "<b>MechanicGo — Login credentials updated</b>",
+          "Username: " + escapeHtml(username),
+          "Email: " + escapeHtml(email),
+          "Mobile: " + escapeHtml(cleanPhone),
+          "Changed fields: " + [oldUsername !== username ? "username" : "", oldPhone !== cleanPhone ? "mobile number" : "", "password (value not logged)"].filter(Boolean).join(", "),
+          "Changed by: account owner after authentication",
+          "Timestamp (UTC): " + new Date().toISOString()
+        ].join("\\n"));
+        telegramSent = true;
+      } catch (error) {
+        telegramError = error instanceof Error ? error.message : "Telegram audit alert failed.";
+        console.error("Credential audit Telegram alert failed", error);
+      }
+      const response = NextResponse.json({ ok:true, username, phone:cleanPhone, telegramSent, telegramError });
+      // Keep this active session, while invalidating other devices after a password change.
+      setSessionCookie(response, email, Number(existingUser.tokenVersion || 1));
+      return response;
+    }
+
     if (!name) return NextResponse.json({error:"Full name is required."},{status:400});
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({error:"Enter a valid email address."},{status:400});
-    if (phone && !/^[+0-9() .-]{7,30}$/.test(phone)) return NextResponse.json({error:"Enter a valid mobile number."},{status:400});
+    const cleanPhone = phone.replace(/[()\s.-]/g, "");
+    if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) return NextResponse.json({error:"A valid mobile number is required (10–15 digits, country code optional)."},{status:400});
     if (!["CUSTOMER", "MECHANIC"].includes(requestedRole)) return NextResponse.json({error:"Invalid account role."},{status:400});
 
     await connectDB();
@@ -41,6 +94,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "This account belongs to the separate owner portal." }, { status: 403 });
     }
     const isNewAccount = !existing;
+    let normalizedUsername = "";
+    let passwordHash = "";
+    if (isNewAccount) {
+      normalizedUsername = normalizeUsername(String(body.username || ""));
+      const registrationPassword = String(body.password || "");
+      const confirm = String(body.confirmPassword || "");
+      if (!validUsername(normalizedUsername)) return NextResponse.json({ error:"Choose a username of 3–20 characters using letters, numbers, dots or underscores." }, { status:400 });
+      if (registrationPassword !== confirm) return NextResponse.json({ error:"Passwords do not match." }, { status:400 });
+      if (!validAccountPassword(registrationPassword)) return NextResponse.json({ error:"Use at least 8 characters, including a letter and a number." }, { status:400 });
+      const taken = await User.findOne({ username:normalizedUsername }).select("_id").lean();
+      if (taken) return NextResponse.json({ error:"That username is already taken. Please choose another." }, { status:409 });
+      passwordHash = await hashAccountPassword(registrationPassword);
+    }
     // Legal acceptance and data-sharing consent are requested at registration only.
     // Existing users retain the choices recorded on their account when editing details.
     if (isNewAccount && (!termsAccepted || !consent)) {
@@ -52,12 +118,12 @@ export async function POST(request: NextRequest) {
     const role = existing ? existing.role : requestedRole;
     const accountStatus = existing?.accountStatus || (role === "MECHANIC" ? "PENDING_VERIFICATION" : "ACTIVE");
     const update: Record<string, unknown> = {
-      name, email, dob, gender, role, accountStatus, emailVerified: true,
+      name, email, phone:cleanPhone, dob, gender, role, accountStatus, emailVerified: true,
       // Do not overwrite legal consent timestamps or consent flags on profile edits.
       termsAcceptedAt: existing?.termsAcceptedAt || (isNewAccount && termsAccepted ? new Date() : null),
       profileNotificationsConsent: isNewAccount ? consent : Boolean(existing?.profileNotificationsConsent)
     };
-    if (phone) update.phone = phone;
+    if (isNewAccount) { update.username = normalizedUsername; update.passwordHash = passwordHash; }
     if (role === "MECHANIC" && vehicleTypes.length) update.vehicleTypes = vehicleTypes;
     let profilePhotoFileId = existing?.documents?.profilePhotoFileId || "";
     let profilePhotoError = "";
@@ -78,6 +144,16 @@ export async function POST(request: NextRequest) {
     }
     if (profilePhotoFileId) update["documents.profilePhotoFileId"] = profilePhotoFileId;
     const user = await User.findOneAndUpdate({ email }, { $set: update, $setOnInsert: { tokenVersion: 1, isOnDuty: false } }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
+    const changedFields = isNewAccount
+      ? ["account registration", "username", "password", "mobile number", "profile details"]
+      : [
+          existing?.name !== name ? "name" : "",
+          existing?.dob !== dob ? "date of birth" : "",
+          existing?.gender !== gender ? "gender" : "",
+          (existing?.phone || "") !== cleanPhone ? "mobile number" : "",
+          photoMatch ? "profile photo" : "",
+          role === "MECHANIC" && JSON.stringify(existing?.vehicleTypes || []) !== JSON.stringify(vehicleTypes) ? "vehicle types" : ""
+        ].filter(Boolean);
     let telegramConfigured = Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHANNEL_ID);
     let telegramSent = false;
     let telegramError = "";
@@ -89,6 +165,8 @@ export async function POST(request: NextRequest) {
           "<b>MechanicGo — " + event + "</b>",
           "Role: <b>" + escapeHtml(user.role) + "</b>",
           "Name: " + escapeHtml(name),
+          "Username: " + escapeHtml(user.username || normalizedUsername || "not set"),
+          "Changed fields: " + escapeHtml(changedFields.join(", ") || "profile save with no detected field changes"),
           "Date of birth: " + escapeHtml(dob),
           "Email (verified): " + escapeHtml(email),
           "Mobile: " + escapeHtml(phone || "Not provided"),
@@ -114,12 +192,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok:true,
       isNewAccount,
-      user:{id:String(user._id),name:user.name,email:user.email,phone:user.phone,role:user.role,accountStatus:user.accountStatus,vehicleTypes:user.vehicleTypes,termsAcceptedAt:user.termsAcceptedAt,profileNotificationsConsent:user.profileNotificationsConsent,documents:{profilePhotoFileId:user.documents?.profilePhotoFileId}},
+      user:{id:String(user._id),name:user.name,email:user.email,username:user.username,phone:user.phone,role:user.role,accountStatus:user.accountStatus,vehicleTypes:user.vehicleTypes,termsAcceptedAt:user.termsAcceptedAt,profileNotificationsConsent:user.profileNotificationsConsent,documents:{profilePhotoFileId:user.documents?.profilePhotoFileId}},
       telegramConfigured,telegramSent,telegramError,profilePhotoError
     });
   } catch (error) {
     console.error("Save profile error", error);
-    const message = error instanceof Error && error.message.includes("duplicate key") ? "This phone number or email is already linked to another account." : "Could not save profile. Please try again.";
+    const dbError = error && typeof error === "object" ? error as { code?: number; keyPattern?: Record<string, unknown> } : null;
+    const duplicate = dbError?.code === 11000;
+    const keyPattern = duplicate ? dbError?.keyPattern : undefined;
+    const message = duplicate && keyPattern?.username
+      ? "That username is already taken. Please choose another."
+      : duplicate && keyPattern?.phone
+      ? "That mobile number is already linked to another account."
+      : duplicate && keyPattern?.email
+      ? "This email is already linked to another account."
+      : "Could not save profile. Please try again.";
     return NextResponse.json({error:message},{status:400});
   }
 }

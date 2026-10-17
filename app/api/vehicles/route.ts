@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { currentUser } from "@/lib/session";
 import Vehicle from "@/models/Vehicle";
+import { sendTelegramAlert } from "@/lib/telegram";
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
@@ -39,7 +40,24 @@ export async function POST(request: NextRequest) {
     if (!["PETROL", "DIESEL", "CNG", "ELECTRIC", "HYBRID", "OTHER"].includes(fuelType)) return NextResponse.json({ error: "Choose a valid fuel type." }, { status: 400 });
     await connectDB();
     const vehicle = await Vehicle.create({ userId: auth.user._id, type, brand, model, year, registrationNumber, fuelType, color });
-    return NextResponse.json({ ok: true, vehicle }, { status: 201 });
+    let telegramSent = false;
+    if (auth.user.profileNotificationsConsent) {
+      try {
+        const esc = (value: string) => value.replace(/[&<>"]/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[character] || character));
+        await sendTelegramAlert([
+          "<b>MechanicGo — Vehicle added</b>",
+          "Customer: " + esc(auth.user.name),
+          "Username: " + esc(auth.user.username || "not set"),
+          "Email: " + esc(auth.user.email || ""),
+          "Vehicle: " + esc(brand + " " + model + " (" + type + ")"),
+          "Registration: " + esc(registrationNumber),
+          "Changed by: signed-in customer",
+          "Timestamp (UTC): " + new Date().toISOString()
+        ].join("\n"));
+        telegramSent = true;
+      } catch (error) { console.error("Vehicle-add Telegram audit failed", error); }
+    }
+    return NextResponse.json({ ok: true, vehicle, telegramSent }, { status: 201 });
   } catch (error) {
     const duplicate = error && typeof error === "object" && "code" in error && (error as {code?:number}).code === 11000;
     if (duplicate) return NextResponse.json({ error: "This registration number is already saved in your account." }, { status: 409 });

@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
         id: String(user._id),
         name: user.name || "",
         email: user.email || "",
+        username: user.username || "",
+        hasUsername: Boolean(user.username),
         phone: user.phone || "",
         dob: user.dob || "",
         gender: user.gender || "Prefer not to say",
