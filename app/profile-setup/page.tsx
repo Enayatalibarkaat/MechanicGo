@@ -19,6 +19,8 @@ export default function ProfileSetup() {
   const [photo, setPhoto] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [role, setRole] = useState("CUSTOMER");
+  const [vehicleTypes, setVehicleTypes] = useState<string[]>(["BIKE"]);
   const [emailVerified, setEmailVerified] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -109,7 +111,8 @@ export default function ProfileSetup() {
     if (!terms) { setError("Please read and accept the Terms & Conditions to continue."); return; }
     if (!telegramConsent) { setError("Please confirm the profile-data notice so we can process profile changes transparently."); return; }
     setSaving(true);
-    const profile = { name:name.trim(), dob, gender, photo, email:email.trim().toLowerCase(), phone:phone.trim(), event:"new_profile", termsAccepted:true, profileNotificationsConsent:true, termsAcceptedAt:new Date().toISOString() };
+    if (role === "MECHANIC" && vehicleTypes.length === 0) { setError("Select at least one vehicle type."); return; }
+    const profile = { name:name.trim(), dob, gender, photo, email:email.trim().toLowerCase(), phone:phone.trim(), role, vehicleTypes: role === "MECHANIC" ? vehicleTypes : [], event:"new_profile", termsAccepted:true, profileNotificationsConsent:true, termsAcceptedAt:new Date().toISOString() };
     try {
       const response = await fetch("/api/profile/save", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(profile)});
       const data = await response.json();
@@ -132,7 +135,7 @@ export default function ProfileSetup() {
           : "Profile saved on this device, but the Telegram notification could not be delivered. Please contact support.");
         return;
       }
-      location.href="/home";
+      location.href = data.user?.role === "MECHANIC" ? "/mechanic/dashboard" : data.user?.role === "ADMIN" ? "/admin" : "/home";
     } catch (e) { setError(e instanceof Error ? e.message : "Could not save your profile."); }
     finally { setSaving(false); }
   };
@@ -150,6 +153,12 @@ export default function ProfileSetup() {
       <label className="setupLabel">Full name<div className="setupInput"><UserRound size={20}/><input autoComplete="name" value={name} onChange={e=>setName(e.target.value)} placeholder="Enter your full name" maxLength={80} required/></div></label>
       <label className="setupLabel">Date of birth <span className="setupOptional">18+ only</span><div className="setupInput"><CalendarDays size={20}/><input type="date" value={dob} max={today()} onChange={e=>setDob(e.target.value)} required/></div></label>
       {dob && <p className={isAdult(dob)?"authNotice":"setupError"}>{isAdult(dob)?"Age requirement met (18+).":"You must be at least 18 years old to register."}</p>}
+      <label className="setupLabel">Account type
+        <div className="genderGrid"><button type="button" className={role==="CUSTOMER"?"gender active":"gender"} onClick={()=>setRole("CUSTOMER")}>Customer</button><button type="button" className={role==="MECHANIC"?"gender active":"gender"} onClick={()=>setRole("MECHANIC")}>Mechanic partner</button></div>
+      </label>
+      {role==="MECHANIC" && <label className="setupLabel">Vehicle types
+        <div className="genderGrid">{["BIKE","CAR","BOTH"].map(v=><button type="button" key={v} className={vehicleTypes.includes(v)?"gender active":"gender"} onClick={()=>setVehicleTypes(old=>old.includes(v)?old.filter(x=>x!==v):[...old,v])}>{v}</button>)}</div><small>Mechanic accounts require admin approval before going online.</small>
+      </label>}
       <label className="setupLabel">Gender <span className="setupOptional">Optional</span><div className="genderGrid">{["Male","Female","Other","Prefer not to say"].map(g=><button type="button" key={g} className={gender===g?"gender active":"gender"} onClick={()=>setGender(g)}>{g}{gender===g&&<CheckCircle2 size={17}/>}</button>)}</div></label>
       <label className="setupLabel">Mobile number <span className="setupOptional">Optional</span><div className="setupInput"><UserRound size={20}/><input type="tel" autoComplete="tel" inputMode="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Enter mobile number" maxLength={20}/></div></label>
       <label className="setupLabel">Email address <span className="setupOptional">{emailVerified?"Verified ✓":"Required"}</span><div className="setupInput"><Mail size={20}/><input type="email" autoComplete="email" value={email} onChange={e=>{setEmail(e.target.value);setEmailVerified(false);setNotice("");}} placeholder="you@example.com" required/></div></label>
@@ -158,7 +167,7 @@ export default function ProfileSetup() {
       <div className="termsCheck"><input id="mg-terms" type="checkbox" checked={terms} onChange={e=>setTerms(e.target.checked)}/><label htmlFor="mg-terms">I confirm that I am at least 18 years old, the information I provided is accurate, and I agree to the <a href="/terms" target="_blank" rel="noreferrer">Terms & Conditions</a> and <a href="/terms" target="_blank" rel="noreferrer">Privacy Notice <ExternalLink size={12}/></a>.</label></div>
       <div className="termsCheck"><input id="mg-telegram-consent" type="checkbox" checked={telegramConsent} onChange={e=>setTelegramConsent(e.target.checked)}/><label htmlFor="mg-telegram-consent">I understand that the profile details I submit (including name, date of birth, email, gender and profile photo status) may be sent to the MechanicGo administrator’s Telegram channel for account support and security. Access to that channel is controlled by the administrator.</label></div>
       {error&&<p className="setupError" role="alert">{error}</p>}{notice&&<p className="authNotice" role="status">{notice}</p>}
-      {saved ? <button className="setupContinue" onClick={()=>location.href="/home"}>Continue to MechanicGo <ArrowRight size={21}/></button> : <button className="setupContinue" disabled={saving||!emailVerified||!terms||!telegramConsent||!isAdult(dob)} onClick={save}>{saving?"Saving profile…":"Create my account"} <ArrowRight size={21}/></button>}
+      {saved ? <button className="setupContinue" onClick={()=>location.href=role==="MECHANIC"?"/mechanic/dashboard":"/home"}>Continue to MechanicGo <ArrowRight size={21}/></button> : <button className="setupContinue" disabled={saving||!emailVerified||!terms||!telegramConsent||!isAdult(dob)} onClick={save}>{saving?"Saving profile…":"Create my account"} <ArrowRight size={21}/></button>}
       <div className="privacyHint"><ShieldCheck size={15}/> Email verification and age checks are required before account creation.</div>
     </section>
   </main>;
