@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
       return response;
     }
     const { user } = result;
-    if (["BLOCKED", "TERMINATED", "INACTIVE"].includes(user.accountStatus) || (user.role === "MECHANIC" && user.accountStatus !== "ACTIVE")) {
+    if (["BLOCKED", "TERMINATED", "INACTIVE"].includes(user.accountStatus)) {
       const response = NextResponse.json({ authenticated: false, forceLogout: true, error: user.accountStatus === "TERMINATED" ? "Your partner account has been terminated by Admin. Please contact support." : "Your partner account has been suspended or is awaiting approval. Please contact support." }, { status: 403 });
       clearSession(response);
       return response;
