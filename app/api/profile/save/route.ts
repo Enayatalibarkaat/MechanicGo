@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
-import { readSession, normalizeUsername, validUsername, validAccountPassword, hashAccountPassword, verifyAccountPassword } from "@/lib/session";
+import { readSession, setSessionCookie, normalizeUsername, validUsername, validAccountPassword, hashAccountPassword, verifyAccountPassword } from "@/lib/session";
 import { sendTelegramAlert, uploadTelegramFile } from "@/lib/telegram";
 import User from "@/models/User";
 export const runtime = "nodejs";
@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
       existingUser.username = username;
       existingUser.passwordHash = await hashAccountPassword(newPassword);
       existingUser.phone = cleanPhone;
+      existingUser.tokenVersion = Number(existingUser.tokenVersion || 1) + 1;
       await existingUser.save();
       let telegramSent = false;
       let telegramError = "";
@@ -75,7 +76,10 @@ export async function POST(request: NextRequest) {
         telegramError = error instanceof Error ? error.message : "Telegram audit alert failed.";
         console.error("Credential audit Telegram alert failed", error);
       }
-      return NextResponse.json({ ok:true, username, phone:cleanPhone, telegramSent, telegramError });
+      const response = NextResponse.json({ ok:true, username, phone:cleanPhone, telegramSent, telegramError });
+      // Keep this active session, while invalidating other devices after a password change.
+      setSessionCookie(response, email, Number(existingUser.tokenVersion || 1));
+      return response;
     }
 
     if (!name) return NextResponse.json({error:"Full name is required."},{status:400});
