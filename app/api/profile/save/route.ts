@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
 
     if (body.event === "credentials_update") {
       const username = normalizeUsername(String(body.username || ""));
-      const cleanPhone = phone.replace(/[()\\s.-]/g, "");
+      const cleanPhone = phone.replace(/[()\s.-]/g, "");
       const newPassword = String(body.password || "");
       const confirm = String(body.confirmPassword || "");
       if (!validUsername(username)) return NextResponse.json({ error:"Choose a username of 3–20 characters using letters, numbers, dots or underscores." }, { status:400 });
-      if (!/^\\+?[0-9]{10,15}$/.test(cleanPhone)) return NextResponse.json({ error:"A valid mobile number is required (10–15 digits, country code optional)." }, { status:400 });
+      if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) return NextResponse.json({ error:"A valid mobile number is required (10–15 digits, country code optional)." }, { status:400 });
       if (newPassword !== confirm) return NextResponse.json({ error:"Passwords do not match." }, { status:400 });
       if (!validAccountPassword(newPassword)) return NextResponse.json({ error:"Use at least 8 characters, including a letter and a number." }, { status:400 });
       await connectDB();
@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
 
     if (!name) return NextResponse.json({error:"Full name is required."},{status:400});
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({error:"Enter a valid email address."},{status:400});
-    const cleanPhone = phone.replace(/[()\\s.-]/g, "");
-    if (!/^\\+?[0-9]{10,15}$/.test(cleanPhone)) return NextResponse.json({error:"A valid mobile number is required (10–15 digits, country code optional)."},{status:400});
+    const cleanPhone = phone.replace(/[()\s.-]/g, "");
+    if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) return NextResponse.json({error:"A valid mobile number is required (10–15 digits, country code optional)."},{status:400});
     if (!["CUSTOMER", "MECHANIC"].includes(requestedRole)) return NextResponse.json({error:"Invalid account role."},{status:400});
 
     await connectDB();
