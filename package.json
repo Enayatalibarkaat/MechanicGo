@@ -1,1 +1,25 @@
-{"name":"mechanicgo","version":"1.0.0","private":true,"scripts":{"dev":"next dev","build":"next build","start":"next start"},"dependencies":{"next":"latest","nodemailer":"^6.10.1","react":"latest","react-dom":"latest","lucide-react":"latest"},"devDependencies":{"@types/node":"latest","@types/nodemailer":"^6.4.17","@types/react":"latest","@types/react-dom":"latest","typescript":"latest"}}
+{
+  "name": "mechanicgo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "latest",
+    "nodemailer": "^6.10.1",
+    "react": "latest",
+    "react-dom": "latest",
+    "lucide-react": "latest",
+    "mongoose": "^8.19.1"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest"
+  }
+}
