@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       catch (error) { console.error("Profile photo Telegram upload failed", error); }
     }
     if (profilePhotoFileId) update["documents.profilePhotoFileId"] = profilePhotoFileId;
-    const user = await User.findOneAndUpdate({ email }, { $set: update, $setOnInsert: { tokenVersion: 1, isOnDuty: false, documents: {} } }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
+    const user = await User.findOneAndUpdate({ email }, { $set: update, $setOnInsert: { tokenVersion: 1, isOnDuty: false } }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
     let telegramConfigured = Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHANNEL_ID);
     let telegramSent = false;
     if (consent) {
