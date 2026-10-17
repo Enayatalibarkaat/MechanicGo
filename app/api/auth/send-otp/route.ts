@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHmac, randomInt } from "node:crypto";
+import { createHmac, randomInt, timingSafeEqual } from "node:crypto";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -7,6 +7,20 @@ const COOKIE = "mechanicgo_email_otp";
 
 function sign(payload: string, secret: string) {
   return createHmac("sha256", secret).update(payload).digest("base64url");
+}
+
+function isValidOtpCookie(token: string | undefined, secret: string) {
+  if (!token) return null;
+  const [payload, supplied] = token.split(".");
+  if (!payload || !supplied) return null;
+  try {
+    const expectedBuffer = Buffer.from(sign(payload, secret));
+    const suppliedBuffer = Buffer.from(supplied);
+    if (expectedBuffer.length !== suppliedBuffer.length || !timingSafeEqual(expectedBuffer, suppliedBuffer)) return null;
+    return JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as { sentAt?: number; expiresAt?: number };
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -26,10 +40,20 @@ export async function POST(request: NextRequest) {
       }, { status: 503 });
     }
 
+    const now = Date.now();
+    const priorOtp = isValidOtpCookie(request.cookies.get(COOKIE)?.value, secret);
+    if (priorOtp?.expiresAt && priorOtp.expiresAt > now && priorOtp.sentAt && now - priorOtp.sentAt < 30_000) {
+      const retryAfter = Math.ceil((30_000 - (now - priorOtp.sentAt)) / 1000);
+      return NextResponse.json({ error: `Please wait ${retryAfter} seconds before requesting another code.` }, {
+        status: 429,
+        headers: { "Retry-After": String(retryAfter) }
+      });
+    }
+
     const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
-    const expiresAt = Date.now() + 5 * 60 * 1000;
+    const expiresAt = now + 5 * 60 * 1000;
     const codeHash = createHmac("sha256", secret).update(normalizedEmail + ":" + code).digest("hex");
-    const payload = Buffer.from(JSON.stringify({ email: normalizedEmail, codeHash, expiresAt, attempts: 0 })).toString("base64url");
+    const payload = Buffer.from(JSON.stringify({ email: normalizedEmail, codeHash, expiresAt, sentAt: now, attempts: 0 })).toString("base64url");
     const token = payload + "." + sign(payload, secret);
 
     const transporter = nodemailer.createTransport({
