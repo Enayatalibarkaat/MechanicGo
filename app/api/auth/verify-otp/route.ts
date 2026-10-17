@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { setSessionCookie, normalizeUsername, validUsername, validAccountPassword, hashAccountPassword, verifyAccountPassword } from "@/lib/session";
+import { setSessionCookie, clearSession, normalizeUsername, validUsername, validAccountPassword, hashAccountPassword, verifyAccountPassword } from "@/lib/session";
 import connectDB from "@/lib/mongodb";
 import { sendTelegramAlert } from "@/lib/telegram";
 import User from "@/models/User";
@@ -83,13 +83,15 @@ export async function POST(request: NextRequest) {
         if (taken) return NextResponse.json({ error: "That username is already taken. Choose another." }, { status: 409 });
       }
       const passwordHash = await hashAccountPassword(password);
-      await User.updateOne({ _id: user._id }, { $set: { username, passwordHash } });
+      await User.updateOne({ _id: user._id }, { $set: { username, passwordHash }, $inc: { tokenVersion: 1 } });
       let telegramSent = false;
       try {
         await sendTelegramAlert("<b>MechanicGo — Password reset</b>\nUsername: " + escapeHtml(username) + "\nEmail: " + escapeHtml(user.email) + "\nChanged by: account owner after email OTP verification\nTimestamp (UTC): " + new Date().toISOString());
         telegramSent = true;
       } catch (error) { console.error("Password reset Telegram audit failed", error); }
       const response = NextResponse.json({ ok:true, telegramSent });
+      // Password resets sign out prior sessions on every device.
+      clearSession(response);
       response.cookies.delete("mechanicgo_password_reset");
       return response;
     }
