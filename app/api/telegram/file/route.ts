@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       const auth = await currentUser(request, true);
       if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
       await connectDB();
-      const user = await User.findById(auth.user._id).lean();
+      const user: any = await User.findById(auth.user._id).lean();
       const userFileIds = [user?.documents?.aadhaarFileId, user?.documents?.idProofFileId, user?.documents?.shopPhotoFileId, user?.documents?.profilePhotoFileId];
       const ownsDocument = userFileIds.includes(fileId);
       const booking = await Booking.findOne({ issuePhotoFileId: fileId, $or: [{ customerId: auth.user._id }, { mechanicId: auth.user._id }] }).select("_id").lean();
