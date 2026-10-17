@@ -66,13 +66,13 @@ export function validUsername(value: string) {
 }
 
 export function validAccountPassword(value: string) {
-  return value.length >= 8 && value.length <= 128 && /[A-Za-z]/.test(value) && /\\d/.test(value);
+  return value.length >= 8 && value.length <= 128 && /[A-Za-z]/.test(value) && /\d/.test(value);
 }
 
 export async function hashAccountPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
   const key = await derivePasswordKey(password, salt);
-  return `scrypt${salt}${key.toString("hex")}`;
+  return "scrypt$" + salt + "$" + key.toString("hex");
 }
 
 export async function verifyAccountPassword(password: string, stored: string | undefined | null) {
