@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { currentUser } from "@/lib/session";
 import connectDB from "@/lib/mongodb";
 import Vehicle from "@/models/Vehicle";
+import { sendTelegramAlert } from "@/lib/telegram";
 export const runtime = "nodejs";
 
 export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
@@ -15,7 +16,24 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
     await connectDB();
     const vehicle = await Vehicle.findOneAndDelete({ _id: id, userId: auth.user._id });
     if (!vehicle) return NextResponse.json({ error: "Vehicle not found." }, { status: 404 });
-    return NextResponse.json({ ok: true });
+    let telegramSent = false;
+    if (auth.user.profileNotificationsConsent) {
+      try {
+        const esc = (value: string) => value.replace(/[&<>"]/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[character] || character));
+        await sendTelegramAlert([
+          "<b>MechanicGo — Vehicle removed</b>",
+          "Customer: " + esc(auth.user.name),
+          "Username: " + esc(auth.user.username || "not set"),
+          "Email: " + esc(auth.user.email || ""),
+          "Vehicle: " + esc(vehicle.brand + " " + vehicle.model + " (" + vehicle.type + ")"),
+          "Registration: " + esc(vehicle.registrationNumber),
+          "Changed by: signed-in customer",
+          "Timestamp (UTC): " + new Date().toISOString()
+        ].join("\n"));
+        telegramSent = true;
+      } catch (error) { console.error("Vehicle-delete Telegram audit failed", error); }
+    }
+    return NextResponse.json({ ok: true, telegramSent });
   } catch (error) {
     console.error("Delete vehicle error", error);
     return NextResponse.json({ error: "Could not delete this vehicle." }, { status: 500 });
