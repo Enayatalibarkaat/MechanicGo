@@ -54,7 +54,8 @@ export async function POST(request: NextRequest) {
     if (photoMatch && photo.length < 8_000_000) {
       const mime = photoMatch[1] === "jpg" ? "jpeg" : photoMatch[1];
       const buffer = Buffer.from(photoMatch[2], "base64");
-      const file = new File([buffer], "profile." + mime, { type: "image/" + mime });
+      const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer;
+      const file = new File([arrayBuffer], "profile." + mime, { type: "image/" + mime });
       try { const uploaded = await uploadTelegramFile(file, true); profilePhotoFileId = uploaded.fileId; }
       catch (error) { console.error("Profile photo Telegram upload failed", error); }
     }
