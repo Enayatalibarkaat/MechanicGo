@@ -53,3 +53,25 @@
 .authPrimary:disabled{opacity:.65;cursor:wait}
 .authCard label .input input{min-width:0}
 @media(max-width:620px){.setupPage{padding:16px 12px 30px}.setupTop{margin-bottom:12px}.setupCard{padding:25px 19px;border-radius:27px}.setupIcon{width:64px;height:64px;border-radius:21px;margin-bottom:19px}.setupIntro{font-size:14px;margin-bottom:22px}.photoPicker{padding:13px;gap:10px}.setupAvatar{width:58px;height:58px;flex-basis:58px;border-radius:17px}.cameraBtn{width:43px;height:43px;flex-basis:43px}.photoPicker small{font-size:11px}.genderGrid{gap:9px}.gender{min-height:58px;padding:0 12px;font-size:13px}.setupContinue{font-size:15px;min-height:58px}.privacyHint{align-items:flex-start}.otpBoxes{gap:6px}.otpBoxes input{min-width:0;height:48px;font-size:18px;border-radius:11px}}
+
+
+/* Profile verification, consent and edit controls */
+.termsCheck{display:flex;align-items:flex-start;gap:11px;padding:14px 13px;margin:14px 0;border:1px solid #dfe5ef;border-radius:15px;background:#f9fbff;color:#475467;font-size:12px;line-height:1.55}
+.termsCheck input{width:18px;height:18px;flex:0 0 18px;margin:2px 0 0;accent-color:#1264e8}
+.termsCheck label{font-weight:500!important;margin:0!important;line-height:1.55!important}
+.termsCheck a{color:#155fc8;text-decoration:underline;font-weight:800;display:inline-flex;align-items:center;gap:3px}
+.secondaryWide{width:100%;min-height:48px;border:1px solid #cbd9f4;background:#eff5ff;color:#155fc8;border-radius:14px;padding:12px 15px;font-weight:800;margin:8px 0}
+.secondaryWide:disabled{opacity:.6}
+.profileEdit{padding:26px!important}
+.profileEdit>label:not(.editAvatar){display:block;margin:17px 0;color:#475467;font-size:14px;font-weight:800}
+.profileEdit>label input,.profileEdit>label select{display:block;width:100%;box-sizing:border-box;margin-top:9px;min-height:56px;border:1px solid #d6dce5;border-radius:16px;background:#fff;padding:0 16px;color:#101828;font:600 15px "DM Sans",sans-serif;outline:0}
+.profileEdit>label input:focus,.profileEdit>label select:focus{border-color:#8ab2fa;box-shadow:0 0 0 4px #2563eb12}
+.profileEdit>label small{font-size:11px;color:#667085;font-weight:600;margin-left:5px}
+.editAvatar{width:116px;height:116px;border-radius:50%;margin:8px auto 28px;display:block;position:relative;background:#eaf2ff;overflow:visible;cursor:pointer}
+.editAvatar>img,.editAvatar>span{width:100%;height:100%;border-radius:50%;object-fit:cover;display:grid;place-items:center;color:#155fc8;font-size:34px;font-weight:800;background:#eaf2ff}
+.editAvatar>input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.editCamera{position:absolute;right:-2px;bottom:0;width:34px;height:34px;border:3px solid #fff;border-radius:50%;display:grid;place-items:center;background:#1264e8;color:#fff;pointer-events:none}
+.termsPage h2{font-size:18px;margin:25px 0 8px;color:#101828}
+.termsPage p{font-size:14px;line-height:1.75;color:#475467}
+.termsBack{display:flex;text-decoration:none;margin-top:28px}
+@media(max-width:620px){.profileEdit{padding:21px!important}.termsCheck{font-size:11px;padding:12px}.termsPage h2{font-size:16px}}
