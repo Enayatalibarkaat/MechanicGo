@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const booking = await Booking.create({ customerId: auth.user._id, vehicleType, issueDescription, issuePhotoFileId, location: { lat, lng, address }, status: "SEARCHING" });
     let telegramAlertSent = true;
     try {
-      await sendTelegramAlert(`<b>New MechanicGo booking</b>\nBooking: <code>${booking._id}</code>\nCustomer: ${escapeHtml(auth.user.name)}\nPhone: ${escapeHtml(auth.user.phone || "Not provided")}\nVehicle: ${vehicleType}\nIssue: ${escapeHtml(issueDescription)}\nStatus: SEARCHING`);
+      await sendTelegramAlert(`<b>New MechanicGo booking</b>\nBooking: <code>${booking._id}</code>\nCustomer: ${escapeHtml(auth.user.name)}\nPhone: ${escapeHtml(auth.user.phone || "Not provided")}\nVehicle: ${vehicleType}\nIssue: ${escapeHtml(issueDescription)}\nService address: ${escapeHtml(address)}\nStatus: SEARCHING`);
     } catch (error) { telegramAlertSent = false; console.error("Booking Telegram alert failed", error); }
     return NextResponse.json({ ok: true, booking, telegramAlertSent }, { status: 201 });
   } catch (error) { console.error("Create booking error", error); return NextResponse.json({ error: "Could not create booking." }, { status: 500 }); }
