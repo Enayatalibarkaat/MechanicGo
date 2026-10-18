@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       normalizedUsername = normalizeUsername(String(body.username || ""));
       const registrationPassword = String(body.password || "");
       const confirm = String(body.confirmPassword || "");
-      if (!validUsername(normalizedUsername)) return NextResponse.json({ error:"Choose a username of 3–20 characters using letters, numbers, dots or underscores." }, { status:400 });
+      if (!validUsername(normalizedUsername)) return NextResponse.json({ error:"Choose a username of 5–20 characters using letters, numbers, dots or underscores." }, { status:400 });
       if (registrationPassword !== confirm) return NextResponse.json({ error:"Passwords do not match." }, { status:400 });
       if (!validAccountPassword(registrationPassword)) return NextResponse.json({ error:"Use at least 8 characters, including a letter and a number." }, { status:400 });
       const taken = await User.findOne({ username:normalizedUsername }).select("_id").lean();
