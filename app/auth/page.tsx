@@ -130,8 +130,8 @@ export default function Auth() {
     if (password.length < 8 || password.length > 128 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
       setError("Use at least 8 characters, including a letter and a number."); return;
     }
-    if (needsUsername && !/^[a-z0-9][a-z0-9_.]{2,19}$/i.test(newUsername.trim())) {
-      setError("Choose a username of 3–20 letters, numbers, dots or underscores."); return;
+    if (needsUsername && !/^[a-z0-9][a-z0-9_.]{4,19}$/i.test(newUsername.trim())) {
+      setError("Choose a username of 5–20 letters, numbers, dots or underscores."); return;
     }
     setBusy(true);
     try {
@@ -156,7 +156,7 @@ export default function Auth() {
   if (resetStep) return (
     <main className="authPage"><div className="authTop"><button type="button" className="backLink" onClick={() => changeView("login")}><ArrowLeft size={18}/> Back to login</button><img className="authMechanicLogo" src="/mechanicgo-mechanic.svg" alt="MechanicGo mechanic"/></div>
       <section className="authCard"><div className="authLogo"><KeyRound size={30} color="#2563eb"/></div><div className="authBrand">Set new<span> password</span></div><p className="authTag">Email verified for {email}.</p>
-        {needsUsername && <label><span>Choose username</span><div className="input"><UserRound size={18}/><input value={newUsername} onChange={e=>setNewUsername(e.target.value)} autoCapitalize="none" maxLength={20} placeholder="e.g. enayat_ali"/></div><small>3–20 characters: letters, numbers, dot or underscore.</small></label>}
+        {needsUsername && <label><span>Choose username</span><div className="input"><UserRound size={18}/><input value={newUsername} onChange={e=>setNewUsername(e.target.value)} autoCapitalize="none" maxLength={20} placeholder="e.g. enayat_ali"/></div><small>5–20 characters: letters, numbers, dot or underscore.</small></label>}
         <label><span>New password</span><div className="input"><LockKeyhole size={18}/><input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="new-password" maxLength={128} placeholder="At least 8 characters"/></div></label>
         <label><span>Confirm new password</span><div className="input"><LockKeyhole size={18}/><input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} autoComplete="new-password" maxLength={128} placeholder="Enter password again"/></div></label>
         {error&&<p className="authError" role="alert">{error}</p>}<button className="authPrimary" disabled={busy} onClick={()=>void resetPassword()}>{busy?"Saving…":"Reset password"} <ArrowRight size={18}/></button>
