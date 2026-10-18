@@ -217,3 +217,13 @@
 .authCard .authPasswordInput .passwordVisibilityToggle:hover,.authCard .authPasswordInput .passwordVisibilityToggle:focus-visible{background:#eaf1ff;color:#2563eb;outline:2px solid #93b4f8;outline-offset:1px}
 .authCard .secondaryWide{box-sizing:border-box;position:static;display:flex;align-items:center;justify-content:center;width:100%;max-width:100%;min-width:0;margin:10px 0 0;padding:13px 16px;text-align:center;line-height:1.35;white-space:normal;align-self:stretch;left:auto;right:auto;transform:none;float:none}
 .authCard .secondaryWide:focus-visible{outline:3px solid #93b4f8;outline-offset:3px}
+
+
+/* Final auth control alignment fixes (mobile browsers) */
+.authTop .authMechanicLogo{display:block;width:58px!important;height:52px!important;max-width:58px;object-fit:contain;object-position:center}
+.authCard .authPasswordInput{width:100%;min-width:0;box-sizing:border-box!important;overflow:visible!important;gap:10px!important}
+.authCard .authPasswordInput>svg{flex:0 0 20px;width:20px;height:20px}
+.authCard .authPasswordInput>input{display:block!important;flex:1 1 auto!important;width:0!important;min-width:0!important;max-width:100%;padding:0!important}
+.authCard .authPasswordInput .passwordVisibilityToggle{position:static!important;inset:auto!important;display:flex!important;visibility:visible!important;opacity:1!important;flex:0 0 42px!important;width:42px!important;min-width:42px!important;height:42px!important;padding:0!important;margin:0!important;transform:none!important;background:transparent!important;color:#667085!important;box-shadow:none!important;border:0!important;z-index:2}
+.authCard .authPasswordInput .passwordVisibilityToggle svg{display:block!important;width:21px!important;height:21px!important;stroke:currentColor!important;stroke-width:2!important}
+.authCard .secondaryWide{position:static!important;inset:auto!important;float:none!important;transform:none!important;display:flex!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:10px auto 0!important;padding:13px 16px!important;align-self:stretch!important;justify-self:stretch!important;text-align:center!important;justify-content:center!important;align-items:center!important}
