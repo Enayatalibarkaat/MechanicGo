@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, LockKeyhole, Mail, UserRound, ShieldCheck, KeyRound, Phone } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, LockKeyhole, Mail, UserRound, ShieldCheck, KeyRound, Phone, Eye, EyeOff } from "lucide-react";
 
 type View = "login" | "register" | "otp-login" | "forgot";
 type OtpPurpose = "login" | "register" | "password_reset";
@@ -15,6 +15,7 @@ export default function Auth() {
   const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [code, setCode] = useState("");
@@ -182,7 +183,7 @@ export default function Auth() {
         {(view==="register"||view==="otp-login"||view==="forgot")&&<label><span>Email address</span><div className="input"><Mail size={18}/><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" inputMode="email"/></div></label>}
         {view==="login"&&<>
           <label><span>Username</span><div className="input"><UserRound size={18}/><input value={username} onChange={e=>setUsername(e.target.value)} autoCapitalize="none" autoComplete="username" maxLength={20} placeholder="Your unique username"/></div></label>
-          <label><span>Password</span><div className="input"><LockKeyhole size={18}/><input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" maxLength={128} placeholder="Your password"/></div></label>
+          <label><span>Password</span><div className="input authPasswordInput"><LockKeyhole size={18}/><input type={showPassword ? "text" : "password"} value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" maxLength={128} placeholder="Your password"/><button type="button" className="passwordVisibilityToggle" onClick={()=>setShowPassword(v=>!v)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} title={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}</button></div></label>
         </>}
         {error&&<p className="authError" role="alert">{error}</p>}{notice&&!error&&<p className="authNotice" role="status">{notice}</p>}
         {view==="login"&&<><button className="authPrimary" disabled={busy} onClick={()=>void loginWithPassword()}>{busy?"Signing in…":"Login with username"} <ArrowRight size={18}/></button><button type="button" className="resend" onClick={()=>changeView("forgot")}>Forgot password?</button><button type="button" className="secondaryWide" onClick={()=>changeView("otp-login")}>Login with email OTP</button></>}
