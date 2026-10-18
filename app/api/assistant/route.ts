@@ -63,7 +63,10 @@ export async function POST(req: Request) {
     let lastDetail = "";
 
     for (const model of models) {
-      const contents = [...history, { role: "user" as const, parts: [{ text: message }] }];
+      const contents = history.map(turn => ({ role: turn.role, parts: turn.parts.map(part => ({ text: part.text })) }));
+      const lastTurn = contents[contents.length - 1];
+      if (lastTurn?.role === "user") lastTurn.parts[0].text += "\\nNew customer message: " + message;
+      else contents.push({ role: "user", parts: [{ text: message }] });
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
         {
