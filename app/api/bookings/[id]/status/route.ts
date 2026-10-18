@@ -31,9 +31,10 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
         { new: true }
       );
     } else if (auth.user.role === "CUSTOMER" && target === "CANCELLED") {
-      previousStatus = "SEARCHING";
+      // Customers may cancel while dispatching or after a mechanic accepts, but not after work starts.
+      previousStatus = "SEARCHING or ACCEPTED";
       booking = await Booking.findOneAndUpdate(
-        { _id: id, customerId: auth.user._id, status: "SEARCHING" },
+        { _id: id, customerId: auth.user._id, status: { $in: ["SEARCHING", "ACCEPTED"] } },
         { $set: { status: "CANCELLED" } },
         { new: true }
       );
