@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Camera, CalendarDays, UserRound, CheckCircle2, ShieldCheck, Mail, LockKeyhole, ExternalLink } from "lucide-react";
+import PhotoCropper from "../photo-cropper";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const isAdult = (dob: string) => {
@@ -23,6 +24,7 @@ export default function ProfileSetup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [photoProcessing, setPhotoProcessing] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const [role, setRole] = useState("CUSTOMER");
   const [vehicleTypes, setVehicleTypes] = useState<string[]>(["BIKE"]);
   const [emailVerified, setEmailVerified] = useState(false);
@@ -54,30 +56,12 @@ export default function ProfileSetup() {
   }, []);
 
   const pickPhoto = (file?: File) => {
-    setError(""); if (!file) return;
+    setError("");
+    if (!file) return;
     if (!file.type.startsWith("image/")) { setError("Please choose an image file."); return; }
     if (file.size > 8 * 1024 * 1024) { setError("Please choose a photo smaller than 8 MB."); return; }
     setPhotoProcessing(true);
-    const reader = new FileReader();
-    reader.onerror = () => { setError("That photo could not be opened. Please choose another."); setPhotoProcessing(false); };
-    reader.onload = () => {
-      setPhoto(String(reader.result || ""));
-      const image = new Image();
-      image.onerror = () => { setError("That photo could not be opened. Please choose another."); setPhotoProcessing(false); };
-      image.onload = () => {
-        const scale = Math.min(1, 480 / Math.max(image.width, image.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.max(1, Math.round(image.width * scale));
-        canvas.height = Math.max(1, Math.round(image.height * scale));
-        const context = canvas.getContext("2d");
-        if (!context) { setError("Photo processing failed. You can continue without a photo."); setPhotoProcessing(false); return; }
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        setPhoto(canvas.toDataURL("image/jpeg", 0.7));
-        setPhotoProcessing(false);
-      };
-      image.src = String(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setCropFile(file);
   };
 
   const sendOtp = async () => {
@@ -194,5 +178,6 @@ export default function ProfileSetup() {
       {saved ? <button className="setupContinue" onClick={()=>location.href=savedRole==="MECHANIC"?"/mechanic/dashboard":"/home"}>Continue to MechanicGo <ArrowRight size={21}/></button> : <button className="setupContinue" disabled={saving||photoProcessing||!emailVerified||!terms||!telegramConsent||!isAdult(dob)} onClick={save}>{saving?"Saving profile…":photoProcessing?"Preparing photo…":"Create my account"} <ArrowRight size={21}/></button>}
       <div className="privacyHint"><ShieldCheck size={15}/> Email verification and age checks are required before account creation.</div>
     </section>
+  <PhotoCropper file={cropFile} onCancel={()=>{setCropFile(null);setPhotoProcessing(false);}} onCrop={dataUrl=>{setPhoto(dataUrl);setPhotoProcessing(false);setCropFile(null);}} />
   </main>;
 }
