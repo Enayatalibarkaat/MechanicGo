@@ -62,7 +62,7 @@ export function normalizeUsername(value: string) {
 }
 
 export function validUsername(value: string) {
-  return /^[a-z0-9][a-z0-9_.]{2,19}$/.test(value);
+  return /^[a-z0-9][a-z0-9_.]{4,19}$/.test(value);
 }
 
 export function validAccountPassword(value: string) {
