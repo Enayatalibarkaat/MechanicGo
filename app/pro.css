@@ -8,3 +8,90 @@
 .bookingSection{padding:18px 16px 0}.sectionLabel{font-size:10px;letter-spacing:1.2px;color:#98a2b3;font-weight:800;margin-bottom:9px}.activeBooking{background:#fff;border:1px solid #dce6f8;border-radius:22px;padding:16px;box-shadow:0 8px 24px #10182808}.bookingTop{display:flex;gap:10px;align-items:center}.miniAvatar{width:45px;height:45px;border-radius:14px;background:#dce8f8;color:#1552b9;display:grid;place-items:center;font-weight:800}.bookingTop>div:nth-child(2){flex:1}.bookingTop b,.bookingTop span{display:block}.bookingTop span{font-size:10px;color:#667085;margin-top:3px}.bookingTop>strong{color:#1552b9}.bookingStatus{display:flex;justify-content:space-between;margin:16px 0 9px;font-size:10px;color:#667085}.liveStatus{color:#087b5d;font-weight:800}.liveStatus i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981}.bookingLocation{font-size:11px;color:#475467;display:flex;gap:6px;align-items:center}.bookingButtons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.bookingButtons a{height:43px;border-radius:12px;display:grid;place-items:center;background:#eef4ff;color:#2563eb;font-size:12px;font-weight:800}.bookingButtons a:last-child{background:#2563eb;color:#fff}.pastBooking{background:#fff;border-radius:18px;padding:14px;display:flex;align-items:center;gap:11px;margin:9px 0}.pastIcon{width:44px;height:44px;background:#eef4ff;color:#2563eb;border-radius:13px;display:grid;place-items:center}.pastBooking>div:nth-child(2){flex:1}.pastBooking b,.pastBooking span,.pastBooking small{display:block}.pastBooking span{font-size:10px;color:#667085;margin:3px 0}.pastBooking small{font-size:10px;color:#087b5d;display:flex;gap:3px;align-items:center}.pastBooking>strong{display:flex;align-items:center;color:#1552b9}.pastBooking>strong svg{width:15px}
 @media(max-width:520px){.setupCard{padding:22px}.homeEmergency{align-items:flex-start}.homeEmergency h2{font-size:19px}.detailStats{grid-template-columns:1fr 1fr}.stickyBook{grid-template-columns:1fr 1.8fr}}
 .reviewForm label small{float:right;color:#98a2b3;font-size:10px;font-weight:500}.reviewForm .primaryWide:disabled{opacity:.45;cursor:not-allowed}.reviewSuccess{min-height:100vh;display:grid;place-items:center;align-content:center;text-align:center;padding:30px}.reviewSuccess>div{width:88px;height:88px;border-radius:28px;background:#dcf8ec;color:#087b5d;display:grid;place-items:center;margin-bottom:18px}.reviewSuccess svg{width:48px;height:48px}.reviewSuccess h1{font:800 30px Manrope;margin:0 0 7px}.reviewSuccess p{color:#667085}.reviewSuccess a{margin-top:14px;background:#2563eb;color:#fff;border-radius:14px;padding:13px 18px;font-weight:800}
+
+/* Vehicle garage and add-vehicle experience */
+.vehicleListHeader .vehicleHeaderActions{display:flex;align-items:center;gap:10px}
+.vehicleHeaderIcon,.vehicleHeaderAdd{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:#f1f5ff;color:#245fc5}
+.vehicleHeaderAdd{background:#2563eb;color:#fff;box-shadow:0 6px 16px #2563eb25}
+.vehicleListPage .vehicleList{padding:20px 16px 30px}
+.vehicleListError{margin:16px}
+.vehicleLoading{min-height:190px;display:flex;align-items:center;justify-content:center;gap:12px;color:#667085}
+.vehicleEmptyCard{margin:10px 0 0;background:linear-gradient(160deg,#fff 0%,#fff 68%,#f0f6ff 100%);border:1px solid #e7edf6;border-radius:28px;padding:27px 22px 22px;box-shadow:0 12px 35px #10182808}
+.vehicleEmptyIcon{width:62px;height:62px;border-radius:20px;background:#eaf2ff;color:#2563eb;display:grid;place-items:center;margin-bottom:22px}
+.vehicleEyebrow{display:block;font-size:10px;letter-spacing:1.8px;font-weight:800;color:#2563eb}
+.vehicleEmptyCard h2{font:800 24px Manrope;letter-spacing:-.5px;margin:9px 0 10px;color:#101828}
+.vehicleEmptyCard p{font-size:14px;line-height:1.65;color:#667085;margin:0 0 21px}
+.vehicleEmptyCta.primaryWide{margin:0;width:100%;min-height:57px;height:auto;padding:14px 15px;border-radius:16px;font-size:15px;box-shadow:0 10px 22px #2563eb24}
+.vehicleRefreshLink{display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:#2563eb;font-weight:700;font-size:13px;padding:14px 12px;margin:9px auto 0;border-radius:12px}
+.vehicleRefreshLink:disabled,.vehicleHeaderIcon:disabled{opacity:.55}
+.vehicleListIntro{display:flex;align-items:center;justify-content:space-between;margin:4px 0 16px}
+.vehicleListIntro p{margin:5px 0 0;color:#667085;font-size:13px}
+.vehicleListIntro>a{display:flex;align-items:center;gap:6px;color:#2563eb;font-size:13px;font-weight:800;background:#edf4ff;border-radius:12px;padding:10px 12px}
+.vehicleCard{border:1px solid #edf0f5;box-shadow:0 6px 20px #10182806}
+.vehicleCardIcon{width:54px;height:54px;flex:0 0 54px;background:#edf3ff;color:#2563eb;border-radius:17px;display:grid;place-items:center}
+.vehicleCard section b{font-size:15px;line-height:1.35}
+.vehicleCard section span{line-height:1.5}
+.vehicleCard section small{overflow-wrap:anywhere}
+.vehicleCardChevron{color:#98a2b3;flex:0 0 auto}
+.vehicleDeleteBtn{width:34px;height:38px;display:grid;place-items:center;border-radius:10px;color:#98a2b3}
+.vehicleDeleteBtn:hover{background:#fff1f0;color:#c43228}
+.vehicleRefreshBottom{margin:15px auto 0}
+.vehicleAddPage{padding-bottom:35px}
+.vehicleAddPage .pageHeader{position:sticky}
+.vehicleHeaderSpacer{width:24px}
+.vehicleLookupHero{margin:18px 16px 14px;padding:21px;border:1px solid #dbe7fb;border-radius:24px;background:linear-gradient(135deg,#edf4ff 0%,#f8fbff 58%,#e9fbf4 100%);display:grid;grid-template-columns:52px minmax(0,1fr);gap:13px;align-items:start;box-shadow:0 10px 26px #1e4c8510}
+.vehicleLookupIcon{width:52px;height:52px;border-radius:17px;background:#2563eb;color:#fff;display:grid;place-items:center;box-shadow:0 8px 17px #2563eb30}
+.vehicleLookupCopy{min-width:0}
+.vehicleLookupCopy h2,.vehicleFormIntro h2{font:800 21px Manrope;letter-spacing:-.4px;margin:6px 0 6px;color:#101828}
+.vehicleLookupCopy p,.vehicleFormIntro p{font-size:12px;line-height:1.6;color:#667085;margin:0}
+.vehicleLookupToggle{grid-column:1/-1;width:100%;min-height:46px;border:1px solid #bcd1f8;background:#fff;color:#1557bd;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:13px}
+.vehicleLookupToggle svg{transition:transform .18s ease}
+.vehicleLookupToggle .rotateChevron{transform:rotate(180deg)}
+.vehicleLookupForm{grid-column:1/-1;border-top:1px solid #dbe7fb;padding-top:15px}
+.vehicleLookupForm>label{display:block;font-size:12px;font-weight:800;color:#344054;margin-bottom:8px}
+.vehicleLookupInput{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.vehicleLookupInput input,.vehicleField input{width:100%;min-width:0;height:49px;border:1px solid #d8e0eb;border-radius:13px;padding:0 13px;background:#fff;color:#101828;font:500 14px "DM Sans",sans-serif;outline:none;transition:border-color .15s,box-shadow .15s}
+.vehicleLookupInput input:focus,.vehicleField input:focus{border-color:#78a6fa;box-shadow:0 0 0 4px #2563eb12}
+.vehicleLookupInput button{display:flex;align-items:center;justify-content:center;gap:7px;padding:0 13px;background:#2563eb;color:#fff;border-radius:13px;font-size:12px;font-weight:800;white-space:nowrap}
+.lookupMessage{font-size:12px;line-height:1.55;padding:11px 12px;border-radius:12px;margin:10px 0 0}
+.lookupError{color:#a62b23;background:#fff1f0;border:1px solid #ffd9d5}
+.lookupSuccess{color:#087b5d;background:#e9fbf3;border:1px solid #bcefd9}
+.vehicleFormCard{margin:0 16px 20px;padding:22px 19px;border:1px solid #e8edf5;box-shadow:0 10px 28px #10182806;border-radius:25px}
+.vehicleFormIntro{margin:0 0 23px}
+.vehicleFormIntro h2{font-size:23px;margin-top:8px}
+.vehicleFormIntro p{font-size:13px}
+.vehicleTypeField,.fuelField{padding:0;border:0;margin:0 0 23px;min-width:0}
+.vehicleTypeField legend,.fuelField legend{width:100%;display:flex;align-items:center;gap:8px;padding:0;margin-bottom:11px;font-size:13px;font-weight:800;color:#344054}
+.vehicleTypeField legend span,.fuelField legend>span{margin-left:auto;font-size:10px;color:#98a2b3;font-weight:600}
+.vehicleTypeGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.vehicleTypeOption{position:relative;min-height:61px;border:1px solid #e1e7f0;border-radius:15px;background:#f9fbfe;color:#475467;display:flex;align-items:center;gap:10px;padding:0 13px;text-align:left;transition:all .15s ease}
+.vehicleTypeOption>svg:first-child{color:#64748b;flex:0 0 auto}
+.vehicleTypeOption span{font-size:13px;font-weight:800}
+.vehicleTypeOption.selected{border-color:#6fa0f8;background:#edf4ff;color:#1557bd;box-shadow:inset 0 0 0 1px #b9d1ff}
+.vehicleTypeOption.selected>svg:first-child{color:#2563eb}
+.vehicleTypeOption .typeCheck{margin-left:auto;color:#2563eb}
+.vehicleField{display:block;margin:0 0 19px!important;font-size:13px!important;color:#344054!important;font-weight:800!important}
+.vehicleField>span{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.vehicleField i{font-style:normal;color:#2563eb;background:#edf4ff;border-radius:6px;padding:3px 6px;font-size:9px;letter-spacing:.2px}
+.vehicleField em{font-style:normal;color:#98a2b3;font-weight:600;font-size:10px;margin-left:auto}
+.vehicleField input{display:block;margin:0;font-size:14px}
+.vehicleField input:disabled{background:#f5f7fa;color:#98a2b3;cursor:not-allowed}
+.vehicleField small{display:block;color:#98a2b3;font-size:10px;font-weight:500;line-height:1.5;margin:6px 2px 0}
+.vehicleTwoCols{display:grid;grid-template-columns:1fr 1.15fr;gap:10px}
+.fuelField{margin-top:3px}
+.fuelField legend>svg{color:#2563eb}
+.fuelOptionGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.fuelOption{min-height:62px;border:1px solid #e0e6ef;border-radius:15px;background:#fff;display:flex;align-items:center;gap:10px;padding:10px 11px;text-align:left;transition:all .15s ease}
+.fuelOption.selected{border-color:#6fa0f8;background:#eff5ff;box-shadow:inset 0 0 0 1px #b9d1ff}
+.fuelRadio{width:19px;height:19px;border:1.5px solid #b5c0cf;border-radius:50%;display:grid;place-items:center;flex:0 0 auto}
+.fuelOption.selected .fuelRadio{border:6px solid #2563eb}
+.fuelWords{display:flex;flex-direction:column;gap:3px;min-width:0}
+.fuelWords b{font-size:12px;color:#344054}
+.fuelOption.selected .fuelWords b{color:#1557bd}
+.fuelWords small{font-size:9px;line-height:1.25;color:#98a2b3}
+.vehicleSaveButton.primaryWide{width:100%;margin:22px 0 0;height:57px;border-radius:16px;font-size:15px}
+.vehicleSaveButton svg{flex:0 0 auto}
+.spinIcon{animation:vehicleSpin .85s linear infinite}
+@keyframes vehicleSpin{to{transform:rotate(360deg)}}
+@media(min-width:700px){.vehicleAddPage{max-width:720px;margin:0 auto}.vehicleLookupHero{margin:22px 20px 16px}.vehicleFormCard{margin:0 20px 24px;padding:28px}.vehicleListPage{max-width:760px;margin:0 auto}.vehicleListPage .vehicleList{padding:24px 20px}.vehicleEmptyCard{padding:34px}.vehicleEmptyCta.primaryWide{max-width:400px}.vehicleTypeGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.fuelOptionGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:390px){.vehicleLookupHero{padding:16px;gap:10px}.vehicleLookupCopy h2{font-size:18px}.vehicleLookupInput{grid-template-columns:1fr}.vehicleLookupInput button{min-height:43px}.vehicleTypeGrid{gap:7px}.vehicleTypeOption{padding:0 9px;gap:7px;min-height:56px}.vehicleTypeOption span{font-size:12px}.vehicleTwoCols{grid-template-columns:1fr}.fuelOptionGrid{gap:7px}.fuelOption{padding:9px 8px;gap:7px}.fuelWords b{font-size:11px}.vehicleCard{gap:9px;padding:13px}.vehicleCardIcon{width:45px;height:45px;flex-basis:45px}.vehicleCardChevron{display:none}}
