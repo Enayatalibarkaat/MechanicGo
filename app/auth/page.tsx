@@ -40,9 +40,9 @@ export default function Auth() {
     const normalizedEmail = email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) { setError("Enter a valid email address."); return; }
     if (purpose === "register") {
-      if (!name.trim()) { setError("Enter your full name."); return; }
+      if (name.trim().replace(/[^\p{L}]/gu, "").length < 4) { setError("Enter your full name using at least 4 letters."); return; }
       const cleanPhone = phone.replace(/[()\s.-]/g, "");
-      if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) { setError("Enter a valid mobile number (10–15 digits, country code optional)."); return; }
+      if (!/^[6-9][0-9]{9}$/.test(cleanPhone)) { setError("Enter a valid 10-digit Indian mobile number."); return; }
     }
     setBusy(true);
     try {
@@ -178,7 +178,7 @@ export default function Auth() {
         {view!=="forgot"&&<div className="authTabs"><button className={view==="login"||view==="otp-login"?"selected":""} onClick={()=>changeView("login")}>Login</button><button className={view==="register"?"selected":""} onClick={()=>changeView("register")}>Register</button></div>}
         {view==="register"&&<>
           <label><span>Full name</span><div className="input"><UserRound size={18}/><input value={name} onChange={e=>setName(e.target.value)} autoComplete="name" maxLength={80} placeholder="Your full name"/></div></label>
-          <label><span>Mobile number</span><div className="input"><Phone size={18}/><input value={phone} onChange={e=>setPhone(e.target.value)} type="tel" inputMode="tel" autoComplete="tel" maxLength={20} placeholder="10-digit mobile number"/></div></label>
+          <label><span>Mobile number</span><div className="input indiaPhoneInput"><Phone size={18}/><span className="indiaDialCode">+91</span><input value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,"").slice(0,10))} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} placeholder="10-digit mobile number" aria-label="10-digit Indian mobile number"/></div><small className="fieldHint">India (+91) · Enter 10 digits</small></label>
         </>}
         {(view==="register"||view==="otp-login"||view==="forgot")&&<label><span>Email address</span><div className="input"><Mail size={18}/><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" inputMode="email"/></div></label>}
         {view==="login"&&<>
