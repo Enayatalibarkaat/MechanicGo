@@ -173,7 +173,7 @@ export default function Auth() {
 
   return (
     <main className="authPage"><div className="authTop"><a href="/" className="backLink"><ArrowLeft size={18}/> Back</a><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div>
-      <section className="authCard"><div className="authLogo"><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div><div className="authBrand">Mechanic<span>Go</span></div><p className="authTag">Roadside help, on demand.</p>
+      <section className="authCard"><div className="authLogo"><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div><div className="authBrand">Mechanic<span>Go</span></div><p className="authTag">Roadside help, on demand.</p><div className="authEyebrow">{view === "login" ? "WELCOME BACK" : view === "register" ? "CREATE YOUR ACCOUNT" : view === "forgot" ? "ACCOUNT RECOVERY" : "SECURE EMAIL SIGN-IN"}</div><p className="authIntro">{view === "login" ? "Sign in to continue your journey." : view === "register" ? "Join MechanicGo for reliable roadside assistance." : view === "forgot" ? "We’ll help you safely recover your account." : "A one-time code keeps your account protected."}</p>
         {view!=="forgot"&&<div className="authTabs"><button className={view==="login"||view==="otp-login"?"selected":""} onClick={()=>changeView("login")}>Login</button><button className={view==="register"?"selected":""} onClick={()=>changeView("register")}>Register</button></div>}
         {view==="register"&&<>
           <label><span>Full name</span><div className="input"><UserRound size={18}/><input value={name} onChange={e=>setName(e.target.value)} autoComplete="name" maxLength={80} placeholder="Your full name"/></div></label>
