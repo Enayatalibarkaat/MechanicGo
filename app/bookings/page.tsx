@@ -29,7 +29,7 @@ export default function Bookings(){
    }catch(e){setError(e instanceof Error?e.message:"Network error. Please try again.");}
    finally{setLoading(false);}
  },[]);
- useEffect(()=>{void load();const timer=window.setInterval(()=>void load(),20000);return()=>window.clearInterval(timer);},[load]);
+ useEffect(()=>{void load();const timer=window.setInterval(()=>void load(),8000);return()=>window.clearInterval(timer);},[load]);
  const active=useMemo(()=>items.filter(b=>!["COMPLETED","CANCELLED"].includes(b.status)),[items]);
  const past=useMemo(()=>items.filter(b=>["COMPLETED","CANCELLED"].includes(b.status)),[items]);
  const tracked=items.find(b=>b._id===trackingId);
@@ -90,7 +90,7 @@ export default function Bookings(){
       </div>
       {typeof tracked.mechanicId==="object"&&tracked.mechanicId?.name&&<div className="trackingMechanic"><div className="miniAvatar"><Wrench size={20}/></div><div><b>{tracked.mechanicId.name}</b><span>Assigned mechanic</span></div>{tracked.mechanicId.phone&&<a href={"tel:"+tracked.mechanicId.phone} aria-label="Call mechanic"><Phone size={18}/></a>}</div>}
       {tracked.location?.address&&<div className="trackingAddress"><MapPin size={17}/><span>{tracked.location.address}</span></div>}
-      <div className="trackingFooter"><span><RefreshCw size={14}/> Updates every 20 seconds</span><button onClick={()=>void load()}>Refresh now</button></div>
+      <div className="trackingFooter"><span><RefreshCw size={14}/> Updates every 8 seconds</span><button onClick={()=>void load()}>Refresh now</button></div>
     </section>
   </div>}
   <Bottom active="bookings"/>
