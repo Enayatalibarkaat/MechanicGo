@@ -8,10 +8,10 @@ const categories=[[ "Car",CarFront ],[ "Bike",Bike ],[ "Scooter",Bike ]] as cons
 function greeting(){const h=new Date().getHours();return h<12?"GOOD MORNING":h<17?"GOOD AFTERNOON":"GOOD EVENING";}
 
 export default function Home(){
- const[name,setName]=useState("there");const[openBookings,setOpenBookings]=useState(0);const[loading,setLoading]=useState(true);
+ const[name,setName]=useState("there");const[photoUrl,setPhotoUrl]=useState("");const[openBookings,setOpenBookings]=useState(0);const[loading,setLoading]=useState(true);
  useEffect(()=>{
   let active=true;
-  fetch("/api/profile/current",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok&&d.user?.name)setName(d.user.name.split(" ")[0]);}).catch(()=>{});
+  fetch("/api/profile/current",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok&&d.user){if(d.user.name)setName(d.user.name.split(" ")[0]);setPhotoUrl(d.user.profilePhotoUrl||"");}}).catch(()=>{});
   fetch("/api/auth/status",{cache:"no-store"}).then(async r=>{const d=await r.json();if(!active)return;if(r.ok&&d.authenticated&&d.user?.role==="MECHANIC")location.replace("/mechanic/dashboard");}).catch(()=>{});
   const loadBookings=()=>fetch("/api/bookings",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok){const list:Booking[]=d.bookings||[];setOpenBookings(list.filter(b=>!["COMPLETED","CANCELLED"].includes(b.status)).length);}}).catch(()=>{}).finally(()=>{if(active)setLoading(false);});
   void loadBookings();
@@ -19,7 +19,7 @@ export default function Home(){
   return()=>{active=false;window.clearInterval(timer);};
  },[]);
  return <main className="appPage">
-  <header className="appHeader"><a href="/services" className="iconBtn" aria-label="Services">☰</a><div className="appBrand"><img src="/mechanicgo-mark.svg" alt=""/> Mechanic<span>Go</span></div><a className="profileDot" href="/profile">{name[0]?.toUpperCase()||"?"}</a></header>
+  <header className="appHeader"><a href="/services" className="iconBtn" aria-label="Services">☰</a><div className="appBrand"><img src="/mechanicgo-mark.svg" alt=""/> Mechanic<span>Go</span></div><a className="profileDot" href="/profile" aria-label="Open profile">{photoUrl?<img src={photoUrl} alt="Profile photo" onError={()=>setPhotoUrl("")}/>:name[0]?.toUpperCase()||"?"}</a></header>
   <section className="homeHero">
    <div className="homeGreeting"><div><span>{greeting()}</span><h1>Hello, {name} 👋</h1></div><div className="locationPill"><MapPin size={14}/> Location at booking</div></div>
    <p>Reliable roadside help, when you need it.</p>
