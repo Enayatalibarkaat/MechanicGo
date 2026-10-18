@@ -154,7 +154,7 @@ export default function Auth() {
   };
 
   if (resetStep) return (
-    <main className="authPage"><div className="authTop"><button type="button" className="backLink" onClick={() => changeView("login")}><ArrowLeft size={18}/> Back to login</button><img src="/mechanicgo-mark.svg" alt="MechanicGo"/></div>
+    <main className="authPage"><div className="authTop"><button type="button" className="backLink" onClick={() => changeView("login")}><ArrowLeft size={18}/> Back to login</button><img className="authMechanicLogo" src="/mechanicgo-mechanic.svg" alt="MechanicGo mechanic"/></div>
       <section className="authCard"><div className="authLogo"><KeyRound size={30} color="#2563eb"/></div><div className="authBrand">Set new<span> password</span></div><p className="authTag">Email verified for {email}.</p>
         {needsUsername && <label><span>Choose username</span><div className="input"><UserRound size={18}/><input value={newUsername} onChange={e=>setNewUsername(e.target.value)} autoCapitalize="none" maxLength={20} placeholder="e.g. enayat_ali"/></div><small>3–20 characters: letters, numbers, dot or underscore.</small></label>}
         <label><span>New password</span><div className="input"><LockKeyhole size={18}/><input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="new-password" maxLength={128} placeholder="At least 8 characters"/></div></label>
