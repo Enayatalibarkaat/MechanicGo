@@ -41,7 +41,7 @@ export default function ProfileSetup() {
 
   useEffect(() => {
     setName(localStorage.getItem("mechanicgo_pending_name") || "");
-    setPhone(localStorage.getItem("mechanicgo_pending_phone") || "");
+    setPhone((localStorage.getItem("mechanicgo_pending_phone") || "").replace(/^\+?91/, "").replace(/\D/g, "").slice(-10));
     const verifiedEmail = localStorage.getItem("mechanicgo_email") || "";
     setEmail(verifiedEmail);
     setEmailVerified(Boolean(verifiedEmail && localStorage.getItem("mechanicgo_email_verified") === "1"));
@@ -98,13 +98,14 @@ export default function ProfileSetup() {
 
   const save = async () => {
     setError(""); setNotice("");
-    if (!name.trim()) { setError("Please enter your full name."); return; }
+    if (name.trim().replace(/[^\p{L}]/gu, "").length < 4) { setError("Enter your full name using at least 4 letters."); return; }
     const normalizedUsername = username.trim().toLowerCase();
-    if (!/^[a-z0-9][a-z0-9_.]{2,19}$/.test(normalizedUsername)) { setError("Choose a username of 3–20 characters using letters, numbers, dots or underscores."); return; }
+    if (!/^[a-z0-9][a-z0-9_.]{4,19}$/.test(normalizedUsername)) { setError("Choose a username of 5–20 characters using letters, numbers, dots or underscores."); return; }
     if (password.length < 8 || password.length > 128 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) { setError("Use a password of at least 8 characters with a letter and a number."); return; }
     if (password !== confirmPassword) { setError("Passwords do not match."); return; }
-    const cleanPhone = phone.replace(/[()\s.-]/g, "");
-    if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) { setError("A valid mobile number is required (10–15 digits, country code optional)."); return; }
+    const mobileDigits = phone.replace(/\D/g, "").slice(-10);
+    if (!/^[6-9][0-9]{9}$/.test(mobileDigits)) { setError("Enter a valid 10-digit Indian mobile number."); return; }
+    const cleanPhone = "+91" + mobileDigits;
     if (photoProcessing) { setError("Please wait while the profile photo is prepared."); return; }
     if (!isAdult(dob)) { setError("MechanicGo accounts are only available to people aged 18 or older."); return; }
     if (!emailVerified || !email.trim()) { setError("Verify your email address before creating your account."); return; }
@@ -168,7 +169,7 @@ export default function ProfileSetup() {
       <label className="setupLabel">Unique username<div className="setupInput"><UserRound size={20}/><input autoComplete="username" autoCapitalize="none" value={username} onChange={e=>setUsername(e.target.value.toLowerCase())} placeholder="e.g. enayat_ali" maxLength={20} required/></div><small>3–20 characters. Letters, numbers, dots and underscores only.</small></label>
       <label className="setupLabel">Password<div className="setupInput"><LockKeyhole size={20}/><input type="password" autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters, with a letter and number" maxLength={128} required/></div></label>
       <label className="setupLabel">Confirm password<div className="setupInput"><LockKeyhole size={20}/><input type="password" autoComplete="new-password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="Enter the same password again" maxLength={128} required/></div></label>
-      <label className="setupLabel">Mobile number <span className="setupRequired">Required</span><div className="setupInput"><UserRound size={20}/><input type="tel" autoComplete="tel" inputMode="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="10-digit mobile number" maxLength={20} required/></div></label>
+      <label className="setupLabel">Mobile number <span className="setupRequired">Required</span><div className="setupInput"><UserRound size={20}/><span className="indiaDialCode">+91</span><input type="tel" autoComplete="tel-national" inputMode="numeric" value={phone.replace(/\D/g, "").slice(-10)} onChange={e=>setPhone(e.target.value.replace(/\D/g, "").slice(0,10))} placeholder="10-digit mobile number" maxLength={10} required/></div><small className="fieldHint">India (+91) · Enter 10 digits</small></label>
       <label className="setupLabel">Email address <span className="setupOptional">{emailVerified?"Verified ✓":"Required"}</span><div className="setupInput"><Mail size={20}/><input type="email" autoComplete="email" value={email} onChange={e=>{setEmail(e.target.value);setEmailVerified(false);setNotice("");}} placeholder="you@example.com" required/></div></label>
       {!emailVerified && <button type="button" className="secondaryWide" onClick={sendOtp} disabled={saving}>{saving?"Sending…":"Send verification code to email"}</button>}
       {otpSent && <><div className="otpBoxes">{Array.from({length:6},(_,i)=><input key={i} ref={el=>{otpInputs.current[i]=el}} value={otp[i]||""} maxLength={1} inputMode="numeric" aria-label={"OTP digit "+(i+1)} onChange={e=>{const d=e.target.value.replace(/\D/g,"").slice(-1);const a=otp.split("");a[i]=d;setOtp(Array.from({length:6},(_,j)=>a[j]||"").join(""));if(d&&i<5)otpInputs.current[i+1]?.focus();}} />)}</div><button type="button" className="secondaryWide" onClick={verifyOtp} disabled={saving||otp.length!==6}>{saving?"Verifying…":"Verify email"}</button></>}
