@@ -208,3 +208,12 @@
 .authTrust span{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border:1px solid #e4eaf3;border-radius:999px;background:#f8faff;color:#667085;font-size:10px;font-weight:700}
 .authTrust svg{color:#10b981}
 @media(max-width:390px){.authPage{padding:12px 12px max(22px,env(safe-area-inset-bottom))}.authCard{padding:22px 17px;border-radius:24px}.authTop{margin-bottom:5px}.authLogo{width:58px;height:58px}.authCard .input{height:51px}.otpBoxes{gap:5px}.otpBoxes input{height:48px;border-radius:10px}.authTrust span{font-size:9px;padding:7px 8px}}
+
+
+/* Auth: accessible password visibility and perfectly centered OTP action */
+.authCard .authPasswordInput{position:relative;display:flex;align-items:center;gap:11px;padding-right:8px}
+.authCard .authPasswordInput>input{flex:1;width:0;min-width:0}
+.authCard .authPasswordInput .passwordVisibilityToggle{flex:0 0 40px;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;padding:0;margin:0;border:0;border-radius:11px;background:transparent;color:#7b8ba1;box-shadow:none;transform:none;cursor:pointer;transition:background .15s,color .15s}
+.authCard .authPasswordInput .passwordVisibilityToggle:hover,.authCard .authPasswordInput .passwordVisibilityToggle:focus-visible{background:#eaf1ff;color:#2563eb;outline:2px solid #93b4f8;outline-offset:1px}
+.authCard .secondaryWide{box-sizing:border-box;position:static;display:flex;align-items:center;justify-content:center;width:100%;max-width:100%;min-width:0;margin:10px 0 0;padding:13px 16px;text-align:center;line-height:1.35;white-space:normal;align-self:stretch;left:auto;right:auto;transform:none;float:none}
+.authCard .secondaryWide:focus-visible{outline:3px solid #93b4f8;outline-offset:3px}
