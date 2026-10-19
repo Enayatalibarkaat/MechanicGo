@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
 
     const lat = location.lat === undefined ? undefined : Number(location.lat);
     const lng = location.lng === undefined ? undefined : Number(location.lng);
-    if ((lat !== undefined && (!Number.isFinite(lat) || lat < -90 || lat > 90)) || (lng !== undefined && (!Number.isFinite(lng) || lng < -180 || lng > 180))) return NextResponse.json({ error: "Location coordinates are invalid." }, { status: 400 });
+    if (lat === undefined || lng === undefined) return NextResponse.json({ error: "Allow location access so we can dispatch this request to mechanics near you." }, { status: 400 });
+    if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) return NextResponse.json({ error: "Location coordinates are invalid." }, { status: 400 });
 
     await connectDB();
     let vehicleId: string | undefined;
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
         "Vehicle: " + escapeHtml(vehicleLabel + " [" + vehicleType + "]"),
         "Issue: " + escapeHtml(issueDescription),
         "Service address: " + escapeHtml(address),
+        "Customer GPS: " + lat + ", " + lng,
         "Payment preference: " + escapeHtml(paymentMethod === "ONLINE" ? "ONLINE (payment pending)" : "CASH AFTER SERVICE"),
         "Status: SEARCHING"
       ].join("\n"));
