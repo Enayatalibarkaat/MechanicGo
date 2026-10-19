@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     const paymentMethod = String(body.paymentMethod || "CASH").toUpperCase();
     const issueDescription = String(body.issueDescription || "").trim().slice(0, 2000);
     const issuePhotoFileId = String(body.issuePhotoFileId || "").slice(0, 300);
+    const issuePhotoFileIds = Array.isArray(body.issuePhotoFileIds) ? body.issuePhotoFileIds.slice(0, 3).map((id: unknown) => String(id).slice(0, 300)).filter(Boolean) : (issuePhotoFileId ? [issuePhotoFileId] : []);
     const location = body.location || {};
     const address = String(location.address || "").trim().slice(0, 500);
     if (!["SELF", "OTHER"].includes(bookingFor)) return NextResponse.json({ error: "Choose who this booking is for." }, { status: 400 });
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
       customerId: auth.user._id, vehicleId, vehicleType, vehicleDetails, bookingFor,
       otherPersonName, otherPersonPhone, paymentMethod,
       paymentStatus: paymentMethod === "ONLINE" ? "PENDING" : "CASH_DUE",
-      issueDescription, issuePhotoFileId, location: { lat, lng, address }, status: "SEARCHING"
+      issueDescription, issuePhotoFileId: issuePhotoFileIds[0] || issuePhotoFileId, issuePhotoFileIds, location: { lat, lng, address }, status: "SEARCHING"
     });
 
     let telegramAlertSent = true;
