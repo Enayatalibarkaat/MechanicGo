@@ -106,7 +106,14 @@ export async function GET(request: NextRequest) {
     if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
     await connectDB();
     const filter = auth.user.role === "MECHANIC"
-      ? { $or: [{ mechanicId: auth.user._id }, { status: "SEARCHING", vehicleType: { $in: auth.user.vehicleTypes.includes("BOTH") ? ["BIKE", "CAR"] : auth.user.vehicleTypes } }] }
+      ? {
+          $or: [
+            { mechanicId: auth.user._id },
+            ...(auth.user.accountStatus === "ACTIVE" && auth.user.isOnDuty
+              ? [{ status: "SEARCHING", vehicleType: { $in: auth.user.vehicleTypes.includes("BOTH") ? ["BIKE", "CAR"] : auth.user.vehicleTypes } }]
+              : [])
+          ]
+        }
       : { customerId: auth.user._id };
     const bookingQuery = Booking.find(filter).sort({ createdAt: -1 }).limit(100);
     if (auth.user.role === "CUSTOMER") bookingQuery.populate("mechanicId", "name phone");
