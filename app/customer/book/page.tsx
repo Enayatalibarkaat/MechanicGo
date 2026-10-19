@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Bike, CarFront, Camera, MapPin, Send, UserRound, UsersRound, CreditCard, Banknote, CheckCircle2, Plus, LoaderCircle, Car, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Bike, CarFront, Camera, MapPin, Send, UserRound, UsersRound, CreditCard, Banknote, CheckCircle2, Plus, LoaderCircle, Car, ShieldCheck, LocateFixed } from "lucide-react";
 
 type Vehicle = {
   _id: string; type: string; brand: string; model: string; year: number;
@@ -31,7 +31,10 @@ export default function CreateBooking() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [warning, setWarning] = useState("");
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [locationCoords, setLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState("");
   const [bookingId, setBookingId] = useState("");
 
   const loadVehicles = useCallback(async () => {
@@ -53,16 +56,48 @@ export default function CreateBooking() {
 
   useEffect(() => { void loadVehicles(); }, [loadVehicles]);
 
-  const continueToPayment = () => {
+  const continueToIssue = () => {
     setError("");
     if (bookingFor === "SELF" && !selectedVehicleId) { setError(vehicles.length ? "Please select a vehicle before continuing." : "Add a vehicle to your garage first, or choose Other person."); return; }
     if (bookingFor === "OTHER") {
       if (otherPersonName.trim().length < 2) { setError("Please enter the person’s name."); return; }
-      if (!/^\+?[0-9]{10,15}$/.test(otherPersonPhone.replace(/[()\s.-]/g, ""))) { setError("Please enter a valid mobile number."); return; }
+      if (!/^\\+?[0-9]{10,15}$/.test(otherPersonPhone.replace(/[()\\s.-]/g, ""))) { setError("Please enter a valid mobile number."); return; }
     }
+    setStep(2); window.scrollTo({top:0,behavior:"smooth"});
+  };
+
+  const requestLocation = useCallback(() => {
+    setLocationError("");
+    if (!navigator.geolocation) { setLocationError("This browser does not support location. Please enable location services or try another browser."); return; }
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        setLocationCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setLocationError("");
+        setLocationLoading(false);
+      },
+      error => {
+        setLocationLoading(false);
+        setLocationError(error.code === 1
+          ? "Location permission was denied. Allow location access in your browser settings, then tap Try location again."
+          : error.code === 2
+            ? "Your current location is unavailable. Turn on your phone’s Location/GPS and try again."
+            : "Location took too long. Please try again.");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+    );
+  }, []);
+
+  const continueToPayment = () => {
+    setError("");
     if (issueDescription.trim().length < 5) { setError("Please describe the vehicle problem in at least 5 characters."); return; }
     if (!address.trim()) { setError("Please enter the complete service address."); return; }
-    setStep(2); window.scrollTo({top:0,behavior:"smooth"});
+    if (!locationCoords) {
+      setError("Allow location access so we can send your request to mechanics near your current location.");
+      requestLocation();
+      return;
+    }
+    setStep(3); window.scrollTo({top:0,behavior:"smooth"});
   };
   const submit = async () => {
     setError(""); setSuccess(""); setWarning("");
@@ -76,6 +111,7 @@ export default function CreateBooking() {
     }
     if (issueDescription.trim().length < 5) { setError("Please describe the vehicle problem in at least 5 characters."); return; }
     if (!address.trim()) { setError("Please enter the complete service address."); return; }
+    if (!locationCoords) { setError("Please allow location access before sending your request."); requestLocation(); return; }
     setBusy(true);
     try {
       let issuePhotoFileId = "";
@@ -98,7 +134,7 @@ export default function CreateBooking() {
           vehicleType, otherPersonName: otherPersonName.trim(), otherPersonPhone: otherPersonPhone.trim(),
           otherVehicleBrand, otherVehicleModel, otherRegistrationNumber,
           paymentMethod, issueDescription: issueDescription.trim(), issuePhotoFileId,
-          location: { address: address.trim() }
+          location: { address: address.trim(), lat: locationCoords.lat, lng: locationCoords.lng }
         })
       });
       const data = await response.json();
@@ -106,7 +142,7 @@ export default function CreateBooking() {
       setBookingId(String(data.booking._id));
       setSuccess("created");
       if (data.telegramAlertSent === false) setWarning("Booking saved, but the Telegram dispatch alert could not be confirmed. Please contact support.");
-      setIssueDescription(""); setAddress(""); setPhoto(null);
+      setIssueDescription(""); setAddress(""); setPhoto(null); setLocationCoords(null); setLocationError("");
       setOtherPersonName(""); setOtherPersonPhone(""); setOtherVehicleBrand(""); setOtherVehicleModel(""); setOtherRegistrationNumber("");
       setSelectedVehicleId("");
     } catch (e) {
@@ -127,7 +163,7 @@ export default function CreateBooking() {
       </div>
 
       <section className="bookingCard">
-        <div className="bookingProgress"><div className={"bookingProgressStep" + (step===1?" active":" complete")}><span>{step===1?"01":"✓"}</span><b>Booking details</b></div><div className={"bookingProgressLine"+(step===2?" complete":"")}/><div className={"bookingProgressStep"+(step===2?" active":"")}><span>02</span><b>Payment</b></div></div>
+        <div className="bookingProgress"><div className={"bookingProgressStep" + (step===1?" active":" complete")}><span>{step===1?"01":"✓"}</span><b>Vehicle</b></div><div className={"bookingProgressLine"+(step>=2?" complete":"")}/><div className={"bookingProgressStep"+(step===2?" active":step===3?" complete":"")}><span>{step===3?"✓":"02"}</span><b>Problem & location</b></div><div className={"bookingProgressLine"+(step===3?" complete":"")}/><div className={"bookingProgressStep"+(step===3?" active":"")}><span>03</span><b>Payment</b></div></div>
         {step === 1 && <>
         <div className="bookingStep"><span>01</span><div><h3>Who needs help?</h3><p>Book for your own vehicle or someone else.</p></div></div>
         <div className="bookingRecipientGrid">
@@ -169,16 +205,17 @@ export default function CreateBooking() {
           <label className="bookingField"><span>Vehicle number <i>Optional</i></span><input value={otherRegistrationNumber} onChange={e => setOtherRegistrationNumber(e.target.value.toUpperCase())} maxLength={20} placeholder="e.g. UP32AB1234"/></label>
         </div>}
 
-        <div className="bookingDivider"/>
+        </>}
+        {step === 2 && <>
         <div className="bookingStep"><span>02</span><div><h3>What needs fixing?</h3><p>Describe the issue so the mechanic arrives prepared.</p></div></div>
         <label className="bookingField bookingFullField"><span>Vehicle problem <i>Required</i></span><textarea value={issueDescription} onChange={e => setIssueDescription(e.target.value)} rows={3} maxLength={2000} placeholder="e.g. Engine won’t start, flat tyre, battery issue…"/></label>
-        <label className="bookingField bookingFullField"><span>Service address <i>Required</i></span><div className="bookingInputWithIcon"><MapPin size={19}/><input value={address} onChange={e => setAddress(e.target.value)} maxLength={500} placeholder="Where should the mechanic come?"/></div></label>
+        <label className="bookingField bookingFullField"><span>Service address <i>Required</i></span><div className="bookingInputWithIcon"><MapPin size={19}/><input value={address} onChange={e => setAddress(e.target.value)} onBlur={() => { if (address.trim() && !locationCoords && !locationLoading) requestLocation(); }} maxLength={500} placeholder="Enter house, street, village or landmark"/></div><button type="button" className="bookingLocateButton" onClick={requestLocation} disabled={locationLoading}>{locationLoading ? <><LoaderCircle size={16} className="bookingSpin"/> Getting your GPS location…</> : locationCoords ? <><CheckCircle2 size={16}/> Location permission granted</> : <><LocateFixed size={16}/> Allow location & use current GPS</>}</button>{locationCoords && <small className="bookingLocationSuccess"><CheckCircle2 size={14}/> GPS location captured. Your typed address will also be saved.</small>}{locationError && <small className="bookingLocationError" role="alert">{locationError}</small>}<small className="bookingLocationPrivacy">Your GPS coordinates are used to route this booking to nearby mechanics. Your address text is kept as entered.</small></label>
         <label className="bookingField bookingFullField"><span>Photo of the problem <i>Optional</i></span><div className="bookingInputWithIcon"><Camera size={19}/><input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={e => setPhoto(e.target.files?.[0] || null)}/></div>{photo && <small className="bookingFileName">{photo.name}</small>}</label>
 
         </>}
         {step === 2 && <>
-        <div className="bookingPaymentIntro"><span className="bookingPaymentBadge"><CreditCard size={22}/></span><div><div className="bookingEyebrow">STEP 02 · PAYMENT</div><h2>How would you like to pay?</h2><p>Choose your preferred payment method before confirming your request.</p></div></div>
-        <div className="bookingStep"><span>02</span><div><h3>Payment preference</h3><p>Choose how you’d prefer to pay for the service.</p></div></div>
+        <div className="bookingPaymentIntro"><span className="bookingPaymentBadge"><CreditCard size={22}/></span><div><div className="bookingEyebrow">STEP 03 · PAYMENT</div><h2>How would you like to pay?</h2><p>Choose your preferred payment method before confirming your request.</p></div></div>
+        <div className="bookingSummary"><b>Booking summary</b><span>{bookingFor === "SELF" ? (vehicles.find(v => v._id === selectedVehicleId)?.brand + " " + vehicles.find(v => v._id === selectedVehicleId)?.model) : (otherPersonName + " · " + vehicleName(otherVehicleType))}</span><span>{issueDescription}</span><span><MapPin size={14}/>{address}</span><small><CheckCircle2 size={14}/> GPS location captured for nearby dispatch</small></div>\n        <div className="bookingStep"><span>03</span><div><h3>Payment preference</h3><p>Choose how you’d prefer to pay for the service.</p></div></div>
         <div className="bookingPaymentGrid">
           <button type="button" className={"bookingPayment" + (paymentMethod === "ONLINE" ? " isSelected" : "")} onClick={() => setPaymentMethod("ONLINE")}>
             <span className="bookingPaymentIcon"><CreditCard size={22}/></span><span><b>Online payment</b><small>Digital payment when payment is enabled</small></span>{paymentMethod === "ONLINE" && <CheckCircle2 className="bookingCheck" size={19}/>}
@@ -192,7 +229,7 @@ export default function CreateBooking() {
         </>}
         {error && <p className="bookingError" role="alert">{error}</p>}
         {warning && <p className="bookingError" role="alert">{warning}</p>}
-        {step===1 ? <button type="button" className="bookingSubmit" disabled={vehiclesLoading} onClick={continueToPayment}>Next <ArrowLeft className="bookingNextArrow" size={19}/></button> : <div className="bookingActionRow"><button type="button" className="bookingBackButton" disabled={busy} onClick={()=>{setStep(1);setError("");window.scrollTo({top:0,behavior:"smooth"});}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" disabled={busy} onClick={()=>void submit()}>{busy ? <><LoaderCircle className="bookingSpin" size={19}/> Sending request…</> : <>Order mechanic <Send size={18}/></>}</button></div>}
+        {step===1 ? <button type="button" className="bookingSubmit" disabled={vehiclesLoading} onClick={continueToIssue}>Next: Problem details <ArrowLeft className="bookingNextArrow" size={19}/></button> : step===2 ? <div className="bookingActionRow"><button type="button" className="bookingBackButton" onClick={()=>{setStep(1);setError("");window.scrollTo({top:0,behavior:"smooth"});}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" onClick={continueToPayment}>Next: Payment <ArrowLeft className="bookingNextArrow" size={18}/></button></div> : <div className="bookingActionRow"><button type="button" className="bookingBackButton" disabled={busy} onClick={()=>{setStep(2);setError("");window.scrollTo({top:0,behavior:"smooth"});}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" disabled={busy} onClick={()=>void submit()}>{busy ? <><LoaderCircle className="bookingSpin" size={19}/> Sending request…</> : <>Confirm booking <Send size={18}/></>}</button></div>}
         <p className="bookingFooterNote"><ShieldCheck size={15}/> Your booking details are sent securely to help dispatch an available mechanic.</p>
       </section>
       {busy && <div className="bookingOverlay" role="status" aria-live="polite"><div className="bookingWaitCard"><div className="bookingMascot"><svg viewBox="0 0 160 130" role="img" aria-label="Cartoon mechanic in blue cap and uniform with a tool bag and wrench"><ellipse cx="80" cy="121" rx="48" ry="6" fill="#dbe7fb"/><path d="M44 54Q45 36 61 34H99Q116 38 117 55L126 103H34Z" fill="#2563eb"/><path d="M62 65L80 79L98 65L94 103H66Z" fill="#dbeafe"/><circle cx="80" cy="31" r="20" fill="#f2c6a5"/><path d="M59 28Q59 6 81 7Q102 7 102 28Z" fill="#1747a6"/><path d="M54 27Q80 17 107 27L105 33H56Z" fill="#2563eb"/><circle cx="73" cy="32" r="2" fill="#172033"/><circle cx="87" cy="32" r="2" fill="#172033"/><path d="M73 41Q80 47 88 41" fill="none" stroke="#a75b46" strokeWidth="2"/><path d="M46 58L28 81L37 88L58 69M114 58L133 77L125 86L105 69" fill="#f2c6a5"/><rect x="9" y="82" width="31" height="29" rx="6" fill="#1747a6"/><path d="M16 82Q16 73 25 73Q34 73 34 82" fill="none" stroke="#1747a6" strokeWidth="4"/><path d="M131 76L144 64L150 70L137 82M143 62L150 56L156 62L150 69" fill="none" stroke="#64748b" strokeWidth="4" strokeLinecap="round"/><path d="M62 103L60 119H76L78 103M84 103L87 119H103L98 103" fill="#172554"/></svg></div><div className="bookingWaitSpinner"><LoaderCircle className="bookingSpin" size={22}/></div><h3>Finding your mechanic</h3><p>Please wait while we securely send your request. Keep this page open.</p><div className="bookingWaitTrack"><span/></div></div></div>}
@@ -269,6 +306,17 @@ export default function CreateBooking() {
       .bookingSubmit:disabled{opacity:.65;cursor:wait}
       .bookingFooterNote{display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;color:#98a2b3;font-size:11px;line-height:1.5;margin:14px 0 0}
       .bookingFooterNote svg{flex:0 0 auto;color:#10b981}
+      .bookingLocateButton{display:flex;align-items:center;justify-content:center;gap:8px;min-height:43px;margin-top:10px;padding:10px 13px;border:1px solid #c8d9fb;border-radius:12px;background:#f3f7ff;color:#1d5fcb;font-size:12px;font-weight:800}
+      .bookingLocateButton:disabled{opacity:.7}
+      .bookingLocationSuccess,.bookingLocationError,.bookingLocationPrivacy{display:flex;align-items:flex-start;gap:6px;margin-top:8px;font-size:11px;line-height:1.5}
+      .bookingLocationSuccess{color:#07815f}.bookingLocationError{color:#b42318}.bookingLocationPrivacy{color:#718096}
+      .bookingSummary{display:flex;flex-direction:column;gap:9px;margin:2px 0 23px;padding:16px;border:1px solid #e3eaf5;border-radius:16px;background:#f8faff;color:#344054}
+      .bookingSummary>b{font:800 14px Manrope,sans-serif;color:#101828}
+      .bookingSummary>span{font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+      .bookingSummary>span svg,.bookingSummary small svg{display:inline-block;vertical-align:middle;margin-right:5px}
+      .bookingSummary small{display:flex;align-items:center;gap:5px;color:#07815f;font-size:11px;font-weight:800}
+      .bookingProgress{gap:7px}.bookingProgressStep{gap:6px;font-size:10px}.bookingProgressStep>span{width:29px;height:29px;flex:0 0 29px}.bookingProgressStep b{white-space:normal;line-height:1.25}
+
       .bookingSpin{animation:booking-spin 1s linear infinite}
       @keyframes booking-spin{to{transform:rotate(360deg)}}
 
