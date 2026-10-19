@@ -17,14 +17,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const bookingFor = String(body.bookingFor || "SELF").toUpperCase();
     const paymentMethod = String(body.paymentMethod || "CASH").toUpperCase();
-    const issueDescription = String(body.issueDescription || "").trim().slice(0, 2000);
+    const issueDescription = String(body.issueDescription || "").trim().slice(0, 500);
     const issuePhotoFileId = String(body.issuePhotoFileId || "").slice(0, 300);
     const issuePhotoFileIds = Array.isArray(body.issuePhotoFileIds) ? body.issuePhotoFileIds.slice(0, 3).map((id: unknown) => String(id).slice(0, 300)).filter(Boolean) : (issuePhotoFileId ? [issuePhotoFileId] : []);
     const location = body.location || {};
     const address = String(location.address || "").trim().slice(0, 500);
     if (!["SELF", "OTHER"].includes(bookingFor)) return NextResponse.json({ error: "Choose who this booking is for." }, { status: 400 });
     if (!["ONLINE", "CASH"].includes(paymentMethod)) return NextResponse.json({ error: "Choose online payment or cash after service." }, { status: 400 });
-    if (issueDescription.length < 5) return NextResponse.json({ error: "Describe the vehicle problem in at least 5 characters." }, { status: 400 });
+    if (issueDescription.length < 10) return NextResponse.json({ error: "Describe the vehicle problem in at least 10 characters." }, { status: 400 });
     if (!address) return NextResponse.json({ error: "Please enter the complete service address so the mechanic can find you." }, { status: 400 });
 
     const lat = location.lat === undefined ? undefined : Number(location.lat);
