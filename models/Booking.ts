@@ -19,6 +19,7 @@ const BookingSchema = new Schema({
   otherPersonPhone: { type: String, trim: true, maxlength: 20, default: "" },
   issueDescription: { type: String, required: true, trim: true, maxlength: 2000 },
   issuePhotoFileId: { type: String, default: "" },
+  issuePhotoFileIds: { type: [String], default: [] },
   paymentMethod: { type: String, enum: ["ONLINE", "CASH"], default: "CASH", index: true },
   paymentStatus: { type: String, enum: ["PENDING", "CASH_DUE", "PAID", "FAILED"], default: "CASH_DUE" },
   location: {
