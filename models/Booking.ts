@@ -26,6 +26,8 @@ const BookingSchema = new Schema({
     lng: { type: Number, min: -180, max: 180 },
     address: { type: String, trim: true, maxlength: 500 }
   },
+  customerLiveLocation: { lat: { type: Number, min: -90, max: 90 }, lng: { type: Number, min: -180, max: 180 }, heading: { type: Number, min: 0, max: 360 }, speed: { type: Number, min: 0 }, updatedAt: { type: Date } },
+  mechanicLiveLocation: { lat: { type: Number, min: -90, max: 90 }, lng: { type: Number, min: -180, max: 180 }, heading: { type: Number, min: 0, max: 360 }, speed: { type: Number, min: 0 }, updatedAt: { type: Date } },
   status: { type: String, enum: ["SEARCHING", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED"], default: "SEARCHING", index: true }
 }, { timestamps: true });
 
