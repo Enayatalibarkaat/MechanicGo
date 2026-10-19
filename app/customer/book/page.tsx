@@ -61,7 +61,7 @@ export default function CreateBooking() {
     if (bookingFor === "SELF" && !selectedVehicleId) { setError(vehicles.length ? "Please select a vehicle before continuing." : "Add a vehicle to your garage first, or choose Other person."); return; }
     if (bookingFor === "OTHER") {
       if (otherPersonName.trim().length < 2) { setError("Please enter the person’s name."); return; }
-      if (!/^\\+?[0-9]{10,15}$/.test(otherPersonPhone.replace(/[()\\s.-]/g, ""))) { setError("Please enter a valid mobile number."); return; }
+      if (!/^\+?[0-9]{10,15}$/.test(otherPersonPhone.replace(/[()\s.-]/g, ""))) { setError("Please enter a valid mobile number."); return; }
     }
     setStep(2); window.scrollTo({top:0,behavior:"smooth"});
   };
