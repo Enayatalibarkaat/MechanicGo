@@ -55,7 +55,7 @@ export default function Bookings(){
    {typeof b.mechanicId==="object"&&b.mechanicId?.name&&<div className="bookingLocation assignedMechanic"><Wrench size={15}/><span>Mechanic: <b>{b.mechanicId.name}</b>{b.mechanicId.phone?" · "+b.mechanicId.phone:""}</span></div>}
    <small className="bookingId">Booking ID: {b._id}</small>
    {!history&&<div className="bookingActions">
-     <button className="trackBookingBtn" onClick={()=>setTrackingId(b._id)}><Navigation size={17}/>{b.status==="SEARCHING"?"Track request":"Track mechanic"}</button>
+     <a className="trackBookingBtn" href={"/tracking?bookingId="+encodeURIComponent(b._id)}><Navigation size={17}/>{b.status==="SEARCHING"?"Track request":"Track mechanic"}</a>
      {(b.status==="SEARCHING"||b.status==="ACCEPTED")&&<button className="cancelBookingBtn" disabled={busyId===b._id} onClick={()=>void cancel(b)}><XCircle size={17}/>{busyId===b._id?"Cancelling…":"Cancel booking"}</button>}
    </div>}
  </article>;
