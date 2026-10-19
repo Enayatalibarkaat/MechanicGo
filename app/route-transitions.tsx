@@ -21,7 +21,7 @@ export default function RouteTransitions() {
       const currentParts = window.location.pathname.split("/").filter(Boolean);
       const nextParts = destination.pathname.split("/").filter(Boolean);
       const label = [link.getAttribute("aria-label"), link.getAttribute("title"), link.textContent].filter(Boolean).join(" ").toLowerCase();
-      const isBack = link.dataset.transition === "back" || /(^|\\b)(back|go back|close|cancel)(\\b|$)/i.test(label) || nextParts.length < currentParts.length;
+      const isBack = link.dataset.transition === "back" || /(back|go back|close|cancel)/i.test(label) || nextParts.length < currentParts.length;
       const direction = isBack ? "back" : "forward";
       try { sessionStorage.setItem("mg-page-direction", direction); } catch {}
       document.documentElement.classList.remove("mg-page-leaving-forward", "mg-page-leaving-back");
