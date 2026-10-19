@@ -50,7 +50,6 @@ export default function Tracking() {
     return () => window.clearInterval(timer);
   }, [load]);
 
-  const active = booking?.status === "SEARCHING" || booking?.status === "ACCEPTED";
   const created = booking?.createdAt ? new Date(booking.createdAt) : null;
 
   return <main className="appPage mg-tracking-page">
@@ -82,7 +81,7 @@ export default function Tracking() {
           <div className="mg-booking-secure"><ShieldCheck size={16}/><span>Your request is shared with eligible partners. Your live GPS is private and only enabled during the trip.</span></div>
         </section>
 
-        {booking.status === "SEARCHING" && <SearchingMechanicsMap address={booking.location?.address || "Bhira, Lakhimpur Kheri, Uttar Pradesh, India"} vehicleType={booking.vehicleType}/>}
+        {booking.status === "SEARCHING" && <SearchingMechanicsMap address={booking.location?.address || "Bhira, Lakhimpur Kheri, Uttar Pradesh, India"}/>}
         {booking.status === "ACCEPTED" && <LiveTrackingMap bookingId={booking._id} role="CUSTOMER"/>}
         {booking.status === "IN_PROGRESS" && <section className="mg-final-status"><CheckCircle2 size={24}/><div><b>Your mechanic has started the service</b><p>Live GPS sharing is paused while the repair is in progress.</p></div></section>}
         {booking.status === "COMPLETED" && <section className="mg-final-status"><CheckCircle2 size={24}/><div><b>Service completed</b><p>Thanks for choosing MechanicGo.</p></div></section>}
