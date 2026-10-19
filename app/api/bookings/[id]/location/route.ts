@@ -26,7 +26,7 @@ async function authorizedBooking(request: NextRequest, id: string) {
   const isCustomer = auth.user.role === "CUSTOMER" && String(booking.customerId) === String(auth.user._id);
   const isAssignedMechanic = auth.user.role === "MECHANIC" && String(booking.mechanicId || "") === String(auth.user._id);
   if (!isCustomer && !isAssignedMechanic) return { response: NextResponse.json({ error: "You are not allowed to access this booking's location." }, { status: 403 }) } as const;
-  if (booking.status !== "ACCEPTED") return { response: NextResponse.json({ error: "Live location sharing is available only while the assigned mechanic is on the way." , status: booking.status }) } as const;
+  if (booking.status !== "ACCEPTED") return { response: NextResponse.json({ error: "Live location sharing is available only while the assigned mechanic is on the way.", status: booking.status }, { status: 409 }) } as const;
   return { auth, booking } as const;
 }
 
