@@ -6,7 +6,7 @@ import { MapPin, Radio, Search } from "lucide-react";
 
 declare global { interface Window { L?: any } }
 
-export default function SearchingMechanicsMap({ address, vehicleType }: { address: string; vehicleType: string }) {
+export default function SearchingMechanicsMap({ address }: { address: string }) {
   const mapRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
   const [ready, setReady] = useState(false);
