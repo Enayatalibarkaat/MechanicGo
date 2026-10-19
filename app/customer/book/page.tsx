@@ -213,7 +213,7 @@ export default function CreateBooking() {
         <label className="bookingField bookingFullField"><span>Photo of the problem <i>Optional</i></span><div className="bookingInputWithIcon"><Camera size={19}/><input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={e => setPhoto(e.target.files?.[0] || null)}/></div>{photo && <small className="bookingFileName">{photo.name}</small>}</label>
 
         </>}
-        {step === 2 && <>
+        {step === 3 && <>
         <div className="bookingPaymentIntro"><span className="bookingPaymentBadge"><CreditCard size={22}/></span><div><div className="bookingEyebrow">STEP 03 · PAYMENT</div><h2>How would you like to pay?</h2><p>Choose your preferred payment method before confirming your request.</p></div></div>
         <div className="bookingSummary"><b>Booking summary</b><span>{bookingFor === "SELF" ? (vehicles.find(v => v._id === selectedVehicleId)?.brand + " " + vehicles.find(v => v._id === selectedVehicleId)?.model) : (otherPersonName + " · " + vehicleName(otherVehicleType))}</span><span>{issueDescription}</span><span><MapPin size={14}/>{address}</span><small><CheckCircle2 size={14}/> GPS location captured for nearby dispatch</small></div>\n        <div className="bookingStep"><span>03</span><div><h3>Payment preference</h3><p>Choose how you’d prefer to pay for the service.</p></div></div>
         <div className="bookingPaymentGrid">
