@@ -27,7 +27,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       previousStatus = target === "IN_PROGRESS" ? "ACCEPTED" : "IN_PROGRESS";
       booking = await Booking.findOneAndUpdate(
         { _id: id, mechanicId: auth.user._id, status: previousStatus },
-        { $set: { status: target } },
+        { $set: { status: target }, $unset: { customerLiveLocation: 1, mechanicLiveLocation: 1 } },
         { new: true }
       );
     } else if (auth.user.role === "CUSTOMER" && target === "CANCELLED") {
@@ -35,7 +35,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       previousStatus = "SEARCHING or ACCEPTED";
       booking = await Booking.findOneAndUpdate(
         { _id: id, customerId: auth.user._id, status: { $in: ["SEARCHING", "ACCEPTED"] } },
-        { $set: { status: "CANCELLED" } },
+        { $set: { status: "CANCELLED" }, $unset: { customerLiveLocation: 1, mechanicLiveLocation: 1 } },
         { new: true }
       );
     } else {
