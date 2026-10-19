@@ -6,7 +6,7 @@ import { MapPin, Radio, Search } from "lucide-react";
 
 declare global { interface Window { L?: any } }
 
-export default function SearchingMechanicsMap({ address }: { address: string }) {
+export default function SearchingMechanicsMap({ address, lat, lng }: { address: string; lat?: number; lng?: number }) {
   const mapRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
   const [ready, setReady] = useState(false);
@@ -30,8 +30,10 @@ export default function SearchingMechanicsMap({ address }: { address: string }) 
   useEffect(() => {
     const L = window.L;
     if (!ready || !L || mapRef.current) return;
+    const hasGps = Number.isFinite(lat) && Number.isFinite(lng);
+    const initialCenter: [number, number] = hasGps ? [Number(lat), Number(lng)] : [27.95, 80.78];
     const map = L.map("mg-search-area-map", { zoomControl: false, attributionControl: true, scrollWheelZoom: false, dragging: true })
-      .setView([27.95, 80.78], 14);
+      .setView(initialCenter, 15);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>'
@@ -39,10 +41,10 @@ export default function SearchingMechanicsMap({ address }: { address: string }) 
     L.control.zoom({ position: "bottomright" }).addTo(map);
     mapRef.current = map;
     const customerIcon = L.divIcon({ className: "mg-search-home-wrap", html: '<span class="mg-search-home"><span></span></span>', iconSize: [32, 32], iconAnchor: [16, 16] });
-    const home = L.marker([27.95, 80.78], { icon: customerIcon, zIndexOffset: 1000 }).addTo(map).bindTooltip("Your service area", { permanent: false, direction: "top" });
+    const home = L.marker(initialCenter, { icon: customerIcon, zIndexOffset: 1000 }).addTo(map).bindTooltip("Your service area", { permanent: false, direction: "top" });
     let geocodeCancelled = false;
-    fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=" + encodeURIComponent(address || "Bhira, Lakhimpur Kheri, Uttar Pradesh, India"))
-      .then(r => r.ok ? r.json() : [])
+    (hasGps ? Promise.resolve([]) : fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=" + encodeURIComponent(address || "Bhira, Lakhimpur Kheri, Uttar Pradesh, India"))
+      .then(r => r.ok ? r.json() : []))
       .then(data => {
         if (geocodeCancelled || !mapRef.current || !data?.[0]) return;
         const center: [number, number] = [Number(data[0].lat), Number(data[0].lon)];
@@ -78,7 +80,7 @@ export default function SearchingMechanicsMap({ address }: { address: string }) 
       active.forEach(marker => { if (mapRef.current) map.removeLayer(marker); });
       if (mapRef.current === map) { map.remove(); mapRef.current = null; }
     };
-  }, [ready, address]);
+  }, [ready, address, lat, lng]);
 
   return <section className="mg-search-map-card">
     <Script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" strategy="afterInteractive" onReady={() => setReady(true)} />
