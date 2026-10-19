@@ -91,7 +91,7 @@ export default function CreateBooking() {
 
   const continueToPayment = () => {
     setError("");
-    if (issueDescription.trim().length < 5) { setError("Please describe the vehicle problem in at least 5 characters."); return; }
+    if (issueDescription.trim().length < 10) { setError("Please describe the vehicle problem in at least 10 characters."); return; }
     if (!address.trim()) { setError("Please enter the complete service address."); return; }
     if (!locationCoords) {
       setError("Allow location access so we can send your request to mechanics near your current location.");
@@ -110,7 +110,7 @@ export default function CreateBooking() {
       if (otherPersonName.trim().length < 2) { setError("Please enter the person's name."); return; }
       if (!/^\+?[0-9]{10,15}$/.test(otherPersonPhone.replace(/[()\s.-]/g, ""))) { setError("Please enter a valid mobile number for the person needing help."); return; }
     }
-    if (issueDescription.trim().length < 5) { setError("Please describe the vehicle problem in at least 5 characters."); return; }
+    if (issueDescription.trim().length < 10) { setError("Please describe the vehicle problem in at least 10 characters."); return; }
     if (!address.trim()) { setError("Please enter the complete service address."); return; }
     if (!locationCoords) { setError("Please allow location access before sending your request."); requestLocation(); return; }
     setBusy(true);
