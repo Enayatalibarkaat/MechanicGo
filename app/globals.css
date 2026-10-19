@@ -332,3 +332,50 @@
 .trackingFooter button{padding:9px 12px;border-radius:11px;background:#edf4ff;color:#205bd3;font-size:11px;font-weight:800}
 .bottomNav a span{white-space:nowrap}
 @media(max-width:420px){.bookingSection{padding-left:14px;padding-right:14px}.activeBooking.premiumBooking{padding:16px 14px!important}.bookingActions{grid-template-columns:1fr}.historyTopBtn{padding:8px 9px}.pageHeader{padding-left:18px;padding-right:18px}.trackingDialog{padding:22px 17px 17px}}
+
+
+/* MechanicGo Leaflet live tracking */
+.mg-live-card{margin:18px 0 24px;background:#fff;border:1px solid #e0e8f4;border-radius:26px;padding:clamp(14px,3vw,24px);box-shadow:0 16px 45px #17365d0b;overflow:hidden}
+.mg-map-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.mg-map-heading h2{font:800 clamp(20px,4vw,26px)/1.2 Manrope, sans-serif;letter-spacing:-.5px;color:#101828;margin:7px 0}
+.mg-map-heading p{margin:0;color:#667085;font-size:14px;line-height:1.5}
+.mg-live-kicker{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:1.5px;color:#667085}
+.mg-live-kicker i,.mg-status-line i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#98a2b3}
+.mg-live-kicker i.is-live,.mg-status-line i.is-live{background:#10b981;box-shadow:0 0 0 4px #10b98120;animation:mgPulse 1.8s infinite}
+.mg-secure-pill{display:inline-flex;align-items:center;gap:5px;border-radius:30px;background:#ecfdf5;color:#047857;padding:8px 10px;font-size:11px;font-weight:800;white-space:nowrap}
+.mg-map-shell{position:relative;border-radius:20px;overflow:hidden;border:1px solid #dbe4ef;background:#eaf1f8}
+.mg-leaflet-map{height:clamp(300px,55vh,510px);width:100%;z-index:1}
+.mg-map-loading{position:absolute;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;gap:10px;background:#f8fafce8;color:#475467;font-weight:700}
+.mg-map-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:14px 2px 16px;color:#475467;font-size:12px;font-weight:700}
+.mg-map-legend>span{display:inline-flex;align-items:center;gap:7px}
+.mg-map-legend img{width:27px;height:29px;object-fit:contain}
+.mg-legend-customer{width:13px;height:13px;border:3px solid #fff;border-radius:50%;background:#10b981;box-shadow:0 0 0 2px #059669}
+.mg-legend-route{width:24px;border-top:4px dashed #2563eb}
+.mg-share-location{width:100%;min-height:54px;display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid #2563eb;border-radius:16px;background:linear-gradient(120deg,#1677ff,#0757d9);color:#fff;font-size:15px;font-weight:800;box-shadow:0 10px 25px #2563eb2b;cursor:pointer}
+.mg-share-location.is-sharing{background:#ecfdf5;color:#047857;border-color:#a7f3d0;box-shadow:none}
+.mg-sharing-status{display:flex;align-items:center;gap:9px;border-radius:14px;padding:13px;background:#ecfdf5;color:#047857;font-size:13px;font-weight:700}
+.mg-map-feedback{display:flex;align-items:center;gap:7px;margin:12px 0 0;color:#667085;font-size:12px;line-height:1.5}
+.mg-map-error{margin:12px 0 0;border:1px solid #fecaca;background:#fff1f2;border-radius:12px;padding:11px 13px;color:#b42318;font-size:13px;font-weight:600}
+.mg-map-footnote{margin:14px 0 0;color:#98a2b3;font-size:11px;line-height:1.6}
+.mg-booking-summary{margin-bottom:16px!important;border:1px solid #e0e8f4!important;border-radius:22px!important;box-shadow:0 12px 32px #17365d08}
+.mg-summary-title{display:flex;align-items:center;gap:12px}
+.mg-summary-title .setupIcon{margin:0;flex-shrink:0}
+.mg-summary-title h2{font:800 21px/1.25 Manrope,sans-serif;margin:5px 0 0;color:#101828}
+.mg-status-line{display:flex;align-items:center;gap:8px;color:#047857;font-size:13px;font-weight:800;margin:15px 0}
+.mg-privacy-note{display:flex;align-items:center;gap:8px;border-radius:12px;background:#eff6ff;color:#1d4ed8;padding:12px;font-size:12px;line-height:1.5}
+.mg-waiting-card{margin:18px 0;padding:22px;border:1px solid #e0e8f4;border-radius:22px;background:#fff}
+.mg-waiting-card p{color:#667085;font-size:13px;line-height:1.6}
+.mg-customer-marker-wrap,.mg-mechanic-marker-wrap{background:transparent!important;border:0!important}
+.mg-customer-marker{display:block;position:relative;width:25px;height:25px;border:4px solid #fff;border-radius:50%;background:#10b981;box-shadow:0 3px 12px #064e3b50,0 0 0 2px #059669}
+.mg-customer-marker:after{content:"";position:absolute;inset:-9px;border:2px solid #10b98180;border-radius:50%;animation:mgRipple 1.8s infinite}
+.mg-mechanic-marker{width:58px;height:64px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 5px 6px #0f172a30);animation:mgBob 2.2s ease-in-out infinite}
+.mg-mechanic-marker img{display:block;width:58px;height:64px;object-fit:contain}
+.mg-route-line{animation:mgRouteDash 1.4s linear infinite}
+.mg-booking-summary .bookingLocation{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.mg-booking-summary .bookingLocation a{margin-left:auto;color:#2563eb;font-weight:800}
+.trackBookingBtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
+@keyframes mgPulse{0%,100%{box-shadow:0 0 0 4px #10b98120}50%{box-shadow:0 0 0 7px #10b9810a}}
+@keyframes mgRipple{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.6);opacity:0}}
+@keyframes mgBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes mgRouteDash{to{stroke-dashoffset:-38}}
+@media(max-width:520px){.mg-live-card{padding:13px;border-radius:21px}.mg-map-heading{gap:8px}.mg-secure-pill{padding:7px;font-size:10px}.mg-leaflet-map{height:350px}.mg-map-legend{gap:12px}.mg-map-heading p{font-size:12px}}
