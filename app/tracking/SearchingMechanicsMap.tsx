@@ -94,7 +94,6 @@ export default function SearchingMechanicsMap({ address, lat, lng }: { address: 
       {!ready && <div className="mg-map-loading"><span className="bookingSpinner"/>Preparing area map…</div>}
       <div className="mg-search-map-chip"><Radio size={14}/> Live request dispatch</div>
     </div>
-    <div className="mg-search-map-footer"><span className="mg-search-live-dot"/><div><b>Request sent to eligible partners</b><p>Matching mechanics who are online can accept. As soon as one accepts, the request closes for everyone else.</p></div></div>
-    <p className="mg-search-disclaimer">Animated pins are a search visual, not verified mechanic GPS positions. Real mechanic location appears only after a mechanic accepts your booking.</p>
+    <div className="mg-search-map-footer"><span className="mg-search-live-dot"/><div><b>Request sent to eligible partners</b></div></div>
   </section>;
 }
