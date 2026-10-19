@@ -18,6 +18,7 @@ const UserSchema = new Schema({
   role: { type: String, enum: ["CUSTOMER", "MECHANIC", "ADMIN"], default: "CUSTOMER", index: true },
   accountStatus: { type: String, enum: ["PENDING_VERIFICATION", "ACTIVE", "INACTIVE", "BLOCKED", "TERMINATED"], default: "ACTIVE", index: true },
   isOnDuty: { type: Boolean, default: false, index: true },
+  serviceArea: { type: String, trim: true, maxlength: 100, default: "", index: true },
   vehicleTypes: { type: [String], enum: ["BIKE", "CAR", "BOTH"], default: [] },
   documents: { type: DocumentsSchema, default: () => ({}) },
   tokenVersion: { type: Number, default: 1 },
