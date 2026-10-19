@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Bike, CarFront, Camera, MapPin, Send, UserRound, UsersRound, CreditCard, Banknote, CheckCircle2, Plus, LoaderCircle, Car, ShieldCheck, LocateFixed } from "lucide-react";
+import { ArrowLeft, Bike, CarFront, Camera, MapPin, Send, UserRound, UsersRound, CreditCard, Banknote, CheckCircle2, Plus, LoaderCircle, Car, ShieldCheck, LocateFixed, X, ImagePlus } from "lucide-react";
 
 type Vehicle = {
   _id: string; type: string; brand: string; model: string; year: number;
@@ -26,7 +26,8 @@ export default function CreateBooking() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [issueDescription, setIssueDescription] = useState("");
   const [address, setAddress] = useState("");
-  const [photo, setPhoto] = useState<File | null>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [showPhotoManager, setShowPhotoManager] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -114,16 +115,17 @@ export default function CreateBooking() {
     if (!locationCoords) { setError("Please allow location access before sending your request."); requestLocation(); return; }
     setBusy(true);
     try {
-      let issuePhotoFileId = "";
-      if (photo) {
+      const issuePhotoFileIds: string[] = [];
+      for (const photo of photos) {
         const form = new FormData();
         form.append("file", photo);
         form.append("kind", "issuePhoto");
         const upload = await fetch("/api/telegram/upload", { method: "POST", body: form });
         const uploadData = await upload.json();
-        if (!upload.ok) throw new Error(uploadData.error || "Photo upload failed.");
-        issuePhotoFileId = uploadData.fileId;
+        if (!upload.ok) throw new Error(uploadData.error || "One of the problem photos failed to upload.");
+        if (uploadData.fileId) issuePhotoFileIds.push(String(uploadData.fileId));
       }
+      const issuePhotoFileId = issuePhotoFileIds[0] || "";
       const selectedVehicle = vehicles.find(v => v._id === selectedVehicleId);
       const vehicleType = bookingFor === "SELF" ? displayType(selectedVehicle?.type || "") : otherVehicleType;
       const response = await fetch("/api/bookings", {
@@ -133,7 +135,7 @@ export default function CreateBooking() {
           bookingFor, vehicleId: bookingFor === "SELF" ? selectedVehicleId : undefined,
           vehicleType, otherPersonName: otherPersonName.trim(), otherPersonPhone: otherPersonPhone.trim(),
           otherVehicleBrand, otherVehicleModel, otherRegistrationNumber,
-          paymentMethod, issueDescription: issueDescription.trim(), issuePhotoFileId,
+          paymentMethod, issueDescription: issueDescription.trim(), issuePhotoFileId, issuePhotoFileIds,
           location: { address: address.trim(), lat: locationCoords.lat, lng: locationCoords.lng }
         })
       });
@@ -142,7 +144,7 @@ export default function CreateBooking() {
       setBookingId(String(data.booking._id));
       setSuccess("created");
       if (data.telegramAlertSent === false) setWarning("Booking saved, but the Telegram dispatch alert could not be confirmed. Please contact support.");
-      setIssueDescription(""); setAddress(""); setPhoto(null); setLocationCoords(null); setLocationError("");
+      setIssueDescription(""); setAddress(""); setPhotos([]); setShowPhotoManager(false); setLocationCoords(null); setLocationError("");
       setOtherPersonName(""); setOtherPersonPhone(""); setOtherVehicleBrand(""); setOtherVehicleModel(""); setOtherRegistrationNumber("");
       setSelectedVehicleId("");
     } catch (e) {
@@ -164,7 +166,7 @@ export default function CreateBooking() {
 
       <section className="bookingCard">
         <div className="bookingProgress"><div className={"bookingProgressStep" + (step===1?" active":" complete")}><span>{step===1?"01":"✓"}</span><b>Vehicle</b></div><div className={"bookingProgressLine"+(step>=2?" complete":"")}/><div className={"bookingProgressStep"+(step===2?" active":step===3?" complete":"")}><span>{step===3?"✓":"02"}</span><b>Problem & location</b></div><div className={"bookingProgressLine"+(step===3?" complete":"")}/><div className={"bookingProgressStep"+(step===3?" active":"")}><span>03</span><b>Payment</b></div></div>
-        {step === 1 && <>
+        {step === 1 && <div key={step} className="bookingStepPanel bookingStepEnter">
         <div className="bookingStep"><span>01</span><div><h3>Who needs help?</h3><p>Book for your own vehicle or someone else.</p></div></div>
         <div className="bookingRecipientGrid">
           <button type="button" className={"bookingRecipient" + (bookingFor === "SELF" ? " isSelected" : "")} onClick={() => { setBookingFor("SELF"); setError(""); }}>
@@ -205,15 +207,15 @@ export default function CreateBooking() {
           <label className="bookingField"><span>Vehicle number <i>Optional</i></span><input value={otherRegistrationNumber} onChange={e => setOtherRegistrationNumber(e.target.value.toUpperCase())} maxLength={20} placeholder="e.g. UP32AB1234"/></label>
         </div>}
 
-        </>}
-        {step === 2 && <>
+        </div>}
+        {step === 2 && <div key={step} className="bookingStepPanel bookingStepEnter">
         <div className="bookingStep"><span>02</span><div><h3>What needs fixing?</h3><p>Describe the issue so the mechanic arrives prepared.</p></div></div>
-        <label className="bookingField bookingFullField"><span>Vehicle problem <i>Required</i></span><textarea value={issueDescription} onChange={e => setIssueDescription(e.target.value)} rows={3} maxLength={2000} placeholder="e.g. Engine won’t start, flat tyre, battery issue…"/></label>
+        <label className="bookingField bookingFullField"><span>Vehicle problem <i>Required · 10–500 characters</i></span><textarea value={issueDescription} onChange={e => setIssueDescription(e.target.value.slice(0,500))} rows={4} minLength={10} maxLength={500} placeholder="Tell us what happened so the mechanic arrives prepared…"/><small className={"bookingCharCount"+(issueDescription.trim().length<10?" isLow":"")}>{issueDescription.trim().length}/500 characters · minimum 10</small></label>
         <label className="bookingField bookingFullField"><span>Service address <i>Required</i></span><div className="bookingInputWithIcon"><MapPin size={19}/><input value={address} onChange={e => setAddress(e.target.value)} onBlur={() => { if (address.trim() && !locationCoords && !locationLoading) requestLocation(); }} maxLength={500} placeholder="Enter house, street, village or landmark"/></div><button type="button" className="bookingLocateButton" onClick={requestLocation} disabled={locationLoading}>{locationLoading ? <><LoaderCircle size={16} className="bookingSpin"/> Getting your GPS location…</> : locationCoords ? <><CheckCircle2 size={16}/> Location permission granted</> : <><LocateFixed size={16}/> Allow location & use current GPS</>}</button>{locationCoords && <small className="bookingLocationSuccess"><CheckCircle2 size={14}/> GPS location captured. Your typed address will also be saved.</small>}{locationError && <small className="bookingLocationError" role="alert">{locationError}</small>}<small className="bookingLocationPrivacy">Your GPS coordinates are used to route this booking to nearby mechanics. Your address text is kept as entered.</small></label>
-        <label className="bookingField bookingFullField"><span>Photo of the problem <i>Optional</i></span><div className="bookingInputWithIcon"><Camera size={19}/><input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={e => setPhoto(e.target.files?.[0] || null)}/></div>{photo && <small className="bookingFileName">{photo.name}</small>}</label>
+        <div className="bookingField bookingFullField"><div className="bookingPhotoHeader"><span>Photos of the problem <i>Optional · Up to 3 images</i></span><button type="button" className={"bookingPhotoCount"+(photos.length?" hasPhotos":"")} onClick={() => setShowPhotoManager(v => !v)} aria-expanded={showPhotoManager} aria-label={photos.length+" photos selected, click to manage"}><span>{photos.length}</span></button></div><label className="bookingPhotoPicker"><input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple hidden onChange={e => { const picked=Array.from(e.target.files||[]); const valid=picked.filter(file => file.type.startsWith("image/") && file.size<=8*1024*1024); setPhotos(current => [...current,...valid].slice(0,3)); setShowPhotoManager(true); e.currentTarget.value=""; if(picked.some(file => !file.type.startsWith("image/") || file.size>8*1024*1024)) setError("Only image files up to 8 MB each are allowed."); else if(photos.length+valid.length>3) setError("You can select up to 3 images."); }} /><span className="bookingPhotoCamera"><Camera size={22}/></span><span className="bookingPhotoCopy"><b>{photos.length===0?"Add photos of the issue":"Add another photo"}</b><small>{photos.length===3?"Maximum reached":"JPG, PNG or WebP · Max 8 MB each"}</small></span><span className="bookingPhotoAdd"><ImagePlus size={19}/></span></label>{showPhotoManager && photos.length>0 && <div className="bookingPhotoManager">{photos.map((file,index)=><div className="bookingPhotoItem" key={file.name+"-"+file.lastModified+"-"+index}><span className="bookingPhotoThumb"><Camera size={18}/></span><span className="bookingPhotoFile"><b>Photo {index+1}</b><small>{file.name}</small></span><button type="button" className="bookingPhotoRemove" onClick={() => setPhotos(current=>current.filter((_,i)=>i!==index))} aria-label={"Remove "+file.name}><X size={17}/></button></div>)}</div>}{photos.length===0 && <small className="bookingPhotoHint">Tap the green count circle to manage selected photos.</small>}</div>
 
-        </>}
-        {step === 3 && <>
+        </div>}
+        {step === 3 && <div key={step} className="bookingStepPanel bookingStepEnter">
         <div className="bookingPaymentIntro"><span className="bookingPaymentBadge"><CreditCard size={22}/></span><div><div className="bookingEyebrow">STEP 03 · PAYMENT</div><h2>How would you like to pay?</h2><p>Choose your preferred payment method before confirming your request.</p></div></div>
         <div className="bookingSummary"><b>Booking summary</b><span>{bookingFor === "SELF" ? (vehicles.find(v => v._id === selectedVehicleId)?.brand + " " + vehicles.find(v => v._id === selectedVehicleId)?.model) : (otherPersonName + " · " + vehicleName(otherVehicleType))}</span><span>{issueDescription}</span><span><MapPin size={14}/>{address}</span><small><CheckCircle2 size={14}/> GPS location captured for nearby dispatch</small></div>\n        <div className="bookingStep"><span>03</span><div><h3>Payment preference</h3><p>Choose how you’d prefer to pay for the service.</p></div></div>
         <div className="bookingPaymentGrid">
@@ -306,6 +308,21 @@ export default function CreateBooking() {
       .bookingSubmit:disabled{opacity:.65;cursor:wait}
       .bookingFooterNote{display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;color:#98a2b3;font-size:11px;line-height:1.5;margin:14px 0 0}
       .bookingFooterNote svg{flex:0 0 auto;color:#10b981}
+      .bookingStepPanel{min-width:0;will-change:transform,opacity}.bookingStepEnter{animation:bookingSlideIn .42s cubic-bezier(.2,.75,.25,1) both}
+      @keyframes bookingSlideIn{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:translateX(0)}}
+      @media(prefers-reduced-motion:reduce){.bookingStepEnter{animation:none}}
+      .bookingCharCount{display:block;margin-top:7px;text-align:right;color:#07815f;font-size:11px;font-weight:800}.bookingCharCount.isLow{color:#9a6700}
+      .bookingPhotoHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px;color:#344054;font-size:13px;font-weight:800}.bookingPhotoHeader i{display:block;margin-top:4px;color:#8490a0;font-size:11px;font-style:normal;font-weight:600}
+      .bookingPhotoCount{display:flex;align-items:center;justify-content:center;width:43px;height:43px;flex:0 0 43px;border:2px solid #d8e2e8;border-radius:50%;background:#f8fafc;color:#94a3b8;font-size:17px;font-weight:900}
+      .bookingPhotoCount.hasPhotos{border-color:#059669;background:#e9fbf2;color:#047857;box-shadow:0 0 0 4px #d1fae5;animation:bookingCountPop .35s cubic-bezier(.2,.8,.2,1) both}.bookingPhotoCount.hasPhotos span{animation:bookingCountRise .28s ease-out both}
+      @keyframes bookingCountRise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}@keyframes bookingCountPop{from{transform:scale(.78)}to{transform:scale(1)}}
+      .bookingPhotoPicker{display:flex;align-items:center;gap:12px;min-height:88px;padding:15px;border:1.5px dashed #b8cbed;border-radius:17px;background:linear-gradient(115deg,#f5f8ff,#fff);cursor:pointer}
+      .bookingPhotoCamera{display:flex;align-items:center;justify-content:center;width:46px;height:46px;flex:0 0 46px;border-radius:14px;background:#e7efff;color:#2563eb}.bookingPhotoCopy{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}.bookingPhotoCopy b{color:#172033;font-size:13px;font-weight:850}.bookingPhotoCopy small{color:#7b8798;font-size:11px;line-height:1.4}
+      .bookingPhotoAdd{display:flex;align-items:center;justify-content:center;width:35px;height:35px;flex:0 0 35px;border-radius:50%;background:#2563eb;color:white}.bookingPhotoManager{display:flex;flex-direction:column;gap:8px;margin-top:12px;padding:10px;border:1px solid #e4eaf2;border-radius:15px;background:#fbfcff;animation:bookingSlideIn .25s ease-out both}
+      .bookingPhotoItem{display:flex;align-items:center;gap:10px;min-width:0;padding:8px;border-radius:12px;background:#fff;border:1px solid #e9edf4}.bookingPhotoThumb{display:flex;align-items:center;justify-content:center;width:38px;height:38px;flex:0 0 38px;border-radius:11px;background:#eaf2ff;color:#2563eb}
+      .bookingPhotoFile{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}.bookingPhotoFile b{font-size:12px;color:#243247}.bookingPhotoFile small{overflow:hidden;color:#7b8798;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+      .bookingPhotoRemove{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;border:1px solid #fecaca;border-radius:50%;background:#fff1f2;color:#dc2626}.bookingPhotoHint{display:block;margin-top:8px;color:#8490a0;font-size:11px;line-height:1.5}
+
       .bookingLocateButton{display:flex;align-items:center;justify-content:center;gap:8px;min-height:43px;margin-top:10px;padding:10px 13px;border:1px solid #c8d9fb;border-radius:12px;background:#f3f7ff;color:#1d5fcb;font-size:12px;font-weight:800}
       .bookingLocateButton:disabled{opacity:.7}
       .bookingLocationSuccess,.bookingLocationError,.bookingLocationPrivacy{display:flex;align-items:flex-start;gap:6px;margin-top:8px;font-size:11px;line-height:1.5}
