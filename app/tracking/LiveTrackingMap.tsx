@@ -157,7 +157,7 @@ export default function LiveTrackingMap({ bookingId, role }: { bookingId: string
     <div className="mg-map-shell"><div id="mechanicgo-live-map" className="mg-leaflet-map" aria-label="Live roadside assistance map"/>{!leafletReady&&<div className="mg-map-loading"><span className="bookingSpinner"/>Loading map…</div>}</div>
     <div className="mg-map-legend"><span><i className="mg-legend-customer"/>Customer</span><span><img src="/mechanic-tracker.svg" alt=""/>Mechanic</span><span><i className="mg-legend-route"/>Route</span></div>
     {role === "CUSTOMER" && active && <button className={sharing ? "mg-share-location is-sharing" : "mg-share-location"} onClick={sharing ? stopSharing : startSharing}><LocateFixed size={18}/>{sharing ? "Stop sharing my location" : "Share my live location"}</button>}
-    {role === "MECHANIC" && active && <div className="mg-sharing-status"><Wifi size={17}/>{sharing ? "Sharing your live location with this customer" : "Allow location access to start live tracking."}</div>}
+    {role === "MECHANIC" && active && <><div className="mg-sharing-status"><Wifi size={17}/>{sharing ? "Sharing your live location with this customer" : "Location sharing is not active yet."}</div>{!sharing&&<button className="mg-share-location" onClick={startSharing}><LocateFixed size={18}/>Start sharing live location</button>}</>}
     {loading && <p className="mg-map-feedback">Connecting to live booking…</p>}
     {message && <p className="mg-map-feedback"><Wifi size={15}/>{message}</p>}
     {error && <p className="mg-map-error" role="alert">{error}</p>}
