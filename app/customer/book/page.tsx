@@ -241,7 +241,7 @@ export default function CreateBooking() {
         </div>
         {paymentMethod === "ONLINE" && <p className="bookingPaymentNote">Online is saved as your preference. A secure checkout will be available after a payment gateway is configured; no money is charged by submitting this booking.</p>}
 
-        </>}
+        </div>}
         {error && <p className="bookingError" role="alert">{error}</p>}
         {warning && <p className="bookingError" role="alert">{warning}</p>}
         {step===1 ? <button type="button" className="bookingSubmit" disabled={vehiclesLoading} onClick={continueToIssue}>Next: Problem details <ArrowLeft className="bookingNextArrow" size={19}/></button> : step===2 ? <div className="bookingActionRow"><button type="button" className="bookingBackButton" onClick={()=>{setError("");navigateStep(1);}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" onClick={continueToPayment}>Next: Payment <ArrowLeft className="bookingNextArrow" size={18}/></button></div> : <div className="bookingActionRow"><button type="button" className="bookingBackButton" disabled={busy} onClick={()=>{setError("");navigateStep(2);}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" disabled={busy} onClick={()=>void submit()}>{busy ? <><LoaderCircle className="bookingSpin" size={19}/> Sending request…</> : <>Confirm booking <Send size={18}/></>}</button></div>}
