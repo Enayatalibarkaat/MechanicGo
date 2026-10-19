@@ -11,6 +11,9 @@ export async function PATCH(request: NextRequest) {
     if (typeof body.isOnDuty !== "boolean") {
       return NextResponse.json({ error: "isOnDuty must be true or false." }, { status: 400 });
     }
+    if (body.isOnDuty && String(auth.user.serviceArea || "").trim().length < 2) {
+      return NextResponse.json({ error: "Save your service area before going online so requests can be routed to your area." }, { status: 400 });
+    }
     const previousDuty = Boolean(auth.user.isOnDuty);
     auth.user.isOnDuty = body.isOnDuty;
     await auth.user.save();
