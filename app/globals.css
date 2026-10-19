@@ -465,3 +465,27 @@
 @media(max-width:480px){.mg-tracking-content{padding:14px 12px 20px}.mg-booking-hero{padding:15px;border-radius:22px}.mg-booking-hero-top{gap:9px}.mg-status-badge{font-size:9px;padding:7px 8px}.mg-booking-headings h2{font-size:19px}.mg-search-map-card{padding:11px;border-radius:22px}.mg-search-area-map{height:340px}.mg-search-map-copy h2{font-size:17px}.mg-search-count{min-width:42px}.mg-tracking-header h1{font-size:18px}}
 
 .mg-service-area-card .setupLabel{display:block;font-size:12px;font-weight:800;color:#27364b}.mg-service-area-card .setupInput{margin-top:8px}.mg-service-area-help{font-size:11px;line-height:1.5;color:#718096;margin:7px 0 12px}.mg-service-area-card .secondaryWide{margin-top:0}
+
+
+/* Smooth left/right transitions between app screens */
+@keyframes mgPageEnterFromRight {
+  from { opacity: .65; transform: translate3d(26px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes mgPageEnterFromLeft {
+  from { opacity: .65; transform: translate3d(-26px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes mgPageLeaveToLeft {
+  to { opacity: .72; transform: translate3d(-18px, 0, 0); }
+}
+@keyframes mgPageLeaveToRight {
+  to { opacity: .72; transform: translate3d(18px, 0, 0); }
+}
+html[data-mg-nav="forward"] main { animation: mgPageEnterFromRight .34s cubic-bezier(.22,.72,.24,1) both; }
+html[data-mg-nav="back"] main { animation: mgPageEnterFromLeft .34s cubic-bezier(.22,.72,.24,1) both; }
+html.mg-page-leaving-forward main { animation: mgPageLeaveToLeft .12s ease-in both; }
+html.mg-page-leaving-back main { animation: mgPageLeaveToRight .12s ease-in both; }
+@media (prefers-reduced-motion: reduce) {
+  html[data-mg-nav] main, html.mg-page-leaving-forward main, html.mg-page-leaving-back main { animation: none !important; }
+}
