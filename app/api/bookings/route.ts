@@ -118,6 +118,9 @@ export async function GET(request: NextRequest) {
     const bookingQuery = Booking.find(filter).sort({ createdAt: -1 }).limit(100);
     if (auth.user.role === "CUSTOMER") bookingQuery.populate("mechanicId", "name phone");
     const bookings = await bookingQuery.lean();
-    return NextResponse.json({ bookings });
+    const visibleBookings = auth.user.role === "MECHANIC"
+      ? bookings.filter((booking: any) => booking.status !== "SEARCHING" || String(auth.user.serviceArea || "").trim().length > 0 && String(booking.location?.address || "").toLowerCase().includes(String(auth.user.serviceArea || "").trim().toLowerCase()))
+      : bookings;
+    return NextResponse.json({ bookings: visibleBookings });
   } catch (error) { console.error("List bookings error", error); return NextResponse.json({ error: "Could not load bookings." }, { status: 500 }); }
 }
