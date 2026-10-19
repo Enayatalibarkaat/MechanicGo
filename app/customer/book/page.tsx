@@ -64,7 +64,7 @@ export default function CreateBooking() {
       if (otherPersonName.trim().length < 2) { setError("Please enter the person’s name."); return; }
       if (!/^\+?[0-9]{10,15}$/.test(otherPersonPhone.replace(/[()\s.-]/g, ""))) { setError("Please enter a valid mobile number."); return; }
     }
-    setStep(2); window.scrollTo({top:0,behavior:"smooth"});
+    navigateStep(2);
   };
 
   const requestLocation = useCallback(() => {
@@ -98,7 +98,7 @@ export default function CreateBooking() {
       requestLocation();
       return;
     }
-    setStep(3); window.scrollTo({top:0,behavior:"smooth"});
+    navigateStep(3);
   };
   const submit = async () => {
     setError(""); setSuccess(""); setWarning("");
@@ -151,6 +151,18 @@ export default function CreateBooking() {
       setError(e instanceof Error ? e.message : "Could not create booking.");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const navigateStep = (next: 1 | 2 | 3) => {
+    const panel = document.querySelector(".bookingStepPanel");
+    if (panel && step !== next) {
+      panel.classList.remove("bookingStepEnter");
+      panel.classList.add("bookingStepExit");
+      window.setTimeout(() => { setStep(next); window.scrollTo({ top: 0, behavior: "smooth" }); }, 180);
+    } else {
+      setStep(next);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -232,7 +244,7 @@ export default function CreateBooking() {
         </>}
         {error && <p className="bookingError" role="alert">{error}</p>}
         {warning && <p className="bookingError" role="alert">{warning}</p>}
-        {step===1 ? <button type="button" className="bookingSubmit" disabled={vehiclesLoading} onClick={continueToIssue}>Next: Problem details <ArrowLeft className="bookingNextArrow" size={19}/></button> : step===2 ? <div className="bookingActionRow"><button type="button" className="bookingBackButton" onClick={()=>{setStep(1);setError("");window.scrollTo({top:0,behavior:"smooth"});}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" onClick={continueToPayment}>Next: Payment <ArrowLeft className="bookingNextArrow" size={18}/></button></div> : <div className="bookingActionRow"><button type="button" className="bookingBackButton" disabled={busy} onClick={()=>{setStep(2);setError("");window.scrollTo({top:0,behavior:"smooth"});}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" disabled={busy} onClick={()=>void submit()}>{busy ? <><LoaderCircle className="bookingSpin" size={19}/> Sending request…</> : <>Confirm booking <Send size={18}/></>}</button></div>}
+        {step===1 ? <button type="button" className="bookingSubmit" disabled={vehiclesLoading} onClick={continueToIssue}>Next: Problem details <ArrowLeft className="bookingNextArrow" size={19}/></button> : step===2 ? <div className="bookingActionRow"><button type="button" className="bookingBackButton" onClick={()=>{setError("");navigateStep(1);}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" onClick={continueToPayment}>Next: Payment <ArrowLeft className="bookingNextArrow" size={18}/></button></div> : <div className="bookingActionRow"><button type="button" className="bookingBackButton" disabled={busy} onClick={()=>{setError("");navigateStep(2);}}><ArrowLeft size={18}/> Back</button><button type="button" className="bookingSubmit bookingConfirmButton" disabled={busy} onClick={()=>void submit()}>{busy ? <><LoaderCircle className="bookingSpin" size={19}/> Sending request…</> : <>Confirm booking <Send size={18}/></>}</button></div>}
         <p className="bookingFooterNote"><ShieldCheck size={15}/> Your booking details are sent securely to help dispatch an available mechanic.</p>
       </section>
       {busy && <div className="bookingOverlay" role="status" aria-live="polite"><div className="bookingWaitCard"><div className="bookingMascot"><svg viewBox="0 0 160 130" role="img" aria-label="Cartoon mechanic in blue cap and uniform with a tool bag and wrench"><ellipse cx="80" cy="121" rx="48" ry="6" fill="#dbe7fb"/><path d="M44 54Q45 36 61 34H99Q116 38 117 55L126 103H34Z" fill="#2563eb"/><path d="M62 65L80 79L98 65L94 103H66Z" fill="#dbeafe"/><circle cx="80" cy="31" r="20" fill="#f2c6a5"/><path d="M59 28Q59 6 81 7Q102 7 102 28Z" fill="#1747a6"/><path d="M54 27Q80 17 107 27L105 33H56Z" fill="#2563eb"/><circle cx="73" cy="32" r="2" fill="#172033"/><circle cx="87" cy="32" r="2" fill="#172033"/><path d="M73 41Q80 47 88 41" fill="none" stroke="#a75b46" strokeWidth="2"/><path d="M46 58L28 81L37 88L58 69M114 58L133 77L125 86L105 69" fill="#f2c6a5"/><rect x="9" y="82" width="31" height="29" rx="6" fill="#1747a6"/><path d="M16 82Q16 73 25 73Q34 73 34 82" fill="none" stroke="#1747a6" strokeWidth="4"/><path d="M131 76L144 64L150 70L137 82M143 62L150 56L156 62L150 69" fill="none" stroke="#64748b" strokeWidth="4" strokeLinecap="round"/><path d="M62 103L60 119H76L78 103M84 103L87 119H103L98 103" fill="#172554"/></svg></div><div className="bookingWaitSpinner"><LoaderCircle className="bookingSpin" size={22}/></div><h3>Finding your mechanic</h3><p>Please wait while we securely send your request. Keep this page open.</p><div className="bookingWaitTrack"><span/></div></div></div>}
@@ -309,8 +321,8 @@ export default function CreateBooking() {
       .bookingSubmit:disabled{opacity:.65;cursor:wait}
       .bookingFooterNote{display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;color:#98a2b3;font-size:11px;line-height:1.5;margin:14px 0 0}
       .bookingFooterNote svg{flex:0 0 auto;color:#10b981}
-      .bookingStepPanel{min-width:0;will-change:transform,opacity}.bookingStepEnter{animation:bookingSlideIn .42s cubic-bezier(.2,.75,.25,1) both}
-      @keyframes bookingSlideIn{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:translateX(0)}}
+      .bookingStepPanel{min-width:0;will-change:transform,opacity}.bookingStepEnter{animation:bookingSlideIn .42s cubic-bezier(.2,.75,.25,1) both}.bookingStepExit{animation:bookingSlideOut .18s ease-in forwards;pointer-events:none}
+      @keyframes bookingSlideIn{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:translateX(0)}}@keyframes bookingSlideOut{to{opacity:0;transform:translateX(-40px)}}
       @media(prefers-reduced-motion:reduce){.bookingStepEnter{animation:none}}
       .bookingCharCount{display:block;margin-top:7px;text-align:right;color:#07815f;font-size:11px;font-weight:800}.bookingCharCount.isLow{color:#9a6700}
       .bookingPhotoHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px;color:#344054;font-size:13px;font-weight:800}.bookingPhotoHeader i{display:block;margin-top:4px;color:#8490a0;font-size:11px;font-style:normal;font-weight:600}
