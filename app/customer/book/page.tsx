@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Bike, CarFront, Camera, MapPin, Send, UserRound, UsersRound, CreditCard, Banknote, CheckCircle2, Plus, LoaderCircle, Car, ShieldCheck, LocateFixed, X, ImagePlus } from "lucide-react";
+import { ArrowLeft, Bike, CarFront, Camera, MapPin, Send, UserRound, UsersRound, CreditCard, Banknote, CheckCircle2, Plus, LoaderCircle, Car, ShieldCheck, LocateFixed, X, ImagePlus, Ticket, Tag } from "lucide-react";
 
 type Vehicle = {
   _id: string; type: string; brand: string; model: string; year: number;
@@ -37,6 +37,10 @@ export default function CreateBooking() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [bookingId, setBookingId] = useState("");
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; amount: number } | null>(null);
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [couponError, setCouponError] = useState("");
 
   const loadVehicles = useCallback(async () => {
     setVehiclesLoading(true);
@@ -56,6 +60,23 @@ export default function CreateBooking() {
   }, []);
 
   useEffect(() => { void loadVehicles(); }, [loadVehicles]);
+  useEffect(() => { const code = new URLSearchParams(window.location.search).get("coupon"); if (code) setCouponInput(code.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12)); }, []);
+
+  const applyCoupon = async () => {
+    setCouponError("");
+    const code = couponInput.trim().toUpperCase().replace(/\\s+/g, "");
+    if (!/^[A-Z0-9]{12}$/.test(code)) { setCouponError("Enter the complete 12-character code. Claim it in Coupons & Offers first."); return; }
+    setCouponBusy(true);
+    try {
+      const response = await fetch("/api/coupons/apply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "This coupon could not be applied.");
+      setAppliedCoupon({ code: data.coupon.code, amount: Number(data.coupon.amount) });
+      setCouponInput(data.coupon.code);
+    } catch (e) { setAppliedCoupon(null); setCouponError(e instanceof Error ? e.message : "Could not verify coupon."); }
+    finally { setCouponBusy(false); }
+  };
+  const removeCoupon = () => { setAppliedCoupon(null); setCouponInput(""); setCouponError(""); };
 
   const continueToIssue = () => {
     setError("");
@@ -135,7 +156,7 @@ export default function CreateBooking() {
           bookingFor, vehicleId: bookingFor === "SELF" ? selectedVehicleId : undefined,
           vehicleType, otherPersonName: otherPersonName.trim(), otherPersonPhone: otherPersonPhone.trim(),
           otherVehicleBrand, otherVehicleModel, otherRegistrationNumber,
-          paymentMethod, issueDescription: issueDescription.trim(), issuePhotoFileId, issuePhotoFileIds,
+          paymentMethod, couponCode: appliedCoupon?.code || "", issueDescription: issueDescription.trim(), issuePhotoFileId, issuePhotoFileIds,
           location: { address: address.trim(), lat: locationCoords.lat, lng: locationCoords.lng }
         })
       });
@@ -144,7 +165,7 @@ export default function CreateBooking() {
       setBookingId(String(data.booking._id));
       setSuccess("created");
       if (data.telegramAlertSent === false) setWarning("Booking saved, but the Telegram dispatch alert could not be confirmed. Please contact support.");
-      setIssueDescription(""); setAddress(""); setPhotos([]); setShowPhotoManager(false); setLocationCoords(null); setLocationError("");
+      setIssueDescription(""); setAddress(""); setPhotos([]); setShowPhotoManager(false); setLocationCoords(null); setLocationError(""); setAppliedCoupon(null); setCouponInput(""); setCouponError("");
       setOtherPersonName(""); setOtherPersonPhone(""); setOtherVehicleBrand(""); setOtherVehicleModel(""); setOtherRegistrationNumber("");
       setSelectedVehicleId("");
     } catch (e) {
@@ -230,6 +251,11 @@ export default function CreateBooking() {
         {step === 3 && <div key={step} className="bookingStepPanel bookingStepEnter">
         <div className="bookingPaymentIntro"><span className="bookingPaymentBadge"><CreditCard size={22}/></span><div><div className="bookingEyebrow">STEP 03 · PAYMENT</div><h2>How would you like to pay?</h2><p>Choose your preferred payment method before confirming your request.</p></div></div>
         <div className="bookingSummary"><b>Booking summary</b><span>{bookingFor === "SELF" ? (vehicles.find(v => v._id === selectedVehicleId)?.brand + " " + vehicles.find(v => v._id === selectedVehicleId)?.model) : (otherPersonName + " · " + vehicleName(otherVehicleType))}</span><span>{issueDescription}</span><span><MapPin size={14}/>{address}</span><small><CheckCircle2 size={14}/> GPS location captured for nearby dispatch</small></div>
+        <section className="bookingCouponBox" aria-label="Apply coupon">
+          <div className="bookingCouponHeading"><span className="bookingCouponIcon"><Ticket size={20}/></span><div><b>Have a coupon?</b><small>Apply a claimed code to this booking</small></div><a href="/coupons">My coupons</a></div>
+          {appliedCoupon ? <div className="bookingCouponApplied"><span className="bookingCouponAppliedIcon"><CheckCircle2 size={18}/></span><div><b>{appliedCoupon.code}</b><small>Coupon discount saved: {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(appliedCoupon.amount)}</small></div><button type="button" onClick={removeCoupon} aria-label="Remove coupon"><X size={17}/></button></div> : <><div className="bookingCouponInputRow"><input value={couponInput} onChange={e=>{setCouponInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12));setCouponError("");}} maxLength={12} autoCapitalize="characters" autoComplete="off" placeholder="Enter 12-character code"/><button type="button" onClick={()=>void applyCoupon()} disabled={couponBusy || couponInput.length!==12}>{couponBusy ? <LoaderCircle className="bookingSpin" size={16}/> : <Tag size={16}/>} Apply</button></div>{couponError && <small className="bookingCouponError" role="alert">{couponError}</small>}</>}
+          <p className="bookingCouponHint">The exact coupon value is recorded with your request. Your mechanic confirms the final service charge; no online payment is collected on this screen.</p>
+        </section>
         <div className="bookingStep"><span>03</span><div><h3>Payment preference</h3><p>Choose how you’d prefer to pay for the service.</p></div></div>
         <div className="bookingPaymentGrid">
           <button type="button" className={"bookingPayment" + (paymentMethod === "ONLINE" ? " isSelected" : "")} onClick={() => setPaymentMethod("ONLINE")}>
