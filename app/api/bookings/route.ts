@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    const requestedCouponCode = String(body.couponCode || "").trim().toUpperCase().replace(/\\s+/g, "");
+    const requestedCouponCode = String(body.couponCode || "").trim().toUpperCase().replace(/\s+/g, "");
     if (requestedCouponCode && !/^[A-Z0-9]{12}$/.test(requestedCouponCode)) {
       return NextResponse.json({ error: "Coupon code must contain exactly 12 letters and/or numbers." }, { status: 400 });
     }
