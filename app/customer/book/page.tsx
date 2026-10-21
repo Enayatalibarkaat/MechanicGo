@@ -64,7 +64,7 @@ export default function CreateBooking() {
 
   const applyCoupon = async () => {
     setCouponError("");
-    const code = couponInput.trim().toUpperCase().replace(/\\s+/g, "");
+    const code = couponInput.trim().toUpperCase().replace(/\s+/g, "");
     if (!/^[A-Z0-9]{12}$/.test(code)) { setCouponError("Enter the complete 12-character code. Claim it in Coupons & Offers first."); return; }
     setCouponBusy(true);
     try {
