@@ -20,6 +20,9 @@ const BookingSchema = new Schema({
   issueDescription: { type: String, required: true, trim: true, maxlength: 2000 },
   issuePhotoFileId: { type: String, default: "" },
   issuePhotoFileIds: { type: [String], default: [] },
+  couponId: { type: Schema.Types.ObjectId, ref: "Coupon", default: null },
+  couponCode: { type: String, trim: true, uppercase: true, default: "" },
+  couponDiscountAmount: { type: Number, min: 0, default: 0 },
   paymentMethod: { type: String, enum: ["ONLINE", "CASH"], default: "CASH", index: true },
   paymentStatus: { type: String, enum: ["PENDING", "CASH_DUE", "PAID", "FAILED"], default: "CASH_DUE" },
   location: {
