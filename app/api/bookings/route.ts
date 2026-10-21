@@ -4,6 +4,7 @@ import { currentUser } from "@/lib/session";
 import { sendTelegramAlert } from "@/lib/telegram";
 import Booking from "@/models/Booking";
 import Vehicle from "@/models/Vehicle";
+import Coupon from "@/models/Coupon";
 export const runtime = "nodejs";
 
 const escapeHtml = (value: string) => value.replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c] || c));
@@ -73,12 +74,41 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    const booking = await Booking.create({
-      customerId: auth.user._id, vehicleId, vehicleType, vehicleDetails, bookingFor,
-      otherPersonName, otherPersonPhone, paymentMethod,
-      paymentStatus: paymentMethod === "ONLINE" ? "PENDING" : "CASH_DUE",
-      issueDescription, issuePhotoFileId: issuePhotoFileIds[0] || issuePhotoFileId, issuePhotoFileIds, location: { lat, lng, address }, status: "SEARCHING"
-    });
+    const requestedCouponCode = String(body.couponCode || "").trim().toUpperCase().replace(/\\s+/g, "");
+    if (requestedCouponCode && !/^[A-Z0-9]{12}$/.test(requestedCouponCode)) {
+      return NextResponse.json({ error: "Coupon code must contain exactly 12 letters and/or numbers." }, { status: 400 });
+    }
+    let redeemedCoupon: any = null;
+    if (requestedCouponCode) {
+      const now = new Date();
+      redeemedCoupon = await Coupon.findOneAndUpdate({
+        code: requestedCouponCode, claimedBy: auth.user._id, active: true, redeemedAt: null,
+        $and: [
+          { $or: [{ startsAt: null }, { startsAt: { $lte: now } }] },
+          { $or: [{ expiresAt: null }, { expiresAt: { $gt: now } }] }
+        ]
+      }, { $set: { redeemedBy: auth.user._id, redeemedAt: now } }, { new: true }).lean() as any;
+      if (!redeemedCoupon) {
+        return NextResponse.json({ error: "Your coupon is no longer available. It may have expired, been disabled, or already been used. Please remove it and try again." }, { status: 409 });
+      }
+    }
+
+    let booking: any;
+    try {
+      booking = await Booking.create({
+        customerId: auth.user._id, vehicleId, vehicleType, vehicleDetails, bookingFor,
+        otherPersonName, otherPersonPhone, paymentMethod,
+        paymentStatus: paymentMethod === "ONLINE" ? "PENDING" : "CASH_DUE",
+        couponId: redeemedCoupon?._id || null, couponCode: redeemedCoupon?.code || "",
+        couponDiscountAmount: Number(redeemedCoupon?.amount || 0),
+        issueDescription, issuePhotoFileId: issuePhotoFileIds[0] || issuePhotoFileId, issuePhotoFileIds, location: { lat, lng, address }, status: "SEARCHING"
+      });
+    } catch (createError) {
+      if (redeemedCoupon?._id) {
+        await Coupon.updateOne({ _id: redeemedCoupon._id, redeemedBy: auth.user._id }, { $set: { redeemedBy: null, redeemedAt: null } }).catch(() => {});
+      }
+      throw createError;
+    }
 
     let telegramAlertSent = true;
     try {
@@ -93,6 +123,7 @@ export async function POST(request: NextRequest) {
         "Service address: " + escapeHtml(address),
         "Customer GPS: " + lat + ", " + lng,
         "Payment preference: " + escapeHtml(paymentMethod === "ONLINE" ? "ONLINE (payment pending)" : "CASH AFTER SERVICE"),
+        ...(redeemedCoupon ? ["Coupon: " + escapeHtml(redeemedCoupon.code) + " · discount ₹" + Number(redeemedCoupon.amount)] : []),
         "Status: SEARCHING"
       ].join("\n"));
     } catch (error) { telegramAlertSent = false; console.error("Booking Telegram alert failed", error); }
