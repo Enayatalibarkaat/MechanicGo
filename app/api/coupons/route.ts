@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       code: c.code, amount: c.amount, active: Boolean(c.active),
       startsAt: c.startsAt || null, expiresAt: c.expiresAt || null,
       claimedAt: c.claimedAt || null, redeemedAt: c.redeemedAt || null,
-      status: c.redeemedAt ? "USED" : !c.active || (c.expiresAt && new Date(c.expiresAt).getTime() <= Date.now()) ? "INACTIVE" : "CLAIMED"
+      status: c.redeemedAt ? "USED" : !c.active || (c.startsAt && new Date(c.startsAt).getTime() > Date.now()) || (c.expiresAt && new Date(c.expiresAt).getTime() <= Date.now()) ? "INACTIVE" : "CLAIMED"
     })) }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("List claimed coupons error", error);
