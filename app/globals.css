@@ -467,25 +467,23 @@
 .mg-service-area-card .setupLabel{display:block;font-size:12px;font-weight:800;color:#27364b}.mg-service-area-card .setupInput{margin-top:8px}.mg-service-area-help{font-size:11px;line-height:1.5;color:#718096;margin:7px 0 12px}.mg-service-area-card .secondaryWide{margin-top:0}
 
 
-/* Smooth left/right transitions between app screens */
-@keyframes mgPageEnterFromRight {
-  from { opacity: .65; transform: translate3d(26px, 0, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-@keyframes mgPageEnterFromLeft {
-  from { opacity: .65; transform: translate3d(-26px, 0, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-@keyframes mgPageLeaveToLeft {
-  to { opacity: .72; transform: translate3d(-18px, 0, 0); }
-}
-@keyframes mgPageLeaveToRight {
-  to { opacity: .72; transform: translate3d(18px, 0, 0); }
-}
-html[data-mg-nav="forward"] main { animation: mgPageEnterFromRight .34s cubic-bezier(.22,.72,.24,1) both; }
-html[data-mg-nav="back"] main { animation: mgPageEnterFromLeft .34s cubic-bezier(.22,.72,.24,1) both; }
-html.mg-page-leaving-forward main { animation: mgPageLeaveToLeft .12s ease-in both; }
-html.mg-page-leaving-back main { animation: mgPageLeaveToRight .12s ease-in both; }
-@media (prefers-reduced-motion: reduce) {
-  html[data-mg-nav] main, html.mg-page-leaving-forward main, html.mg-page-leaving-back main { animation: none !important; }
-}
+
+/* Lightweight client-side page transitions — keep motion on the compositor. */
+@keyframes mgPageEnterFromRight { from { opacity: .82; transform: translate3d(8px,0,0); } to { opacity: 1; transform: translate3d(0,0,0); } }
+@keyframes mgPageEnterFromLeft { from { opacity: .82; transform: translate3d(-8px,0,0); } to { opacity: 1; transform: translate3d(0,0,0); } }
+html[data-mg-nav="forward"] main { animation: mgPageEnterFromRight .18s ease-out both; }
+html[data-mg-nav="back"] main { animation: mgPageEnterFromLeft .18s ease-out both; }
+.mg-route-loader{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px;background:rgba(246,249,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:mgLoaderFadeIn .12s ease-out both}
+.mg-route-loader-card{width:min(100%,300px);padding:27px 24px 23px;border:1px solid #e4ebf7;border-radius:26px;background:#fff;box-shadow:0 24px 70px #173c7517;text-align:center}
+.mg-route-mascot{position:relative;width:94px;height:88px;margin:0 auto 10px;display:grid;place-items:center}
+.mg-route-mascot img{width:76px;height:82px;object-fit:contain;animation:mgMechanicBusy .9s ease-in-out infinite alternate;transform-origin:50% 85%}
+.mg-route-mascot>span{position:absolute;right:0;bottom:8px;width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:#eaf2ff;color:#2563eb;box-shadow:0 3px 10px #2563eb1c;animation:mgWrenchBusy .75s ease-in-out infinite alternate}
+.mg-route-loader-title{font:800 18px Manrope,system-ui,sans-serif;letter-spacing:-.3px;color:#14243b}
+.mg-route-loader p{margin:6px 0 18px;font-size:12px;color:#7b8798}
+.mg-route-loader-track{height:4px;border-radius:99px;overflow:hidden;background:#edf2fa}
+.mg-route-loader-track span{display:block;width:35%;height:100%;border-radius:99px;background:linear-gradient(90deg,#2563eb,#10b981);animation:mgLoaderProgress 1.05s ease-in-out infinite}
+@keyframes mgLoaderFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes mgMechanicBusy{from{transform:translateY(2px) rotate(-2deg)}to{transform:translateY(-4px) rotate(2deg)}}
+@keyframes mgWrenchBusy{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}
+@keyframes mgLoaderProgress{from{transform:translateX(-110%)}to{transform:translateX(310%)}}
+@media(prefers-reduced-motion:reduce){html[data-mg-nav] main,.mg-route-loader,.mg-route-mascot img,.mg-route-mascot>span,.mg-route-loader-track span{animation:none!important}}
