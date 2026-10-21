@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, BadgeCheck, CheckCircle2, CircleAlert, Clock3, Copy, Gift, LoaderCircle, Ticket, XCircle } from "lucide-react";
 import { Bottom } from "../components";
 
