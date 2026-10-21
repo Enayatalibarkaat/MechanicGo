@@ -29,13 +29,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     if (body.action === "password-login") {
-      const username = normalizeUsername(String(body.username || ""));
+      const identifier = String(body.identifier || body.username || "").trim().toLowerCase();
       const password = String(body.password || "");
-      if (!username || !password) return NextResponse.json({ error: "Enter username and password." }, { status: 400 });
+      if (!identifier || !password) return NextResponse.json({ error: "Enter your username/email and password." }, { status: 400 });
       await connectDB();
-      const user: any = await User.findOne({ username }).select("+passwordHash").lean();
+      const accountQuery = identifier.includes("@") ? { email: identifier } : { username: normalizeUsername(identifier) };
+      const user: any = await User.findOne(accountQuery).select("+passwordHash").lean();
       if (!user || !(await verifyAccountPassword(password, user.passwordHash))) {
-        return NextResponse.json({ error: "Username or password is incorrect. You can also use email OTP." }, { status: 401 });
+        return NextResponse.json({ error: "Username/email or password is incorrect. You can also use email OTP." }, { status: 401 });
       }
       if (user.role === "ADMIN") return NextResponse.json({ error: "Owner accounts use the separate owner portal." }, { status: 403 });
       if (["BLOCKED", "TERMINATED", "INACTIVE"].includes(user.accountStatus)) {
