@@ -82,7 +82,7 @@ const catalog: Record<VehicleType, Record<string, string[]>> = {
 const typeOptions: { value: VehicleType; label: string; Icon: typeof CarFront }[] = [
   { value: "CAR", label: "Car", Icon: CarFront },
   { value: "BIKE", label: "Bike", Icon: Bike },
-  { value: "SCOOTER", label: "Scooter", Icon: Bike },
+  { value: "SCOOTER", label: "Scooty / Scooter", Icon: Bike },
   { value: "TRUCK", label: "Truck", Icon: Truck },
   { value: "BUS", label: "Bus", Icon: BusFront }
 ];
