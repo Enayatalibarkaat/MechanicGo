@@ -19,7 +19,7 @@ const UserSchema = new Schema({
   accountStatus: { type: String, enum: ["PENDING_VERIFICATION", "ACTIVE", "INACTIVE", "BLOCKED", "TERMINATED"], default: "ACTIVE", index: true },
   isOnDuty: { type: Boolean, default: false, index: true },
   serviceArea: { type: String, trim: true, maxlength: 100, default: "", index: true },
-  vehicleTypes: { type: [String], enum: ["BIKE", "CAR", "BOTH"], default: [] },
+  vehicleTypes: { type: [String], enum: ["BIKE", "CAR", "SCOOTER", "SCOOTER_EV", "EV", "TRUCK", "BUS", "BOTH"], default: [] },
   documents: { type: DocumentsSchema, default: () => ({}) },
   tokenVersion: { type: Number, default: 1 },
   offboardingDetails: { terminatedAt: { type: Date, default: null }, reason: { type: String, default: "" } },
