@@ -1,13 +1,13 @@
 "use client";
 import {useEffect,useState} from "react";
-import {CarFront,Bike,CalendarClock,RefreshCw} from "lucide-react";
+import {CarFront,Bike,CalendarClock,RefreshCw,ArrowLeft} from "lucide-react";
 import {Bottom} from "../components";
 type Booking={_id:string;vehicleType:string;issueDescription:string;status:string;createdAt:string;location?:{address?:string};mechanicId?:{name?:string}|string|null};
 export default function HistoryPage(){
  const[items,setItems]=useState<Booking[]>([]);const[loading,setLoading]=useState(true);const[error,setError]=useState("");
  const load=async()=>{setError("");try{const r=await fetch("/api/bookings",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load service history.");setItems((d.bookings||[]).filter((b:Booking)=>b.status==="COMPLETED"));}catch(e){setError(e instanceof Error?e.message:"Could not load service history.");}finally{setLoading(false);}};
  useEffect(()=>{void load();},[]);
- return <main className="appPage"><header className="appHeader"><a href="/home">‹</a><h1>Service History</h1><button className="iconBtn" onClick={()=>void load()} aria-label="Refresh"><RefreshCw size={17}/></button></header>
+ return <main className="appPage"><header className="pageHeader"><a href="/home" className="pageBackBtn" aria-label="Back to home"><ArrowLeft size={22}/></a><h1>Service History</h1><button className="iconBtn" onClick={()=>void load()} aria-label="Refresh"><RefreshCw size={17}/></button></header>
  <section className="healthCard"><label>YOUR SERVICE RECORD</label><h2>{loading?"Loading…":items.length+" completed service"+(items.length===1?"":"s")}</h2><p>This list is based on completed bookings saved to your account. Costs and invoices are not shown unless recorded by the platform.</p></section>
  {error&&<p className="setupError">{error}</p>}
  <section className="historyList"><div className="rowTitle"><h2>Completed bookings</h2></div>
