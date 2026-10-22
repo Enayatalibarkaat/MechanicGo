@@ -67,7 +67,7 @@ export default function Bookings(){
     })}
    </div>
    {b.status==="CANCELLED"&&<div className="bookingCancelledNote"><XCircle size={15}/> This request was cancelled.</div>}
-   {b.status==="COMPLETED"&&b.review?.rating&&<div className="bookingReviewSaved"><Star size={15} fill="currentColor"/> Your rating: {b.review.rating}/5 {b.review.comment? "· "+b.review.comment:""}</div>
+   {b.status==="COMPLETED"&&b.review?.rating&&<div className="bookingReviewSaved"><Star size={15} fill="currentColor"/> Your rating: {b.review.rating}/5 {b.review.comment? "· "+b.review.comment:""}</div>}
    {typeof b.mechanicId==="object"&&b.mechanicId?.name&&<div className="bookingLocation assignedMechanic"><Wrench size={15}/><span>Mechanic: <b>{b.mechanicId.name}</b>{b.mechanicId.phone?" · "+b.mechanicId.phone:""}</span></div>}
    <small className="bookingId">Booking ID: {b._id}</small>
    {!history?<div className="bookingActions">
