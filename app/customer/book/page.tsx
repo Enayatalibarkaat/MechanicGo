@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Bike, CarFront, Camera, MapPin, Send, UserRound, UsersRound, CreditCard, Banknote, CheckCircle2, Plus, LoaderCircle, Car, ShieldCheck, LocateFixed, X, ImagePlus, Ticket, Tag } from "lucide-react";
+import { ArrowLeft, Bike, CarFront, Camera, MapPin, Send, UserRound, UsersRound, CreditCard, Banknote, CheckCircle2, Plus, LoaderCircle, Car, ShieldCheck, LocateFixed, X, ImagePlus, Ticket, Tag, Truck, BusFront, BatteryCharging, Wrench, Zap } from "lucide-react";
 
 type Vehicle = {
   _id: string; type: string; brand: string; model: string; year: number;
@@ -8,8 +8,12 @@ type Vehicle = {
 };
 type PaymentMethod = "ONLINE" | "CASH";
 type BookingFor = "SELF" | "OTHER";
-const vehicleName = (type: string) => ({ CAR:"Car", BIKE:"Bike", SCOOTER:"Scooter", TRUCK:"Truck", BUS:"Bus" }[type] || type);
-const displayType = (type: string) => ["BIKE", "SCOOTER"].includes(type) ? "BIKE" : "CAR";
+const vehicleName = (type: string) => ({ CAR:"Car", BIKE:"Bike", SCOOTER:"Scooty / Scooter", TRUCK:"Truck", BUS:"Bus", EV:"Electric vehicle", SCOOTER_EV:"Electric scooty" }[type] || type);
+const serviceOptions = [
+ {value:"REPAIR",label:"General repair",Icon:Wrench},{value:"BIKE",label:"Bike repair",Icon:Bike},{value:"SCOOTER",label:"Scooty repair",Icon:Bike},{value:"SCOOTER_EV",label:"Scooty EV",Icon:Zap},{value:"CAR",label:"Car repair",Icon:CarFront},{value:"EV",label:"EV service",Icon:BatteryCharging},{value:"TRUCK",label:"Truck repair",Icon:Truck},{value:"BUS",label:"Bus repair",Icon:BusFront},{value:"ROAD_SIDE",label:"Roadside help",Icon:Wrench},{value:"BATTERY",label:"Battery service",Icon:BatteryCharging}
+] as const;
+const serviceVehicleType = (v:Vehicle) => v.fuelType === "ELECTRIC" ? (v.type === "SCOOTER" ? "SCOOTER_EV" : v.type === "CAR" ? "EV" : v.type) : v.type;
+const matchesService = (v:Vehicle, service:string) => service === "REPAIR" || service === "ROAD_SIDE" || service === "BATTERY" || serviceVehicleType(v) === service;
 
 export default function CreateBooking() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -18,6 +22,7 @@ export default function CreateBooking() {
   const [bookingFor, setBookingFor] = useState<BookingFor>("SELF");
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [otherVehicleType, setOtherVehicleType] = useState("BIKE");
+  const [serviceType, setServiceType] = useState("REPAIR");
   const [otherPersonName, setOtherPersonName] = useState("");
   const [otherPersonPhone, setOtherPersonPhone] = useState("");
   const [otherVehicleBrand, setOtherVehicleBrand] = useState("");
@@ -60,7 +65,7 @@ export default function CreateBooking() {
   }, []);
 
   useEffect(() => { void loadVehicles(); }, [loadVehicles]);
-  useEffect(() => { const code = new URLSearchParams(window.location.search).get("coupon"); if (code) setCouponInput(code.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12)); }, []);
+  useEffect(() => { const params = new URLSearchParams(window.location.search); const code = params.get("coupon"); if (code) setCouponInput(code.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12)); const service=params.get("service")||""; if (serviceOptions.some(option=>option.value===service)) { setServiceType(service); if (["BIKE","SCOOTER","CAR","TRUCK","BUS"].includes(service)) setOtherVehicleType(service); if(service==="SCOOTER_EV")setOtherVehicleType("SCOOTER"); if(service==="EV")setOtherVehicleType("CAR"); } }, []);
 
   const applyCoupon = async () => {
     setCouponError("");
@@ -148,14 +153,15 @@ export default function CreateBooking() {
       }
       const issuePhotoFileId = issuePhotoFileIds[0] || "";
       const selectedVehicle = vehicles.find(v => v._id === selectedVehicleId);
-      const vehicleType = bookingFor === "SELF" ? displayType(selectedVehicle?.type || "") : otherVehicleType;
+      const vehicleType = bookingFor === "SELF" ? (selectedVehicle?.type || "") : otherVehicleType;
+      const normalizedVehicleType = vehicleType === "EV" ? "CAR" : vehicleType === "SCOOTER_EV" ? "SCOOTER" : vehicleType;
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           bookingFor, vehicleId: bookingFor === "SELF" ? selectedVehicleId : undefined,
-          vehicleType, otherPersonName: otherPersonName.trim(), otherPersonPhone: otherPersonPhone.trim(),
-          otherVehicleBrand, otherVehicleModel, otherRegistrationNumber,
+          vehicleType: normalizedVehicleType, serviceType, otherPersonName: otherPersonName.trim(), otherPersonPhone: otherPersonPhone.trim(),
+          otherVehicleBrand, otherVehicleModel, otherRegistrationNumber, otherVehicleFuelType: ["EV","SCOOTER_EV"].includes(serviceType) ? "ELECTRIC" : "",
           paymentMethod, couponCode: appliedCoupon?.code || "", issueDescription: issueDescription.trim(), issuePhotoFileId, issuePhotoFileIds,
           location: { address: address.trim(), lat: locationCoords.lat, lng: locationCoords.lng }
         })
@@ -201,7 +207,7 @@ export default function CreateBooking() {
         <div className="bookingProgress"><div className={"bookingProgressStep" + (step===1?" active":" complete")}><span>{step===1?"01":"✓"}</span><b>Vehicle</b></div><div className={"bookingProgressLine"+(step>=2?" complete":"")}/><div className={"bookingProgressStep"+(step===2?" active":step===3?" complete":"")}><span>{step===3?"✓":"02"}</span><b>Problem & location</b></div><div className={"bookingProgressLine"+(step===3?" complete":"")}/><div className={"bookingProgressStep"+(step===3?" active":"")}><span>03</span><b>Payment</b></div></div>
         {step === 1 && <div key={step} className="bookingStepPanel bookingStepEnter">
         <div className="bookingStep"><span>01</span><div><h3>Who needs help?</h3><p>Book for your own vehicle or someone else.</p></div></div>
-        <div className="bookingRecipientGrid">
+        <div className="bookingServicePicker"><div className="bookingSubhead"><h4>What do you need?</h4><small>Choose the exact service</small></div><div className="bookingServiceGrid">{serviceOptions.map(({value,label,Icon})=><button type="button" key={value} className={"bookingServiceOption"+(serviceType===value?" selected":"")} onClick={()=>{setServiceType(value);setError("");if(bookingFor==="OTHER"){if(["BIKE","SCOOTER","CAR","TRUCK","BUS"].includes(value))setOtherVehicleType(value);else if(value==="SCOOTER_EV")setOtherVehicleType("SCOOTER");else if(value==="EV")setOtherVehicleType("CAR");}if(bookingFor==="SELF"&&!["REPAIR","ROAD_SIDE","BATTERY"].includes(value)){const match=vehicles.find(v=>matchesService(v,value));setSelectedVehicleId(match?match._id:"");}}}><Icon size={18}/><span>{label}</span>{serviceType===value&&<CheckCircle2 size={15}/>}</button>)}</div></div><div className="bookingRecipientGrid">
           <button type="button" className={"bookingRecipient" + (bookingFor === "SELF" ? " isSelected" : "")} onClick={() => { setBookingFor("SELF"); setError(""); }}>
             <span className="bookingRecipientIcon"><UserRound size={21}/></span><span><b>My vehicle</b><small>Choose from your garage</small></span>{bookingFor === "SELF" && <CheckCircle2 className="bookingCheck" size={20}/>}
           </button>
@@ -214,10 +220,10 @@ export default function CreateBooking() {
           <div className="bookingSubhead"><h4>Select your vehicle</h4><a href="/vehicles/add"><Plus size={16}/> Add vehicle</a></div>
           {vehiclesLoading ? <div className="bookingLoading"><LoaderCircle size={19} className="bookingSpin"/> Loading your garage…</div> :
             vehiclesError ? <div className="bookingInlineError">{vehiclesError}<button type="button" onClick={() => void loadVehicles()}>Retry</button></div> :
-            vehicles.length === 0 ? <div className="bookingEmptyGarage"><span><Car size={24}/></span><div><b>Your garage is empty</b><p>Add your vehicle once to book faster next time, or choose “Other person” above.</p><a href="/vehicles/add">Add a vehicle <Plus size={15}/></a></div></div> :
-            <div className="bookingVehicleList">{vehicles.map(vehicle => {
+            vehicles.filter(vehicle=>matchesService(vehicle,serviceType)).length === 0 ? <div className="bookingEmptyGarage"><span><Car size={24}/></span><div><b>Your garage is empty</b><p>{vehicles.length ? "No saved vehicle matches this service. Add the right vehicle or choose “Other person” above." : "Add your vehicle once to book faster next time, or choose “Other person” above."}</p><a href="/vehicles/add">Add a vehicle <Plus size={15}/></a></div></div> :
+            <div className="bookingVehicleList">{vehicles.filter(vehicle=>matchesService(vehicle,serviceType)).map(vehicle => {
               const chosen = selectedVehicleId === vehicle._id;
-              return <button type="button" key={vehicle._id} className={"bookingVehicle" + (chosen ? " isSelected" : "")} onClick={() => { setSelectedVehicleId(vehicle._id); setError(""); }}>
+              return <button type="button" key={vehicle._id} className={"bookingVehicle" + (chosen ? " isSelected" : "")} onClick={() => { setSelectedVehicleId(vehicle._id); if(serviceType==="REPAIR")setServiceType(serviceVehicleType(vehicle)); setError(""); }}>
                 <span className="bookingVehicleIcon">{["BIKE","SCOOTER"].includes(vehicle.type) ? <Bike size={22}/> : <CarFront size={22}/>}</span>
                 <span className="bookingVehicleDetails"><b>{vehicle.brand} {vehicle.model}</b><small>{vehicleName(vehicle.type)} · {vehicle.year}</small><small className="bookingPlate">{vehicle.registrationNumber}</small></span>
                 <span className={"bookingRadio" + (chosen ? " checked" : "")}>{chosen && <span/>}</span>
@@ -229,9 +235,8 @@ export default function CreateBooking() {
             <label className="bookingField"><span>Person’s full name <i>Required</i></span><input value={otherPersonName} onChange={e => setOtherPersonName(e.target.value)} maxLength={80} placeholder="Name of the person" autoComplete="name"/></label>
             <label className="bookingField"><span>Mobile number <i>Required</i></span><input type="tel" value={otherPersonPhone} onChange={e => setOtherPersonPhone(e.target.value)} maxLength={16} placeholder="10-digit mobile number" autoComplete="tel"/></label>
           </div>
-          <div className="bookingTypeGrid">
-            <button type="button" className={"bookingType" + (otherVehicleType === "BIKE" ? " isSelected" : "")} onClick={() => setOtherVehicleType("BIKE")}><Bike size={21}/> Bike / Scooter</button>
-            <button type="button" className={"bookingType" + (otherVehicleType === "CAR" ? " isSelected" : "")} onClick={() => setOtherVehicleType("CAR")}><CarFront size={21}/> Car</button>
+          <div className="bookingTypeGrid bookingOtherVehicleTypes">
+            {([{value:"BIKE",label:"Bike",Icon:Bike},{value:"SCOOTER",label:"Scooty",Icon:Bike},{value:"CAR",label:"Car",Icon:CarFront},{value:"TRUCK",label:"Truck",Icon:Truck},{value:"BUS",label:"Bus",Icon:BusFront}] as const).map(({value,label,Icon})=><button type="button" key={value} className={"bookingType"+(otherVehicleType===value?" isSelected":"")} onClick={()=>setOtherVehicleType(value)}><Icon size={19}/>{label}</button>)}
           </div>
           <div className="bookingFieldGrid">
             <label className="bookingField"><span>Brand <i>Optional</i></span><input value={otherVehicleBrand} onChange={e => setOtherVehicleBrand(e.target.value)} maxLength={60} placeholder="e.g. Honda"/></label>
@@ -250,7 +255,7 @@ export default function CreateBooking() {
         </div>}
         {step === 3 && <div key={step} className="bookingStepPanel bookingStepEnter">
         <div className="bookingPaymentIntro"><span className="bookingPaymentBadge"><CreditCard size={22}/></span><div><div className="bookingEyebrow">STEP 03 · PAYMENT</div><h2>How would you like to pay?</h2><p>Choose your preferred payment method before confirming your request.</p></div></div>
-        <div className="bookingSummary"><b>Booking summary</b><span>{bookingFor === "SELF" ? (vehicles.find(v => v._id === selectedVehicleId)?.brand + " " + vehicles.find(v => v._id === selectedVehicleId)?.model) : (otherPersonName + " · " + vehicleName(otherVehicleType))}</span><span>{issueDescription}</span><span><MapPin size={14}/>{address}</span><small><CheckCircle2 size={14}/> GPS location captured for nearby dispatch</small></div>
+        <div className="bookingSummary"><b>Booking summary</b><span className="bookingSummaryService">Service: {serviceOptions.find(option=>option.value===serviceType)?.label||"General repair"}</span><span>{bookingFor === "SELF" ? (vehicles.find(v => v._id === selectedVehicleId)?.brand + " " + vehicles.find(v => v._id === selectedVehicleId)?.model) : (otherPersonName + " · " + vehicleName(otherVehicleType))}</span><span>{issueDescription}</span><span><MapPin size={14}/>{address}</span><small><CheckCircle2 size={14}/> GPS location captured for nearby dispatch</small></div>
         <section className="bookingCouponBox" aria-label="Apply coupon">
           <div className="bookingCouponHeading"><span className="bookingCouponIcon"><Ticket size={20}/></span><div><b>Have a coupon?</b><small>Apply a claimed code to this booking</small></div><a href="/coupons">My coupons</a></div>
           {appliedCoupon ? <div className="bookingCouponApplied"><span className="bookingCouponAppliedIcon"><CheckCircle2 size={18}/></span><div><b>{appliedCoupon.code}</b><small>Coupon discount saved: {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(appliedCoupon.amount)}</small></div><button type="button" onClick={removeCoupon} aria-label="Remove coupon"><X size={17}/></button></div> : <><div className="bookingCouponInputRow"><input value={couponInput} onChange={e=>{setCouponInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12));setCouponError("");}} maxLength={12} autoCapitalize="characters" autoComplete="off" placeholder="Enter 12-character code"/><button type="button" onClick={()=>void applyCoupon()} disabled={couponBusy || couponInput.length!==12}>{couponBusy ? <LoaderCircle className="bookingSpin" size={16}/> : <Tag size={16}/>} Apply</button></div>{couponError && <small className="bookingCouponError" role="alert">{couponError}</small>}</>}
