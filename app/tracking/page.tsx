@@ -70,11 +70,11 @@ export default function Tracking() {
         <section className="mg-booking-hero">
           <div className="mg-booking-hero-top">
             <div className="mg-vehicle-icon"><Wrench size={23}/></div>
-            <div className="mg-booking-headings"><span>BOOKING REQUEST</span><h2>{(booking.serviceType ? serviceNames[booking.serviceType]||booking.vehicleType+" repair" : booking.vehicleType+" repair"}</h2><p>#{booking._id.slice(-7).toUpperCase()}</p></div>
+            <div className="mg-booking-headings"><span>BOOKING REQUEST</span><h2>{(booking.serviceType ? serviceNames[booking.serviceType]||booking.vehicleType+" repair" : booking.vehicleType+" repair")}</h2><p>#{booking._id.slice(-7).toUpperCase()}</p></div>
             <span className={"mg-status-badge " + (booking.status === "ACCEPTED" ? "is-accepted" : booking.status === "SEARCHING" ? "is-searching" : "")}><i/>{labels[booking.status] || booking.status}</span>
           </div>
           <div className="mg-booking-details">
-            <div className="mg-detail-row"><span className="mg-detail-icon"><Wrench size={16}/></span><div><small>SERVICE REQUEST · {serviceNames[booking.serviceType||"REPAIR"]||booking.vehicleType+" repair"}</small><b>{booking.issueDescription}</b></div></div>
+            <div className="mg-detail-row"><span className="mg-detail-icon"><Wrench size={16}/></span><div><small>SERVICE REQUEST · {(booking.serviceType ? serviceNames[booking.serviceType]||booking.vehicleType+" repair" : booking.vehicleType+" repair")}</small><b>{booking.issueDescription}</b></div></div>
             <div className="mg-detail-row"><span className="mg-detail-icon"><MapPin size={16}/></span><div><small>SERVICE LOCATION</small><b>{booking.location?.address || "Address saved with booking"}</b></div></div>
             {created && <div className="mg-detail-row"><span className="mg-detail-icon"><CalendarClock size={16}/></span><div><small>REQUESTED ON</small><b>{created.toLocaleString()}</b></div></div>}
             {typeof booking.mechanicId === "object" && booking.mechanicId?.name && <div className="mg-assigned-mechanic"><span className="mg-mechanic-avatar"><Wrench size={19}/></span><div><small>YOUR MECHANIC</small><b>{booking.mechanicId.name}</b><span>Booking accepted</span></div>{booking.mechanicId.phone && <a href={"tel:" + booking.mechanicId.phone} aria-label="Call mechanic"><Phone size={18}/></a>}</div>}
