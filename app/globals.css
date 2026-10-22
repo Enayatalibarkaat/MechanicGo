@@ -749,3 +749,48 @@ body{overflow-x:hidden}
 .mg-route-eta b small{font-size:10px;font-weight:700}
 .mg-route-eta>div>span{color:#548274;font-size:10px;line-height:1.4}
 @media(min-width:650px){.homeCouponPromo{margin-left:24px;margin-right:24px}}
+
+/* MechanicGo Fresh Green light theme — site-wide */
+:root{--blue:#07865e;--blue2:#056b4b;--green:#10b981;--ink:#163329;--muted:#6b7f77;--line:#e2eee6;--bg:#f6faf7;--map:#e8f3ec;--mg-green:#07865e;--mg-green-dark:#056b4b;--mg-green-soft:#e7f7ed}
+html{scroll-behavior:smooth}body{background:#f6faf7;color:#163329}::selection{background:#c8f1d9;color:#075b3e}
+a,button{-webkit-tap-highlight-color:transparent;transition:background-color .18s,border-color .18s,color .18s,box-shadow .18s}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #18a87455;outline-offset:2px}
+.primary,.primaryAction,.authPrimary,.primaryWide,.setupContinue,.bookingSubmit,.proBtns a:last-child,.stickyBook a:last-child{background:linear-gradient(135deg,#0aa36f,#07865e)!important;border-color:#07865e!important;box-shadow:0 8px 20px #07865e20!important}
+.accent,.appHeader h1,.appBrand,.sectionHead a,.homeSectionTitle>a,.homeHeaderBrand,.homeWelcome h1 span,.homeCouponPromoIcon,.homeCouponPromo>a,.pageHeader h1,.serviceIntro h2{color:#07865e!important}
+.homeHeaderBrand span{color:#163329!important}
+.homeBookHero{background:linear-gradient(135deg,#075d42,#07865e 57%,#20ad78)!important;box-shadow:0 16px 34px #087e5724}
+.homeWelcome{background:linear-gradient(180deg,#fff,#f6faf7)}.homeWelcomeKicker,.homeTrustItem small,.homeCouponPromoCopy>span{color:#4d8c70}
+.homeLocationBadge{border-color:#d7ecdf;background:#fff;color:#477461}.homeTrustIcon{border:1px solid #d8eee0}
+.homeServiceCard,.homeShortcut,.homeUpcomingBooking,.serviceTile,.categoryCard,.summaryCard,.detailCard,.vehicleFormCard,.vehicleEmptyCard,.activeBooking,.pastBooking,.mechanicLarge,.mechanic,.mechanicProfile,.bookingCard,.reviewFormCard,.profileCompletion,.vehicleLookupHero{border-color:#e2eee6}
+.homeServiceCard:hover,.homeShortcut:hover,.serviceTile:hover,.vehicleTypeOption:hover,.fuelOption:hover{border-color:#9dd8b8;box-shadow:0 9px 24px #087e570d}
+.homeCouponPromo{border-color:#d8ecdf;background:linear-gradient(115deg,#eaf8ef,#fff 76%);box-shadow:0 8px 24px #164c2c07}
+.homeCouponPromoIcon,.homeShortcut>span:first-child,.homeServiceIcon,.homeTrustIcon,.serviceTileIcon,.avatar,.largeAvatar,.proAvatar,.miniAvatar,.pastIcon,.profileDot,.profileBig,.vehicleHeaderIcon,.vehicleCardIcon,.couponCardIcon{background:#e7f7ed!important;color:#07865e!important}
+.homeCouponPromo>a{border-color:#d4eadc;background:#fff}.homeSafetyNote{border-color:#d9ecdf;background:#eff9f2}
+.bottomNav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;z-index:1000!important;width:100%;height:calc(78px + env(safe-area-inset-bottom,0px))!important;padding:9px 8px calc(9px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box;background:rgba(255,255,255,.97)!important;border-top:1px solid #e0ece4!important;box-shadow:0 -7px 24px #11462a0b;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transform:translateZ(0)!important;will-change:auto!important}
+.bottomNav a{color:#7c9085!important;min-width:0;flex:1;justify-content:center;padding:6px 4px;touch-action:manipulation}.bottomNav a.on{background:#e4f7eb!important;color:#07865e!important}.bottomNav a.on svg{stroke-width:2.5}
+.appPage{padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))!important;background:#f6faf7!important}.homePage,.couponsPage,.vehicleListPage,.vehicleAddPage,.reviewPage{background:#f6faf7!important}
+.pageHeader,.appHeader,.homeHeaderBar{background:rgba(255,255,255,.96)!important;border-bottom-color:#e2eee6!important}
+.pageBackBtn{border-color:#deebe2!important;background:#fff!important;color:#244538!important}.pageBackBtn:active{background:#e7f7ed!important;border-color:#a9ddbc!important}
+.homeProfileButton{border-color:#d6ecdf;background:#e9f8ef!important;color:#07865e!important}.homeBookHeroIcon{background:#ffffff20;border:1px solid #ffffff30}
+.homeBookHeroLink{background:#fff!important;color:#08764f!important;border-color:#fff!important;box-shadow:0 8px 18px #063d2c25!important}
+.homeServiceCard .homeServiceIcon{background:#e7f7ed!important;color:#07865e!important}.homeServiceCard:nth-child(3) .homeServiceIcon{background:#fff2e4!important;color:#d97706!important}
+.serviceTile small,.verified,.liveStatus,.largeEta,.pastBooking small,.profileCompletion b,.profileCompletion>strong,.bookingLocationSuccess,.bookingFooterNote svg{color:#07865e!important}
+.filterBar .filterOn{background:#07865e!important;border-color:#07865e!important}
+.mechanicAction button,.secondaryWide,.proBtns a:first-child,.bookingButtons a:first-child,.outlineAction,.vehicleListIntro>a,.vehicleRefreshLink{color:#07865e!important;border-color:#bfe5cd!important;background:#eff9f2!important}
+.bookingButtons a:last-child,.stickyBook a:last-child{background:#07865e!important;color:#fff!important}
+.bookingRecipient.isSelected,.bookingPayment.isSelected,.bookingVehicle.isSelected,.bookingType.isSelected,.vehicleTypeOption.selected,.fuelOption.selected{border-color:#079669!important;background:#effaf3!important;box-shadow:inset 0 0 0 1px #9ddab4!important}
+.bookingCheck,.bookingType.isSelected,.bookingPhotoCount.hasPhotos,.bookingCharCount,.bookingFileName,.vehicleEyebrow,.vehicleField i,.fuelField legend>svg{color:#07865e!important}
+.bookingPhotoPicker{border-color:#a8d9b9;background:linear-gradient(115deg,#f0faf3,#fff)}.bookingLocateButton{border-color:#c6e8d1;background:#eff9f2;color:#07865e}
+.bookingSummary{border-color:#dcece2;background:#f5fbf7}.bookingWaitSpinner{background:#e7f7ed!important;color:#07865e!important}
+.bookingWaitTrack{background:#e2f2e7}.bookingWaitTrack span{background:linear-gradient(90deg,#079669,#68d5a0)}
+.bookingSuccessIcon{background:#e7f8ee;color:#07865e}.bookingSuccessEyebrow{color:#07865e}.bookingIdBox{border-color:#b9e3c9;background:#f3fbf5}.bookingIdBox b{color:#08784f}
+.authPage{background:radial-gradient(circle at 50% -10%,#e4f7ea 0,#f6faf7 42%,#eef6f0 100%)}.authCard{box-shadow:0 28px 80px #174a2a0d}.authLogo{background:#e7f7ed}.authBrand,.authBrand span{color:#07865e!important}.authTabs button.selected{color:#07865e}.authTrust span{background:#e9f8ef;color:#087b5d;border-color:#cdebd8}.secureNote{color:#07865e}
+.vehicleLookupHero{background:linear-gradient(135deg,#e9f8ef,#f8fcf9 58%,#e4f7eb);border-color:#d4ebdc}.vehicleLookupIcon{background:#07865e!important;color:#fff!important}.vehicleLookupToggle{border-color:#b9e2c8;color:#07865e}
+.couponHero{background:linear-gradient(135deg,#075d42,#087e58 58%,#19a873)!important;box-shadow:0 16px 35px #087e5726}.couponHero .couponEyebrow{color:#c4f2d7!important}.couponClaimButton,.couponApplyButton,.couponAction,.couponPrimary{background:#07865e!important;color:#fff!important;border-color:#07865e!important}
+.reviewIntroIcon{background:#e7f7ed!important;color:#07865e!important}.reviewSubmitBtn{background:linear-gradient(135deg,#0aa36f,#07865e)!important}.reviewAlreadySaved,.reviewSuccess{border-color:#c9ead5;background:#eff9f2;color:#087b5d}
+.mg-route-loader{background:rgba(245,251,247,.96)!important}.mg-route-loader-card{border-color:#dceee2!important;box-shadow:0 24px 70px #124a2b12!important}.mg-route-loader-title{color:#163329!important}.mg-route-loader-track{background:#e0f1e6!important}.mg-route-loader-track span{background:linear-gradient(90deg,#079669,#7cdda7)!important}.mg-route-mascot>span{background:#e7f7ed!important;color:#07865e!important}.mg-route-loader p{color:#72867a!important}
+.mg-route-eta{border-color:#c8ead5;background:#effaf3;color:#087b5d}.mg-route-eta-icon{background:#d9f3e2;color:#07865e}.mg-route-eta>div>span{color:#54836b}
+@keyframes mgPageEnterFromRight{from{opacity:.96;transform:translate3d(3px,0,0)}to{opacity:1;transform:translate3d(0,0,0)}}@keyframes mgPageEnterFromLeft{from{opacity:.96;transform:translate3d(-3px,0,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+html[data-mg-nav="forward"] main{animation:mgPageEnterFromRight .14s cubic-bezier(.2,.75,.25,1) both}html[data-mg-nav="back"] main{animation:mgPageEnterFromLeft .14s cubic-bezier(.2,.75,.25,1) both}
+@media(max-width:390px){.bottomNav a span{font-size:9px}.bottomNav svg{width:19px;height:19px}}
+@media(prefers-reduced-motion:reduce){html[data-mg-nav] main,.mg-route-loader,.mg-route-mascot img,.mg-route-mascot>span,.mg-route-loader-track span{animation:none!important;transition:none!important}}
