@@ -2,6 +2,7 @@ name: Account Feature Build Check
 on:
   push:
     branches:
+      - main
       - feature/usernames-passwords-reset
   pull_request:
     branches:
