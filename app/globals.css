@@ -794,3 +794,23 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 html[data-mg-nav="forward"] main{animation:mgPageEnterFromRight .14s cubic-bezier(.2,.75,.25,1) both}html[data-mg-nav="back"] main{animation:mgPageEnterFromLeft .14s cubic-bezier(.2,.75,.25,1) both}
 @media(max-width:390px){.bottomNav a span{font-size:9px}.bottomNav svg{width:19px;height:19px}}
 @media(prefers-reduced-motion:reduce){html[data-mg-nav] main,.mg-route-loader,.mg-route-mascot img,.mg-route-mascot>span,.mg-route-loader-track span{animation:none!important;transition:none!important}}
+
+/* Fresh Green accents for the public landing page and mechanic workspace */
+.hero{background:linear-gradient(180deg,#fff,#f4faf6)!important}
+.hero h1 em,.mapTitle b,.arrival strong,.arrival>span,.zoom button:last-child{color:#07865e!important}
+.pill{border-color:#cdebd8!important;background:#eff9f2!important;color:#087b5d!important}
+.searchIcon,.searchBox button{background:#e7f7ed!important;color:#07865e!important}
+.blueRoute{background:#0da874!important;box-shadow:0 0 0 3px #a4e4c355!important}
+.mechanicPin{background:#07865e!important;box-shadow:0 8px 20px #07865e44!important}
+.mapTitle span{color:#07865e!important}.park{background:#ccebd0!important;border-color:#e2f3e3!important}
+.nearby{background:#f4faf6!important}.nearbyMap{background:#eaf4ed!important}
+.serviceIcon{background:#e7f7ed!important;color:#07865e!important}
+.service:hover,.service.active{border-color:#a7dcb9!important}.you{background:#075d42!important}
+.mechanicAction button{background:#eff9f2!important;color:#07865e!important}
+.outlineAction{border-color:#07865e!important;color:#07865e!important}
+.success{background:#e7f8ee!important;color:#07865e!important}
+.modal .primary,.full.primary{background:#07865e!important}
+.brand .accent{color:#07865e!important}
+.proStatusOnline,.dutyOn,.mechanicOnlineBadge{background:#e5f8ec!important;color:#07865e!important;border-color:#c8ead4!important}
+.mechDashboard .primary,.mechanicDashboard .primary{background:linear-gradient(135deg,#0aa36f,#07865e)!important}
+@media(max-width:620px){.hero{background:linear-gradient(180deg,#fff,#f4faf6)!important}}
