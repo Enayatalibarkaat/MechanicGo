@@ -4,7 +4,7 @@ const BookingSchema = new Schema({
   customerId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
   mechanicId: { type: Schema.Types.ObjectId, ref: "User", default: null, index: true },
   vehicleId: { type: Schema.Types.ObjectId, ref: "Vehicle", default: null, index: true },
-  vehicleType: { type: String, enum: ["BIKE", "CAR"], required: true },
+  vehicleType: { type: String, enum: ["BIKE", "SCOOTER", "CAR", "TRUCK", "BUS"], required: true },
   vehicleDetails: {
     type: { type: String, default: "" },
     brand: { type: String, default: "" },
@@ -17,6 +17,7 @@ const BookingSchema = new Schema({
   bookingFor: { type: String, enum: ["SELF", "OTHER"], default: "SELF", index: true },
   otherPersonName: { type: String, trim: true, maxlength: 80, default: "" },
   otherPersonPhone: { type: String, trim: true, maxlength: 20, default: "" },
+  serviceType: { type: String, enum: ["REPAIR", "BIKE", "SCOOTER", "SCOOTER_EV", "CAR", "EV", "TRUCK", "BUS", "ROAD_SIDE", "BATTERY"], default: "REPAIR", index: true },
   issueDescription: { type: String, required: true, trim: true, maxlength: 2000 },
   issuePhotoFileId: { type: String, default: "" },
   issuePhotoFileIds: { type: [String], default: [] },
