@@ -55,7 +55,7 @@ export default function Bookings(){
    finally{setBusyId("");}
  };
  const card=(b:Booking,history=false)=><article className="activeBooking premiumBooking" key={b._id}>
-   <div className="bookingTop"><div className="miniAvatar"><Wrench size={20}/></div><div className="bookingHeading"><b>{(b.serviceType ? serviceNames[b.serviceType]||b.vehicleType+" repair" : b.vehicleType+" repair"}</b><span>{labels[b.status]||b.status.replaceAll("_"," ")}</span></div><span className={"bookingStatePill "+(b.status==="COMPLETED"?"isComplete":b.status==="CANCELLED"?"isCancelled":"isActive")}>{b.status==="COMPLETED"?"Completed":b.status==="CANCELLED"?"Cancelled":"Active"}</span></div>
+   <div className="bookingTop"><div className="miniAvatar"><Wrench size={20}/></div><div className="bookingHeading"><b>{(b.serviceType ? serviceNames[b.serviceType]||b.vehicleType+" repair" : b.vehicleType+" repair")}</b><span>{labels[b.status]||b.status.replaceAll("_"," ")}</span></div><span className={"bookingStatePill "+(b.status==="COMPLETED"?"isComplete":b.status==="CANCELLED"?"isCancelled":"isActive")}>{b.status==="COMPLETED"?"Completed":b.status==="CANCELLED"?"Cancelled":"Active"}</span></div>
    <p className="bookingIssue">{b.issueDescription}</p>
    {b.location?.address&&<div className="bookingLocation"><MapPin size={15}/>{b.location.address}</div>}
    <div className="bookingStatus"><span><CalendarClock size={14}/>{new Date(b.createdAt).toLocaleString()}</span><span className={"liveStatus "+(b.status==="CANCELLED"?"statusCancelled":b.status==="COMPLETED"?"statusComplete":"")}><i/> {labels[b.status]||b.status}</span></div>
