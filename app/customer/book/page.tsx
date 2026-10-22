@@ -225,7 +225,7 @@ export default function CreateBooking() {
               const chosen = selectedVehicleId === vehicle._id;
               return <button type="button" key={vehicle._id} className={"bookingVehicle" + (chosen ? " isSelected" : "")} onClick={() => { setSelectedVehicleId(vehicle._id); if(serviceType==="REPAIR")setServiceType(serviceVehicleType(vehicle)); setError(""); }}>
                 <span className="bookingVehicleIcon">{vehicle.type==="TRUCK" ? <Truck size={22}/> : vehicle.type==="BUS" ? <BusFront size={22}/> : ["BIKE","SCOOTER"].includes(vehicle.type) ? <Bike size={22}/> : <CarFront size={22}/>}</span>
-                <span className="bookingVehicleDetails"><b>{vehicle.brand} {vehicle.model}</b><small>{vehicleName(vehicle.type)} · {vehicle.year}</small><small className="bookingPlate">{vehicle.registrationNumber}</small></span>
+                <span className="bookingVehicleDetails"><b>{vehicle.brand} {vehicle.model}</b><small>{vehicleName(vehicle.type)}{vehicle.fuelType==="ELECTRIC"?" · Electric":""} · {vehicle.year}</small><small className="bookingPlate">{vehicle.registrationNumber}</small></span>
                 <span className={"bookingRadio" + (chosen ? " checked" : "")}>{chosen && <span/>}</span>
               </button>;
             })}</div>}
