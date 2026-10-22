@@ -70,7 +70,7 @@ export default function Tracking() {
         <section className="mg-booking-hero">
           <div className="mg-booking-hero-top">
             <div className="mg-vehicle-icon"><Wrench size={23}/></div>
-            <div className="mg-booking-headings"><span>BOOKING REQUEST</span><h2>{serviceNames[booking.serviceType||"REPAIR"]||booking.vehicleType+" repair"}</h2><p>#{booking._id.slice(-7).toUpperCase()}</p></div>
+            <div className="mg-booking-headings"><span>BOOKING REQUEST</span><h2>{(booking.serviceType ? serviceNames[booking.serviceType]||booking.vehicleType+" repair" : booking.vehicleType+" repair"}</h2><p>#{booking._id.slice(-7).toUpperCase()}</p></div>
             <span className={"mg-status-badge " + (booking.status === "ACCEPTED" ? "is-accepted" : booking.status === "SEARCHING" ? "is-searching" : "")}><i/>{labels[booking.status] || booking.status}</span>
           </div>
           <div className="mg-booking-details">
