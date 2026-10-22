@@ -22,6 +22,7 @@ export default function LiveTrackingMap({ bookingId, role }: { bookingId: string
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [routeInfo, setRouteInfo] = useState<{ distanceMeters: number; durationSeconds: number } | null>(null);
 
   const fetchSnapshot = useCallback(async () => {
     try {
@@ -140,12 +141,14 @@ export default function LiveTrackingMap({ bookingId, role }: { bookingId: string
     if (customer && mechanic) {
       const routeUrl = "https://router.project-osrm.org/route/v1/driving/" + mechanic.lng + "," + mechanic.lat + ";" + customer.lng + "," + customer.lat + "?overview=full&geometries=geojson";
       fetch(routeUrl).then(r => r.ok ? r.json() : null).then(data => {
-        if (!data?.routes?.[0]?.geometry?.coordinates || !mapRef.current) return;
-        const latlngs = data.routes[0].geometry.coordinates.map((p: number[]) => [p[1], p[0]]);
+        const route = data?.routes?.[0];
+        if (!route?.geometry?.coordinates || !mapRef.current) { setRouteInfo(null); return; }
+        setRouteInfo({ distanceMeters: Number(route.distance) || 0, durationSeconds: Number(route.duration) || 0 });
+        const latlngs = route.geometry.coordinates.map((p: number[]) => [p[1], p[0]]);
         if (!routeRef.current) routeRef.current = L.polyline(latlngs, { color: "#2563eb", weight: 5, opacity: .88, dashArray: "10 9", lineCap: "round", className: "mg-route-line" }).addTo(map);
         else routeRef.current.setLatLngs(latlngs);
-      }).catch(() => {});
-    } else if (routeRef.current) { map.removeLayer(routeRef.current); routeRef.current = null; }
+      }).catch(() => setRouteInfo(null));
+    } else { setRouteInfo(null); if (routeRef.current) { map.removeLayer(routeRef.current); routeRef.current = null; } }
     if (points.length > 1) map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 16, animate: true, duration: .6 });
     else if (points.length === 1) map.setView(points[0], Math.max(map.getZoom(), 15), { animate: true });
   }, [leafletReady, snapshot?.customerLocation?.lat, snapshot?.customerLocation?.lng, snapshot?.mechanicLocation?.lat, snapshot?.mechanicLocation?.lng, snapshot?.status]);
@@ -156,6 +159,7 @@ export default function LiveTrackingMap({ bookingId, role }: { bookingId: string
     <div className="mg-map-heading"><div><span className="mg-live-kicker"><i className={active ? "is-live" : ""}/>{active ? "LIVE TRACKING" : "TRACKING STATUS"}</span><h2>{active ? "Mechanic on the way" : snapshot?.status === "IN_PROGRESS" ? "Service in progress" : "Booking location"}</h2><p>{active ? "Map updates automatically as locations change." : "Location sharing is available while your mechanic is on the way."}</p></div><span className="mg-secure-pill"><ShieldCheck size={15}/> Private</span></div>
     <div className="mg-map-shell"><div id="mechanicgo-live-map" className="mg-leaflet-map" aria-label="Live roadside assistance map"/>{!leafletReady&&<div className="mg-map-loading"><span className="bookingSpinner"/>Loading map…</div>}</div>
     <div className="mg-map-legend"><span><i className="mg-legend-customer"/>Customer</span><span><img src="/mechanic-tracker.svg" alt=""/>Mechanic</span><span><i className="mg-legend-route"/>Route</span></div>
+    {active && snapshot?.customerLocation && snapshot?.mechanicLocation && routeInfo && <div className="mg-route-eta" role="status"><span className="mg-route-eta-icon"><Navigation size={18}/></span><div><b>{Math.max(1,Math.round(routeInfo.durationSeconds/60))} min <small>estimated drive</small></b><span>{routeInfo.distanceMeters>=1000?(routeInfo.distanceMeters/1000).toFixed(1)+" km":Math.round(routeInfo.distanceMeters)+" m"} by road · route estimate, not live traffic</span></div></div>}
     {role === "CUSTOMER" && active && <button className={sharing ? "mg-share-location is-sharing" : "mg-share-location"} onClick={sharing ? stopSharing : startSharing}><LocateFixed size={18}/>{sharing ? "Stop sharing my location" : "Share my live location"}</button>}
     {role === "MECHANIC" && active && <><div className="mg-sharing-status"><Wifi size={17}/>{sharing ? "Sharing your live location with this customer" : "Location sharing is not active yet."}</div>{!sharing&&<button className="mg-share-location" onClick={startSharing}><LocateFixed size={18}/>Start sharing live location</button>}</>}
     {loading && <p className="mg-map-feedback">Connecting to live booking…</p>}
