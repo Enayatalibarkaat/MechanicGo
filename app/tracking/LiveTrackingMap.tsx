@@ -8,6 +8,7 @@ declare global { interface Window { L?: any } }
 type Role = "CUSTOMER" | "MECHANIC";
 type Point = { lat: number; lng: number; heading?: number | null; speed?: number | null; updatedAt?: string | null } | null;
 type Snapshot = { status: string; address?: string; customerLocation: Point; mechanicLocation: Point };
+const hasFreshGps = (point: Point) => Boolean(point?.updatedAt && Date.now() - new Date(point.updatedAt).getTime() < 90_000);
 
 export default function LiveTrackingMap({ bookingId, role }: { bookingId: string; role: Role }) {
   const mapRef = useRef<any>(null);
@@ -159,7 +160,7 @@ export default function LiveTrackingMap({ bookingId, role }: { bookingId: string
     <div className="mg-map-heading"><div><span className="mg-live-kicker"><i className={active ? "is-live" : ""}/>{active ? "LIVE TRACKING" : "TRACKING STATUS"}</span><h2>{active ? "Mechanic assigned" : snapshot?.status === "IN_PROGRESS" ? "Service in progress" : "Booking location"}</h2><p>{active ? "Live location and route appear when both devices share GPS." : "Location sharing is available during the accepted booking stage."}</p></div><span className="mg-secure-pill"><ShieldCheck size={15}/> Private</span></div>
     <div className="mg-map-shell"><div id="mechanicgo-live-map" className="mg-leaflet-map" aria-label="Live roadside assistance map"/>{!leafletReady&&<div className="mg-map-loading"><span className="bookingSpinner"/>Loading map…</div>}</div>
     <div className="mg-map-legend"><span><i className="mg-legend-customer"/>Customer</span><span><img src="/mechanic-tracker.svg" alt=""/>Mechanic</span><span><i className="mg-legend-route"/>Route</span></div>
-    {active && snapshot?.customerLocation && snapshot?.mechanicLocation && routeInfo && <div className="mg-route-eta" role="status"><span className="mg-route-eta-icon"><Navigation size={18}/></span><div><b>{Math.max(1,Math.round(routeInfo.durationSeconds/60))} min <small>estimated drive</small></b><span>{routeInfo.distanceMeters>=1000?(routeInfo.distanceMeters/1000).toFixed(1)+" km":Math.round(routeInfo.distanceMeters)+" m"} by road · route estimate, not live traffic</span></div></div>}
+    {active && hasFreshGps(snapshot?.customerLocation || null) && hasFreshGps(snapshot?.mechanicLocation || null) && routeInfo && <div className="mg-route-eta" role="status"><span className="mg-route-eta-icon"><Navigation size={18}/></span><div><b>{Math.max(1,Math.round(routeInfo.durationSeconds/60))} min <small>estimated drive</small></b><span>{routeInfo.distanceMeters>=1000?(routeInfo.distanceMeters/1000).toFixed(1)+" km":Math.round(routeInfo.distanceMeters)+" m"} by road · route estimate, not live traffic</span></div></div>}
     {role === "CUSTOMER" && active && <button className={sharing ? "mg-share-location is-sharing" : "mg-share-location"} onClick={sharing ? stopSharing : startSharing}><LocateFixed size={18}/>{sharing ? "Stop sharing my location" : "Share my live location"}</button>}
     {role === "MECHANIC" && active && <><div className="mg-sharing-status"><Wifi size={17}/>{sharing ? "Sharing your live location with this customer" : "Location sharing is not active yet."}</div>{!sharing&&<button className="mg-share-location" onClick={startSharing}><LocateFixed size={18}/>Start sharing live location</button>}</>}
     {loading && <p className="mg-map-feedback">Connecting to live booking…</p>}
