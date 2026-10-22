@@ -4,7 +4,7 @@ import {useEffect,useState} from "react";
 import {
   Bike,CarFront,Truck,BusFront,BatteryCharging,ChevronDown,
   CalendarDays,ShieldCheck,MapPin,Search,Wrench,Ticket,LifeBuoy,
-  Bell,BellRing,X,ArrowRight,Zap,CheckCircle2
+  Bell,X,ArrowRight,Zap
 } from "lucide-react";
 import {Bottom} from "../components";
 
@@ -15,6 +15,7 @@ export default function Home(){
  const[name,setName]=useState("there");
  const[photoUrl,setPhotoUrl]=useState("");
  const[openBookings,setOpenBookings]=useState(0);
+ const[unread,setUnread]=useState(1);
  const[loading,setLoading]=useState(true);
  const[latestBooking,setLatestBooking]=useState<Booking|null>(null);
  const[searchOpen,setSearchOpen]=useState(false);
@@ -24,11 +25,10 @@ export default function Home(){
   let active=true;
   fetch("/api/profile/current",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok&&d.user){if(d.user.name)setName(d.user.name.split(" ")[0]);setPhotoUrl(d.user.profilePhotoUrl||"");}}).catch(()=>{});
   fetch("/api/auth/status",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok&&d.authenticated&&d.user?.role==="MECHANIC")window.location.replace("/mechanic/dashboard");}).catch(()=>{});
-  const loadBookings=()=>fetch("/api/bookings",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok){const list:Booking[]=d.bookings||[];const current=list.filter(b=>!["COMPLETED","CANCELLED"].includes(b.status));setOpenBookings(current.length);setLatestBooking(current[0]||null);}}).catch(()=>{}).finally(()=>{if(active)setLoading(false);});
+  const loadBookings=()=>fetch("/api/bookings",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok){const list:Booking[]=d.bookings||[];const current=list.filter(b=>!["COMPLETED","CANCELLED"].includes(b.status));setOpenBookings(current.length);setLatestBooking(current[0]||null);let read:string[]=[];try{read=JSON.parse(localStorage.getItem("mg_home_notice_reads")||"[]");}catch{}const ids=["welcome-offer",...(current[0]?["booking-"+current[0]._id+"-"+current[0].status]:[])];setUnread(ids.filter(id=>!read.includes(id)).length);}}).catch(()=>{}).finally(()=>{if(active)setLoading(false);});
   void loadBookings();const timer=window.setInterval(()=>void loadBookings(),30000);
   return()=>{active=false;window.clearInterval(timer);};
  },[]);
- const unread=latestBooking?2:1;
  const serviceItems=[
   {name:"Bike repair",service:"BIKE",Icon:Bike,desc:"Breakdown & puncture"},
   {name:"Car repair",service:"CAR",Icon:CarFront,desc:"Battery, tyre & more"},
