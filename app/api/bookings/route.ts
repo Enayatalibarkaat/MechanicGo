@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
     const specialistEligibility = { $or: [
       { serviceType: { $nin: ["EV", "SCOOTER_EV"] } },
       ...(capabilities.includes("EV") ? [{ serviceType: "EV" }] : []),
-      ...(capabilities.includes("SCOOTER_EV") || capabilities.includes("EV") ? [{ serviceType: "SCOOTER_EV" }] : [])
+      ...(capabilities.includes("SCOOTER_EV") ? [{ serviceType: "SCOOTER_EV" }] : [])
     ] };
     const filter = auth.user.role === "MECHANIC"
       ? { $or: [
