@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const termsAccepted = body.termsAccepted === true;
     const consent = body.profileNotificationsConsent === true;
     const requestedRole = String(body.role || "CUSTOMER").toUpperCase();
-    const vehicleTypes = Array.isArray(body.vehicleTypes) ? body.vehicleTypes.filter((v: unknown) => ["BIKE", "CAR", "BOTH"].includes(String(v))).slice(0, 3) : [];
+    const vehicleTypes = Array.isArray(body.vehicleTypes) ? body.vehicleTypes.filter((v: unknown) => ["BIKE", "CAR", "SCOOTER", "SCOOTER_EV", "EV", "TRUCK", "BUS", "BOTH"].includes(String(v))).slice(0, 8) : [];
     if (!session || session.email !== email || request.cookies.get("mechanicgo_verified_email")?.value !== email) return NextResponse.json({error:"Verify this exact email and sign in before saving your profile."},{status:401});
 
     if (body.event === "credentials_update") {
