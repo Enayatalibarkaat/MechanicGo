@@ -1,7 +1,7 @@
 "use client";
 
 import {useCallback,useEffect,useMemo,useState} from "react";
-import {ArrowLeft,Star,MessageSquareText,CheckCircle2,LoaderCircle,CalendarClock,Wrench,ChevronRight} from "lucide-react";
+import {ArrowLeft,Star,CheckCircle2,LoaderCircle,CalendarClock,Wrench,ChevronRight} from "lucide-react";
 import {Bottom} from "../components";
 
 type Booking={_id:string;status:string;vehicleType:string;issueDescription:string;createdAt:string;mechanicId?:{name?:string}|string|null;review?:{rating?:number|null;comment?:string;reviewedAt?:string|null}};
