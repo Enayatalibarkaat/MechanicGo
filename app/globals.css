@@ -867,3 +867,27 @@ html[data-mg-nav="forward"] main{animation:mgPageEnterFromRight .14s cubic-bezie
 @media(min-width:650px){.mgNotificationsIntro,.mgNotificationsSection{margin-left:24px;margin-right:24px}.mgNotificationsError{margin-left:24px;margin-right:24px}}
 /* Fixed navigation is rendered outside page containers so transforms/scrolling cannot move it */
 .bottomNav,.mgBottomNav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100vw!important;max-width:100vw!important;z-index:9999!important;transform:none!important;contain:none!important;will-change:auto!important;display:grid!important}
+
+/* Service choice selector inside the booking wizard */
+.bookingServicePicker{margin:20px 0 22px;padding:15px;border:1px solid #e2eee6;border-radius:18px;background:linear-gradient(145deg,#f7fcf8,#fff)}
+.bookingServicePicker .bookingSubhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}.bookingServicePicker .bookingSubhead h4{margin:0;font-size:14px;color:#1b3023}.bookingServicePicker .bookingSubhead small{font-size:10px;color:#7b8d80}
+.bookingServiceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.bookingServiceOption{position:relative;min-height:75px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 5px;border:1px solid #e6eee8;border-radius:13px;background:#fff;color:#314438;font-size:10px;font-weight:700;line-height:1.25;text-align:center}
+.bookingServiceOption svg:first-child{color:#07865e}.bookingServiceOption span{max-width:100%}.bookingServiceOption svg:last-child:not(:first-child){position:absolute;right:5px;top:5px;color:#07865e}
+.bookingServiceOption.selected{border-color:#0ca66c;background:#eaf9f0;box-shadow:inset 0 0 0 1px #0ca66c;color:#075e40}
+.bookingOtherVehicleTypes{grid-template-columns:repeat(3,minmax(0,1fr))}
+.bookingTypeGrid .bookingType{justify-content:center;min-height:48px;padding:10px 6px;font-size:11px}
+.bookingSummaryService{padding:8px 10px;border-radius:10px;background:#eaf9f0;color:#08784f!important;font-size:11px;font-weight:800}
+@media(max-width:420px){.bookingServicePicker{padding:11px}.bookingServiceGrid{gap:6px}.bookingServiceOption{min-height:68px;font-size:9px}.bookingServiceOption svg:first-child{width:17px;height:17px}.bookingOtherVehicleTypes{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* Full service directory */
+.mgServicesPage{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))!important}
+.mgServicesPage .pageHeader{display:flex;align-items:center;gap:13px}
+.mgServicesPage .pageBackBtn{width:43px;height:43px;display:grid;place-items:center;border:1px solid #e3ece5;border-radius:14px;background:#fff;color:#1d3025}
+.mgServicesPage .serviceIntro{padding:26px 20px 14px}.mgServicesPage .serviceIntro h2{color:#183124}
+.mgServicesGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;padding:12px 16px}
+.mgServiceTile{display:flex;align-items:flex-start;gap:10px;min-width:0;min-height:145px;padding:14px 12px;border:1px solid #e6eee8;border-radius:17px;background:#fff;box-shadow:0 6px 17px #1b382506;transition:transform .16s,border-color .16s}
+.mgServiceTile:active{transform:scale(.98)}.mgServiceIcon{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:13px;background:#e8f8ee;color:#07865e}
+.mgServiceText{min-width:0;display:flex;flex-direction:column;gap:6px}.mgServiceText b{font-size:12px;line-height:1.35;color:#20362a}.mgServiceText>span{font-size:10px;line-height:1.45;color:#718278}.mgServiceText small{display:flex;align-items:center;gap:1px;margin-top:auto;color:#07865e;font-size:9px;font-weight:800}
+.mgServiceNote{margin:8px 16px 22px;padding:16px!important;border:1px solid #e0efe5!important;background:#f3fbf6!important}.mgServiceNote b{color:#1d4731}.mgServiceNote p{margin:7px 0 0;font-size:11px;line-height:1.55;color:#6b8073}
+.mgMechanicSpecGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mgMechanicSpec{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px;border:1px solid #e0e9e2;border-radius:11px;background:#fff;color:#516459;font-size:11px;font-weight:700}.mgMechanicSpec.selected{border-color:#0b9b63;background:#e8f8ee;color:#07865e;box-shadow:inset 0 0 0 1px #0b9b63}
+@media(max-width:370px){.mgServicesGrid{gap:8px;padding-left:12px;padding-right:12px}.mgServiceTile{padding:11px 9px;gap:8px;min-height:155px}.mgServiceIcon{width:34px;height:34px;flex-basis:34px}.mgServiceText b{font-size:11px}}
