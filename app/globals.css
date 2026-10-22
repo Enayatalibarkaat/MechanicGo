@@ -733,3 +733,19 @@ body{overflow-x:hidden}
 @keyframes reviewSpin{to{transform:rotate(360deg)}}
 @media(min-width:700px){.reviewPage{max-width:760px;margin:0 auto}.reviewFormCard{margin:0 22px 30px;padding:26px}.reviewIntro{padding:27px 24px}.reviewBookingSummary{padding:16px}}
 @media(max-width:360px){.reviewStars{gap:5px}.reviewStars button{width:40px;height:42px}.bookingProgressStep small{font-size:8px}}
+
+.homeCouponPromo{display:flex;align-items:center;gap:12px;margin:0 16px 23px;padding:15px 14px;border:1px solid #dce8fb;border-radius:19px;background:linear-gradient(115deg,#edf4ff,#fff 76%);box-shadow:0 6px 20px #17365d05}
+.homeCouponPromoIcon{width:43px;height:43px;display:grid;place-items:center;flex:0 0 43px;border-radius:14px;background:#dceaff;color:#245fc5}
+.homeCouponPromoCopy{flex:1;min-width:0}
+.homeCouponPromoCopy>span,.homeCouponPromoCopy>b,.homeCouponPromoCopy>small{display:block}
+.homeCouponPromoCopy>span{color:#5076ad;font-size:8px;font-weight:900;letter-spacing:1.2px}
+.homeCouponPromoCopy>b{margin-top:4px;color:#1c3557;font-size:13px}
+.homeCouponPromoCopy>small{margin-top:4px;color:#72829a;font-size:10px;line-height:1.5}
+.homeCouponPromo>a{width:34px;height:34px;display:grid;place-items:center;flex:0 0 34px;border:1px solid #d6e4fa;border-radius:11px;background:#fff;color:#2563eb}
+.mg-route-eta{display:flex;align-items:center;gap:11px;margin:13px 0;padding:13px;border:1px solid #cde9df;border-radius:15px;background:#effaf5;color:#14765c}
+.mg-route-eta-icon{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:12px;background:#d9f5e9;color:#0d9068}
+.mg-route-eta>div{min-width:0;display:flex;flex-direction:column;gap:4px}
+.mg-route-eta b{font-size:16px;font-weight:900;line-height:1.2}
+.mg-route-eta b small{font-size:10px;font-weight:700}
+.mg-route-eta>div>span{color:#548274;font-size:10px;line-height:1.4}
+@media(min-width:650px){.homeCouponPromo{margin-left:24px;margin-right:24px}}
