@@ -22,11 +22,11 @@ export default function Home(){
  const[searchOpen,setSearchOpen]=useState(false);
  const[readIds,setReadIds]=useState<string[]>([]);
  const[locationOpen,setLocationOpen]=useState(false);
- const[location,setLocation]=useState("Bhira, Lakhimpur Kheri");
+ const[locationLabel,setLocationLabel]=useState("Bhira, Lakhimpur Kheri");
  useEffect(()=>{
   let active=true;
   fetch("/api/profile/current",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok&&d.user){if(d.user.name)setName(d.user.name.split(" ")[0]);setPhotoUrl(d.user.profilePhotoUrl||"");}}).catch(()=>{});
-  fetch("/api/auth/status",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok&&d.authenticated&&d.user?.role==="MECHANIC")location.replace("/mechanic/dashboard");}).catch(()=>{});
+  fetch("/api/auth/status",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok&&d.authenticated&&d.user?.role==="MECHANIC")window.location.replace("/mechanic/dashboard");}).catch(()=>{});
   const loadBookings=()=>fetch("/api/bookings",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok){const list:Booking[]=d.bookings||[];const current=list.filter(b=>!["COMPLETED","CANCELLED"].includes(b.status));setOpenBookings(current.length);setLatestBooking(current[0]||null);}}).catch(()=>{}).finally(()=>{if(active)setLoading(false);});
   void loadBookings();const timer=window.setInterval(()=>void loadBookings(),30000);
   try{const saved=localStorage.getItem("mg_home_notice_reads");if(saved)setReadIds(JSON.parse(saved));}catch{}
@@ -50,14 +50,14 @@ export default function Home(){
  ];
  return <main className="appPage homePage mgHome">
   <header className="homeHeaderBar mgHomeHeader">
-   <button className="mgLocationButton" onClick={()=>setLocationOpen(v=>!v)} aria-expanded={locationOpen}><span className="mgLocationPin"><MapPin size={18} fill="currentColor"/></span><span><small>Current location</small><b>{location}</b></span><ChevronDown size={15}/></button>
+   <button className="mgLocationButton" onClick={()=>setLocationOpen(v=>!v)} aria-expanded={locationOpen}><span className="mgLocationPin"><MapPin size={18} fill="currentColor"/></span><span><small>Current location</small><b>{locationLabel}</b></span><ChevronDown size={15}/></button>
    <div className="mgHeaderActions">
     <button className="mgRoundAction" aria-label="Search services" onClick={()=>setSearchOpen(v=>!v)}><Search size={21}/></button>
     <button className="mgRoundAction mgBellButton" aria-label="Notifications" aria-expanded={notificationsOpen} onClick={()=>{setNotificationsOpen(v=>!v);setSearchOpen(false);if(!notificationsOpen)markRead();}}><Bell size={21}/>{unread>0&&<i>{unread>9?"9+":unread}</i>}</button>
    </div>
   </header>
-  {locationOpen&&<div className="mgLocationPanel"><MapPin size={17}/><div><b>Service location</b><span>{location}</span><small>Your exact address can be selected while booking.</small></div><button onClick={()=>{setLocationOpen(false);location.href="/customer/book";}}>Change <ArrowRight size={14}/></button></div>}
-  {searchOpen&&<form className="mgSearchPanel" onSubmit={e=>{e.preventDefault();location.href="/services";}}><Search size={18}/><input aria-label="Search services" placeholder="Search bike, car, truck, bus…" autoFocus/><button type="submit">Search</button><button type="button" aria-label="Close search" onClick={()=>setSearchOpen(false)}><X size={17}/></button></form>}
+  {locationOpen&&<div className="mgLocationPanel"><MapPin size={17}/><div><b>Service location</b><span>{locationLabel}</span><small>Your exact address can be selected while booking.</small></div><button onClick={()=>{setLocationOpen(false);window.location.href="/customer/book";}}>Change <ArrowRight size={14}/></button></div>}
+  {searchOpen&&<form className="mgSearchPanel" onSubmit={e=>{e.preventDefault();window.location.href="/services";}}><Search size={18}/><input aria-label="Search services" placeholder="Search bike, car, truck, bus…" autoFocus/><button type="submit">Search</button><button type="button" aria-label="Close search" onClick={()=>setSearchOpen(false)}><X size={17}/></button></form>}
   {notificationsOpen&&<aside className="mgNotificationPanel" aria-label="Notifications"><div className="mgNoticeHead"><div><b>Notifications</b><small>Updates for your account</small></div><button onClick={()=>setNotificationsOpen(false)} aria-label="Close notifications"><X size={18}/></button></div>{notices.map(n=><div className="mgNoticeItem" key={n.id}><span className={"mgNoticeIcon "+n.kind}>{n.kind==="booking"?<BellRing size={18}/>:n.kind==="offer"?<Ticket size={18}/>:<CheckCircle2 size={18}/>}</span><div><b>{n.title}</b><p>{n.message}</p><small>{n.time}</small></div></div>)}<a className="mgNoticeFooter" href={latestBooking?"/bookings":"/coupons"}>{latestBooking?"View booking updates":"Explore offers"} <ArrowRight size={15}/></a></aside>}
   <section className="mgHomeHero">
    <div className="mgHeroCopy"><span className="mgHeroEyebrow"><span/> RELIABLE VEHICLE SERVICE</span><h1>Mechanic<span>Go</span></h1><p>Reliable Vehicle Service<br/>Right at Your Doorstep</p><a href="/customer/book" className="mgHeroButton">Book a mechanic <ArrowRight size={18}/></a></div>
