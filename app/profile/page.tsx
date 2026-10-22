@@ -1,8 +1,8 @@
 "use client";
 import {useEffect,useState} from "react";
-import {LogOut,MapPin,CarFront,WalletCards,Ticket,Settings,HelpCircle,ChevronRight,type LucideIcon} from "lucide-react";
+import {LogOut,CarFront,Ticket,Settings,HelpCircle,ChevronRight,type LucideIcon} from "lucide-react";
 import {Bottom} from "../components";
-const menuItems:Array<[LucideIcon,string,string]>=[[CarFront,"My Vehicles","/vehicles"],[MapPin,"Saved Addresses","#"],[WalletCards,"Wallet & Payments","#"],[Ticket,"Coupons & Offers","/coupons"],[HelpCircle,"Help & Support","/support"],[Settings,"Settings","/settings"]];
+const menuItems:Array<[LucideIcon,string,string]>=[[CarFront,"My Vehicles","/vehicles"],[Ticket,"Coupons & Offers","/coupons"],[HelpCircle,"Help & Support","/support"],[Settings,"Settings","/settings"]];
 export default function Profile(){
  const[name,setName]=useState("Your profile");const[photo,setPhoto]=useState("");const[phone,setPhone]=useState("");const[email,setEmail]=useState("");
  useEffect(()=>{
