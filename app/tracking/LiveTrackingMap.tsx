@@ -123,7 +123,7 @@ export default function LiveTrackingMap({ bookingId, role }: { bookingId: string
     if (mechanic && Number.isFinite(mechanic.lat) && Number.isFinite(mechanic.lng)) {
       const ll = [mechanic.lat, mechanic.lng];
       const icon = L.divIcon({ className: "mg-mechanic-marker-wrap", html: '<span class="mg-mechanic-marker"><img src="/mechanic-tracker.svg" alt="Mechanic" /></span>', iconSize: [58, 64], iconAnchor: [29, 54] });
-      if (!mechanicMarkerRef.current) mechanicMarkerRef.current = L.marker(ll, { icon, zIndexOffset: 1000 }).addTo(map).bindPopup("Mechanic is on the way");
+      if (!mechanicMarkerRef.current) mechanicMarkerRef.current = L.marker(ll, { icon, zIndexOffset: 1000 }).addTo(map).bindPopup("Mechanic location");
       else {
         const old = mechanicMarkerRef.current.getLatLng();
         const target = L.latLng(ll[0], ll[1]);
@@ -156,7 +156,7 @@ export default function LiveTrackingMap({ bookingId, role }: { bookingId: string
   const active = snapshot?.status === "ACCEPTED";
   return <section className="mg-live-card">
     <Script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" strategy="afterInteractive" onReady={() => setLeafletReady(true)} />
-    <div className="mg-map-heading"><div><span className="mg-live-kicker"><i className={active ? "is-live" : ""}/>{active ? "LIVE TRACKING" : "TRACKING STATUS"}</span><h2>{active ? "Mechanic on the way" : snapshot?.status === "IN_PROGRESS" ? "Service in progress" : "Booking location"}</h2><p>{active ? "Map updates automatically as locations change." : "Location sharing is available while your mechanic is on the way."}</p></div><span className="mg-secure-pill"><ShieldCheck size={15}/> Private</span></div>
+    <div className="mg-map-heading"><div><span className="mg-live-kicker"><i className={active ? "is-live" : ""}/>{active ? "LIVE TRACKING" : "TRACKING STATUS"}</span><h2>{active ? "Mechanic assigned" : snapshot?.status === "IN_PROGRESS" ? "Service in progress" : "Booking location"}</h2><p>{active ? "Live location and route appear when both devices share GPS." : "Location sharing is available during the accepted booking stage."}</p></div><span className="mg-secure-pill"><ShieldCheck size={15}/> Private</span></div>
     <div className="mg-map-shell"><div id="mechanicgo-live-map" className="mg-leaflet-map" aria-label="Live roadside assistance map"/>{!leafletReady&&<div className="mg-map-loading"><span className="bookingSpinner"/>Loading map…</div>}</div>
     <div className="mg-map-legend"><span><i className="mg-legend-customer"/>Customer</span><span><img src="/mechanic-tracker.svg" alt=""/>Mechanic</span><span><i className="mg-legend-route"/>Route</span></div>
     {active && snapshot?.customerLocation && snapshot?.mechanicLocation && routeInfo && <div className="mg-route-eta" role="status"><span className="mg-route-eta-icon"><Navigation size={18}/></span><div><b>{Math.max(1,Math.round(routeInfo.durationSeconds/60))} min <small>estimated drive</small></b><span>{routeInfo.distanceMeters>=1000?(routeInfo.distanceMeters/1000).toFixed(1)+" km":Math.round(routeInfo.distanceMeters)+" m"} by road · route estimate, not live traffic</span></div></div>}
