@@ -34,7 +34,7 @@ export default function Home(){
  },[]);
  const notices:Notice[]=useMemo(()=>{
   const items:Notice[]=[{id:"welcome-offer",title:"Your first booking offer",message:"Check Coupons & Offers for available savings on your service.",time:"Offer",kind:"offer"}];
-  if(latestBooking)items.unshift({id:"booking-"+latestBooking._id,title:"Your booking update",message:(latestBooking.issueDescription||"Service request")+" · "+String(latestBooking.status||"REQUESTED").replace(/_/g," ").toLowerCase(),time:"Latest booking",kind:"booking"});
+  if(latestBooking)items.unshift({id:"booking-"+latestBooking._id+"-"+latestBooking.status,title:"Your booking update",message:(latestBooking.issueDescription||"Service request")+" · "+String(latestBooking.status||"REQUESTED").replace(/_/g," ").toLowerCase(),time:"Latest booking",kind:"booking"});
   if(openBookings>0&&!latestBooking)items.unshift({id:"booking-active",title:"You have an active booking",message:"Open Bookings to check the latest status.",time:"Now",kind:"booking"});
   return items;
  },[latestBooking,openBookings]);
@@ -61,7 +61,7 @@ export default function Home(){
   {notificationsOpen&&<aside className="mgNotificationPanel" aria-label="Notifications"><div className="mgNoticeHead"><div><b>Notifications</b><small>Updates for your account</small></div><button onClick={()=>setNotificationsOpen(false)} aria-label="Close notifications"><X size={18}/></button></div>{notices.map(n=><div className="mgNoticeItem" key={n.id}><span className={"mgNoticeIcon "+n.kind}>{n.kind==="booking"?<BellRing size={18}/>:n.kind==="offer"?<Ticket size={18}/>:<CheckCircle2 size={18}/>}</span><div><b>{n.title}</b><p>{n.message}</p><small>{n.time}</small></div></div>)}<a className="mgNoticeFooter" href={latestBooking?"/bookings":"/coupons"}>{latestBooking?"View booking updates":"Explore offers"} <ArrowRight size={15}/></a></aside>}
   <section className="mgHomeHero">
    <div className="mgHeroCopy"><span className="mgHeroEyebrow"><span/> RELIABLE VEHICLE SERVICE</span><h1>Mechanic<span>Go</span></h1><p>Reliable Vehicle Service<br/>Right at Your Doorstep</p><a href="/customer/book" className="mgHeroButton">Book a mechanic <ArrowRight size={18}/></a></div>
-   <div className="mgHeroArt" aria-hidden="true"><div className="mgHeroGlow"/><img src="/mechanicgo-mechanic.svg" alt=""/></div>
+   <div className="mgHeroArt" aria-hidden="true"><div className="mgHeroGlow"/><span className="mgHeroVehicle mgHeroBike"><Bike size={59}/></span><span className="mgHeroVehicle mgHeroCar"><CarFront size={76}/></span><img src="/mechanicgo-mechanic.svg" alt=""/></div>
   </section>
   <section className="mgQuickFeatures" aria-label="Service benefits">
    <a href="/customer/book"><span><Zap size={21} fill="currentColor"/></span><b>Quick Booking</b></a>
