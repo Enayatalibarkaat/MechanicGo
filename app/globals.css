@@ -577,3 +577,87 @@ html[data-mg-nav="back"] main { animation: mgPageEnterFromLeft .18s ease-out bot
 .bookingCouponHint{margin:10px 1px 0;color:#7b8798;font-size:10px;line-height:1.55}
 .bookingCouponError{display:block;margin-top:8px;color:#b42318;font-size:11px;line-height:1.5}
 @media(max-width:380px){.bookingCouponBox{padding:12px}.bookingCouponHeading{gap:8px}.bookingCouponHeading>a{font-size:10px}.bookingCouponInputRow{gap:6px}.bookingCouponInputRow button{min-width:75px;padding:0 9px}}
+
+
+/* Fixed mobile navigation: keep it attached to the viewport, not the animated page. */
+@keyframes mgPageEnterFromRight{from{opacity:.78}to{opacity:1}}
+@keyframes mgPageEnterFromLeft{from{opacity:.78}to{opacity:1}}
+html[data-mg-nav="forward"] main{animation:mgPageEnterFromRight .16s ease-out both}
+html[data-mg-nav="back"] main{animation:mgPageEnterFromLeft .16s ease-out both}
+html,body{min-height:100%;overscroll-behavior-x:none}
+body{overflow-x:hidden}
+.appPage{min-height:100vh;min-height:100dvh;padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))}
+.bottomNav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%;height:calc(78px + env(safe-area-inset-bottom,0px));padding:9px 8px calc(9px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box;z-index:1000!important;background:rgba(255,255,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transform:none!important;contain:layout paint;will-change:auto}
+.bottomNav a{min-width:0;flex:1;justify-content:center;padding:6px 4px;touch-action:manipulation}
+.bottomNav a.on{min-width:0}
+.bottomNav svg{flex:0 0 auto}
+.pageBackBtn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;border:1px solid #e1e7f0;border-radius:15px;background:#fff;color:#25364d;box-shadow:0 3px 10px #142b4b08;transition:background .15s,border-color .15s}
+.pageBackBtn:active{background:#edf4ff;border-color:#bfd4ff}
+.pageHeader:has(.pageBackBtn){justify-content:flex-start;gap:13px}
+.pageHeader:has(.pageBackBtn) h1{flex:1;min-width:0}
+.pageHeader .pageBackBtn{color:#25364d}
+@media(prefers-reduced-motion:reduce){html[data-mg-nav] main{animation:none!important}}
+/* Clean, practical customer home screen */
+.homePage{background:#f5f8fd}
+.homeHeaderBar{height:70px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;background:#ffffffed;border-bottom:1px solid #e9eef6;backdrop-filter:blur(14px)}
+.homeHeaderBrand{display:flex;align-items:center;gap:8px;color:#1559c8;font:800 21px Manrope,sans-serif;letter-spacing:-.5px}
+.homeHeaderBrand img{width:31px;height:31px;object-fit:contain}
+.homeHeaderBrand span{color:#122b4d}
+.homeProfileButton{width:42px;height:42px;display:grid;place-items:center;overflow:hidden;border:2px solid #e2ebfa;border-radius:50%;background:#edf4ff;color:#1e5cc4;font-weight:800}
+.homeProfileButton img{width:100%;height:100%;object-fit:cover}
+.homeWelcome{padding:23px 20px 18px;background:linear-gradient(180deg,#fff,#f5f8fd)}
+.homeWelcomeTop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.homeWelcomeCopy{min-width:0}
+.homeWelcomeKicker{display:flex;align-items:center;gap:7px;color:#56739c;font-size:10px;font-weight:900;letter-spacing:1.5px}
+.homeWelcome h1{margin:9px 0 7px;font:800 clamp(25px,6vw,33px)/1.12 Manrope,sans-serif;letter-spacing:-1px;color:#132943}
+.homeWelcome h1 span{color:#2563eb}
+.homeWelcome p{margin:0;color:#6c7b90;font-size:13px;line-height:1.6}
+.homeLocationBadge{display:inline-flex;align-items:center;gap:5px;margin-top:13px;padding:7px 10px;border:1px solid #dce8fb;border-radius:99px;background:#fff;color:#456487;font-size:10px;font-weight:700;white-space:nowrap}
+.homeBookHero{position:relative;isolation:isolate;overflow:hidden;margin:5px 16px 21px;padding:21px;border-radius:25px;background:linear-gradient(135deg,#0d3678 0%,#1557bc 66%,#167f80 140%);color:#fff;box-shadow:0 15px 32px #174a941f}
+.homeBookHero:before{content:"";position:absolute;z-index:-1;right:-52px;top:-82px;width:210px;height:210px;border:1px solid #ffffff24;border-radius:50%;box-shadow:0 0 0 25px #ffffff09,0 0 0 52px #ffffff06}
+.homeBookHero:after{content:"";position:absolute;z-index:-1;right:28px;bottom:-65px;width:115px;height:115px;border-radius:50%;background:#ffffff08}
+.homeBookHeroTop{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.homeBookHeroIcon{width:43px;height:43px;display:grid;place-items:center;border:1px solid #ffffff28;border-radius:14px;background:#ffffff18}
+.homeBookHeroTop span{display:block;color:#c5dcff;font-size:9px;font-weight:900;letter-spacing:1.4px}
+.homeBookHero h2{max-width:300px;margin:0 0 8px;font:800 23px/1.2 Manrope,sans-serif;letter-spacing:-.5px;color:#fff}
+.homeBookHero p{max-width:330px;margin:0 0 18px;color:#dceaff;font-size:12px;line-height:1.65}
+.homeBookHeroLink{min-height:47px;display:flex;align-items:center;justify-content:center;gap:9px;padding:0 16px;border-radius:14px;background:#fff;color:#1552b5;font-size:13px;font-weight:900;box-shadow:0 5px 14px #071d461c}
+.homeBookHeroLink:active{transform:scale(.99)}
+.homeTrustRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 16px 22px}
+.homeTrustItem{min-width:0;display:flex;align-items:center;gap:8px;padding:11px 9px;border:1px solid #e3eaf4;border-radius:15px;background:#fff}
+.homeTrustIcon{width:31px;height:31px;flex:0 0 31px;display:grid;place-items:center;border-radius:10px;background:#edf4ff;color:#2563eb}
+.homeTrustItem b,.homeTrustItem small{display:block}
+.homeTrustItem b{font-size:10px;color:#263b57;line-height:1.3}
+.homeTrustItem small{margin-top:3px;color:#8995a7;font-size:8px;line-height:1.3}
+.homeContentSection{padding:0 16px;margin:0 0 23px}
+.homeSectionTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 13px}
+.homeSectionTitle h2{margin:0;color:#192f4b;font:800 18px Manrope,sans-serif;letter-spacing:-.35px}
+.homeSectionTitle p{margin:4px 0 0;color:#8491a4;font-size:11px}
+.homeSectionTitle>a{display:flex;align-items:center;gap:3px;color:#2563eb;font-size:11px;font-weight:800;white-space:nowrap}
+.homeServiceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.homeServiceCard{min-width:0;min-height:130px;display:flex;flex-direction:column;align-items:flex-start;padding:13px 11px;border:1px solid #e3eaf4;border-radius:19px;background:#fff;box-shadow:0 6px 20px #17365d05;transition:border-color .15s,background .15s}
+.homeServiceCard:active{background:#f3f7ff;border-color:#bfd3fa}
+.homeServiceIcon{width:42px;height:42px;display:grid;place-items:center;margin-bottom:12px;border-radius:14px;background:#edf4ff;color:#2563eb}
+.homeServiceCard:nth-child(2) .homeServiceIcon{background:#e8faf3;color:#0b946b}
+.homeServiceCard:nth-child(3) .homeServiceIcon{background:#fff3e8;color:#c66a1b}
+.homeServiceCard b{font-size:12px;color:#243953}
+.homeServiceCard small{margin-top:4px;color:#8794a7;font-size:9px;line-height:1.4}
+.homeBookingCard{display:flex;align-items:center;gap:12px;padding:15px;border:1px solid #e2eaf5;border-radius:19px;background:#fff}
+.homeBookingIcon{width:43px;height:43px;display:grid;place-items:center;flex:0 0 43px;border-radius:14px;background:#eef4ff;color:#2563eb}
+.homeBookingCopy{flex:1;min-width:0}
+.homeBookingCopy b{display:block;font-size:13px;color:#263b57}
+.homeBookingCopy p{margin:5px 0 0;color:#8591a3;font-size:11px;line-height:1.5}
+.homeBookingCount{display:grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border-radius:12px;background:#eafbf3;color:#087b5d;font-size:13px;font-weight:900}
+.homeShortcutGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.homeShortcut{display:flex;align-items:center;gap:10px;min-width:0;padding:13px;border:1px solid #e3eaf4;border-radius:17px;background:#fff}
+.homeShortcut>span:first-child{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:12px;background:#eef4ff;color:#2563eb}
+.homeShortcut b,.homeShortcut small{display:block}
+.homeShortcut b{font-size:11px;color:#263b57}
+.homeShortcut small{margin-top:4px;color:#8995a7;font-size:9px;line-height:1.4}
+.homeSafetyNote{display:flex;align-items:flex-start;gap:10px;margin:0 16px 22px;padding:14px;border:1px solid #d8eee5;border-radius:17px;background:#effaf5;color:#28745f}
+.homeSafetyNote>svg{flex:0 0 auto}
+.homeSafetyNote b{display:block;font-size:11px}
+.homeSafetyNote p{margin:5px 0 0;font-size:10px;line-height:1.55;color:#5a8377}
+.homeBottomSpacer{height:8px}
+@media(min-width:650px){.homePage{max-width:760px;margin:0 auto}.homeHeaderBar{padding:0 24px}.homeWelcome{padding:28px 24px 20px}.homeBookHero,.homeTrustRow{margin-left:24px;margin-right:24px}.homeContentSection{padding:0 24px}.homeSafetyNote{margin-left:24px;margin-right:24px}.homeBookHero{padding:25px}.homeServiceCard{min-height:145px;padding:16px}}
+@media(max-width:380px){.homeTrustRow{gap:5px}.homeTrustItem{gap:5px;padding:9px 6px}.homeTrustIcon{width:27px;height:27px;flex-basis:27px}.homeTrustItem b{font-size:9px}.homeServiceGrid{gap:7px}.homeServiceCard{padding:11px 8px}.homeServiceCard b{font-size:11px}.homeServiceCard small{font-size:8px}}
