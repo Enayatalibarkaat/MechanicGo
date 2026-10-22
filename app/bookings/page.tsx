@@ -1,6 +1,6 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
-import {CalendarClock,ChevronRight,MapPin,RefreshCw,Wrench,Clock3,CheckCircle2,XCircle,Navigation,Phone, X,LifeBuoy} from "lucide-react";
+import {CalendarClock,ChevronRight,MapPin,RefreshCw,Wrench,Clock3,CheckCircle2,XCircle,Navigation,Phone, X,LifeBuoy,ArrowLeft} from "lucide-react";
 import {Bottom} from "../components";
 
 type Booking={
@@ -60,7 +60,7 @@ export default function Bookings(){
    </div>}
  </article>;
  return <main className="appPage">
-  <header className="pageHeader"><h1>My Bookings</h1><div className="bookingHeaderActions"><button className={"historyTopBtn "+(view==="history"?"selected":"")} onClick={()=>{setView(view==="history"?"active":"history");setNotice("");}}><Clock3 size={16}/> History <span>{past.length}</span></button><a href="/customer/book">+ New</a></div></header>
+  <header className="pageHeader"><a href="/home" className="pageBackBtn" aria-label="Back to home"><ArrowLeft size={22}/></a><h1>My Bookings</h1><div className="bookingHeaderActions"><button className={"historyTopBtn "+(view==="history"?"selected":"")} onClick={()=>{setView(view==="history"?"active":"history");setNotice("");}}><Clock3 size={16}/> History <span>{past.length}</span></button><a href="/customer/book">+ New</a></div></header>
   <div className="bookingViewTabs" role="tablist" aria-label="Bookings view">
     <button role="tab" aria-selected={view==="active"} className={view==="active"?"selected":""} onClick={()=>{setView("active");setNotice("");}}>Active <span>{active.length}</span></button>
     <button role="tab" aria-selected={view==="history"} className={view==="history"?"selected":""} onClick={()=>{setView("history");setNotice("");}}>History <span>{past.length}</span></button>
