@@ -32,6 +32,7 @@ const BookingSchema = new Schema({
   },
   customerLiveLocation: { lat: { type: Number, min: -90, max: 90 }, lng: { type: Number, min: -180, max: 180 }, heading: { type: Number, min: 0, max: 360 }, speed: { type: Number, min: 0 }, updatedAt: { type: Date } },
   mechanicLiveLocation: { lat: { type: Number, min: -90, max: 90 }, lng: { type: Number, min: -180, max: 180 }, heading: { type: Number, min: 0, max: 360 }, speed: { type: Number, min: 0 }, updatedAt: { type: Date } },
+  review: { rating: { type: Number, min: 1, max: 5, default: null }, comment: { type: String, trim: true, maxlength: 500, default: "" }, reviewedAt: { type: Date, default: null } },
   status: { type: String, enum: ["SEARCHING", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED"], default: "SEARCHING", index: true }
 }, { timestamps: true });
 
