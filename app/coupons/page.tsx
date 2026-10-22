@@ -76,7 +76,7 @@ export default function CouponsPage() {
         </article>)}</div>}
     </section>
     <div className="couponSecurityNote"><CheckCircle2 size={17}/><p>Each coupon can be claimed by one account and redeemed once. The issuer can deactivate a code at any time.</p></div>
-    <Bottom active="profile"/>
+    <Bottom active="coupons"/>
   </main>;
 }
 
