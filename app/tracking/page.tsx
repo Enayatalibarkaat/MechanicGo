@@ -12,7 +12,7 @@ type Booking = {
   mechanicId?: { name?: string; phone?: string } | string | null;
 };
 const labels: Record<string, string> = {
-  SEARCHING: "Finding a mechanic", ACCEPTED: "Mechanic assigned · on the way",
+  SEARCHING: "Finding a mechanic", ACCEPTED: "Mechanic assigned",
   IN_PROGRESS: "Service in progress", COMPLETED: "Service completed", CANCELLED: "Booking cancelled"
 };
 
@@ -54,7 +54,7 @@ export default function Tracking() {
 
   return <main className="appPage mg-tracking-page">
     <header className="pageHeader mg-tracking-header">
-      <a href="/bookings" aria-label="Back to bookings"><ArrowLeft size={22}/></a>
+      <a href="/bookings" className="pageBackBtn" aria-label="Back to bookings"><ArrowLeft size={22}/></a>
       <div><span>MECHANICGO</span><h1>Booking tracker</h1></div>
       <button className="iconBtn" onClick={() => void load(true)} aria-label="Refresh booking" disabled={refreshing}>
         <RefreshCw size={18} className={refreshing ? "mg-refreshing" : ""}/>
@@ -84,7 +84,7 @@ export default function Tracking() {
         {booking.status === "SEARCHING" && <SearchingMechanicsMap address={booking.location?.address || "Bhira, Lakhimpur Kheri, Uttar Pradesh, India"} lat={booking.location?.lat} lng={booking.location?.lng}/>}
         {booking.status === "ACCEPTED" && <LiveTrackingMap bookingId={booking._id} role="CUSTOMER"/>}
         {booking.status === "IN_PROGRESS" && <section className="mg-final-status"><CheckCircle2 size={24}/><div><b>Your mechanic has started the service</b><p>Live GPS sharing is paused while the repair is in progress.</p></div></section>}
-        {booking.status === "COMPLETED" && <section className="mg-final-status"><CheckCircle2 size={24}/><div><b>Service completed</b><p>Thanks for choosing MechanicGo.</p></div></section>}
+        {booking.status === "COMPLETED" && <section className="mg-final-status"><CheckCircle2 size={24}/><div><b>Service completed</b><p>Thanks for choosing MechanicGo.</p><a className="mg-secondary-action" href={"/review?bookingId="+encodeURIComponent(booking._id)}>Rate this service <span aria-hidden="true">→</span></a></div></section>}
         {booking.status === "CANCELLED" && <section className="mg-final-status is-cancelled"><Clock3 size={24}/><div><b>This booking was cancelled</b><p>You can create a new request whenever you need help.</p></div></section>}
       </>}
       <a className="mg-secondary-action mg-my-bookings" href="/bookings">View all my bookings</a>
