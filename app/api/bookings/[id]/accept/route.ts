@@ -23,7 +23,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     const specialistEligibility = { $or: [
       { serviceType: { $nin: ["EV", "SCOOTER_EV"] } },
       ...(capabilities.includes("EV") ? [{ serviceType: "EV" }] : []),
-      ...(capabilities.includes("SCOOTER_EV") || capabilities.includes("EV") ? [{ serviceType: "SCOOTER_EV" }] : [])
+      ...(capabilities.includes("SCOOTER_EV") ? [{ serviceType: "SCOOTER_EV" }] : [])
     ] };
     const eligible = { _id: id, status: "SEARCHING", vehicleType: { $in: [...allowedTypes] }, ...specialistEligibility };
     const candidate = await Booking.findOne(eligible).select("location.address").lean() as any;
