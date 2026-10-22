@@ -9,11 +9,13 @@ export default function RouteTransitions() {
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const timeoutRef = useRef<number | null>(null);
+  const showTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     setLoading(false);
     document.documentElement.classList.remove("mg-page-leaving-forward", "mg-page-leaving-back");
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    if (showTimeoutRef.current) window.clearTimeout(showTimeoutRef.current);
   }, [pathname]);
 
   useEffect(() => {
@@ -38,8 +40,11 @@ export default function RouteTransitions() {
       const label = [link.getAttribute("aria-label"), link.getAttribute("title"), link.textContent].filter(Boolean).join(" ").toLowerCase();
       const isBack = link.dataset.transition === "back" || /(back|go back|close|cancel)/i.test(label) || nextParts.length < currentParts.length;
       document.documentElement.dataset.mgNav = isBack ? "back" : "forward";
-      setLoading(true);
+      setLoading(false);
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+      if (showTimeoutRef.current) window.clearTimeout(showTimeoutRef.current);
+      // Avoid flashing a full-screen loader for fast client-side transitions.
+      showTimeoutRef.current = window.setTimeout(() => setLoading(true), 220);
       // Client-side navigation avoids a full page reload and keeps the current screen responsive.
       event.preventDefault();
       router.push(destination.pathname + destination.search + destination.hash);
@@ -55,6 +60,7 @@ export default function RouteTransitions() {
       document.removeEventListener("click", onClick, true);
       window.removeEventListener("popstate", onPopState);
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+      if (showTimeoutRef.current) window.clearTimeout(showTimeoutRef.current);
     };
   }, [router]);
 
