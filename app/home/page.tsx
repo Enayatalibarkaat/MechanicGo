@@ -3,8 +3,8 @@
 import {useEffect,useMemo,useState} from "react";
 import {
   Bike,CarFront,Truck,BusFront,BatteryCharging,ChevronRight,ChevronDown,
-  CalendarDays,ShieldCheck,MapPin,Search,Wrench,Ticket,LifeBuoy,Clock3,
-  Bell,BellRing,X,ArrowRight,Zap,CheckCircle2,UserRound
+  CalendarDays,ShieldCheck,MapPin,Search,Wrench,Ticket,LifeBuoy,
+  Bell,BellRing,X,ArrowRight,Zap,CheckCircle2
 } from "lucide-react";
 import {Bottom} from "../components";
 
@@ -22,7 +22,7 @@ export default function Home(){
  const[searchOpen,setSearchOpen]=useState(false);
  const[readIds,setReadIds]=useState<string[]>([]);
  const[locationOpen,setLocationOpen]=useState(false);
- const[locationLabel,setLocationLabel]=useState("Bhira, Lakhimpur Kheri");
+ const locationLabel="Bhira, Lakhimpur Kheri";
  useEffect(()=>{
   let active=true;
   fetch("/api/profile/current",{cache:"no-store"}).then(async r=>{const d=await r.json();if(active&&r.ok&&d.user){if(d.user.name)setName(d.user.name.split(" ")[0]);setPhotoUrl(d.user.profilePhotoUrl||"");}}).catch(()=>{});
