@@ -76,6 +76,12 @@ export default function Home(){
    </a>
   </section>
 
+  <section className="homeCouponPromo">
+   <span className="homeCouponPromoIcon"><Ticket size={22}/></span>
+   <div className="homeCouponPromoCopy"><span>EXCLUSIVE FOR YOU</span><b>Have a coupon code?</b><small>Claim your offer and apply it when you book a mechanic.</small></div>
+   <a href="/coupons" aria-label="Open coupons and offers"><ChevronRight size={20}/></a>
+  </section>
+
   <section className="homeContentSection">
    <div className="homeSectionTitle"><div><h2>Made for you</h2><p>Useful shortcuts, right where you need them.</p></div></div>
    <div className="homeShortcutGrid">
