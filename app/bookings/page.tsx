@@ -1,6 +1,6 @@
 "use client";
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
-import {CalendarClock,ChevronRight,MapPin,RefreshCw,Wrench,Clock3,CheckCircle2,XCircle,Navigation,Phone, X,LifeBuoy,ArrowLeft,Star, BellRing} from "lucide-react";
+import {CalendarClock,ChevronRight,MapPin,RefreshCw,Wrench,Clock3,CheckCircle2,XCircle,Navigation,Phone, X,LifeBuoy,ArrowLeft,Star} from "lucide-react";
 import {Bottom} from "../components";
 
 type Booking={
