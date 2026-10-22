@@ -1,12 +1,12 @@
 "use client";
-import {useCallback,useEffect,useMemo,useState} from "react";
-import {CalendarClock,ChevronRight,MapPin,RefreshCw,Wrench,Clock3,CheckCircle2,XCircle,Navigation,Phone, X,LifeBuoy,ArrowLeft} from "lucide-react";
+import {useCallback,useEffect,useMemo,useRef,useState} from "react";
+import {CalendarClock,ChevronRight,MapPin,RefreshCw,Wrench,Clock3,CheckCircle2,XCircle,Navigation,Phone, X,LifeBuoy,ArrowLeft,Star, BellRing} from "lucide-react";
 import {Bottom} from "../components";
 
 type Booking={
  _id:string;vehicleType:string;issueDescription:string;status:string;createdAt:string;updatedAt?:string;
  location?:{address?:string;lat?:number;lng?:number};
- mechanicId?:{name?:string;phone?:string}|string|null;
+ mechanicId?:{name?:string;phone?:string}|string|null;review?:{rating?:number|null;comment?:string;reviewedAt?:string|null};
 };
 type View="active"|"history";
 const labels:Record<string,string>={SEARCHING:"Finding a mechanic",ACCEPTED:"Mechanic assigned",IN_PROGRESS:"Service in progress",COMPLETED:"Completed",CANCELLED:"Cancelled"};
@@ -19,13 +19,19 @@ export default function Bookings(){
  const[view,setView]=useState<View>("active");
  const[busyId,setBusyId]=useState("");
  const[trackingId,setTrackingId]=useState("");
+ const previousStatuses=useRef<Record<string,string>>({});
  const load=useCallback(async()=>{
    setError("");
    try{
      const r=await fetch("/api/bookings",{cache:"no-store"});
      const d=await r.json();
      if(!r.ok)throw new Error(d.error||"Could not load bookings.");
-     setItems(d.bookings||[]);
+     const nextBookings:Booking[]=d.bookings||[];
+     const previous=previousStatuses.current;
+     const changed=nextBookings.find(item=>previous[item._id]&&previous[item._id]!==item.status);
+     if(changed){const title=labels[changed.status]||changed.status.replaceAll("_"," ").toLowerCase();setNotice("Booking update: "+title+".");}
+     previousStatuses.current=Object.fromEntries(nextBookings.map(item=>[item._id,item.status]));
+     setItems(nextBookings);
    }catch(e){setError(e instanceof Error?e.message:"Network error. Please try again.");}
    finally{setLoading(false);}
  },[]);
@@ -52,11 +58,24 @@ export default function Bookings(){
    <p className="bookingIssue">{b.issueDescription}</p>
    {b.location?.address&&<div className="bookingLocation"><MapPin size={15}/>{b.location.address}</div>}
    <div className="bookingStatus"><span><CalendarClock size={14}/>{new Date(b.createdAt).toLocaleString()}</span><span className={"liveStatus "+(b.status==="CANCELLED"?"statusCancelled":b.status==="COMPLETED"?"statusComplete":"")}><i/> {labels[b.status]||b.status}</span></div>
+   <div className="bookingProgress" aria-label="Booking progress">
+    {(["SEARCHING","ACCEPTED","IN_PROGRESS","COMPLETED"] as const).map((step,index)=>{
+      const order=["SEARCHING","ACCEPTED","IN_PROGRESS","COMPLETED"];
+      const current=order.indexOf(b.status);
+      const done=b.status!=="CANCELLED"&&index<=current;
+      return <div className={"bookingProgressStep "+(done?"done":"")} key={step}><span>{done?<CheckCircle2 size={13}/>:index+1}</span><small>{step==="SEARCHING"?"Request":step==="ACCEPTED"?"Accepted":step==="IN_PROGRESS"?"Repair":"Complete"}</small></div>;
+    })}
+   </div>
+   {b.status==="CANCELLED"&&<div className="bookingCancelledNote"><XCircle size={15}/> This request was cancelled.</div>}
+   {b.status==="COMPLETED"&&b.review?.rating&&<div className="bookingReviewSaved"><Star size={15} fill="currentColor"/> Your rating: {b.review.rating}/5 {b.review.comment? "· "+b.review.comment:""}</div>
    {typeof b.mechanicId==="object"&&b.mechanicId?.name&&<div className="bookingLocation assignedMechanic"><Wrench size={15}/><span>Mechanic: <b>{b.mechanicId.name}</b>{b.mechanicId.phone?" · "+b.mechanicId.phone:""}</span></div>}
    <small className="bookingId">Booking ID: {b._id}</small>
-   {!history&&<div className="bookingActions">
+   {!history?<div className="bookingActions">
      <a className="trackBookingBtn" href={"/tracking?bookingId="+encodeURIComponent(b._id)}><Navigation size={17}/>{b.status==="SEARCHING"?"Track request":"Track mechanic"}</a>
      {(b.status==="SEARCHING"||b.status==="ACCEPTED")&&<button className="cancelBookingBtn" disabled={busyId===b._id} onClick={()=>void cancel(b)}><XCircle size={17}/>{busyId===b._id?"Cancelling…":"Cancel booking"}</button>}
+   </div>:<div className="bookingActions">
+     {b.status==="COMPLETED"&&!b.review?.rating&&typeof b.mechanicId==="object"&&b.mechanicId&&<a className="trackBookingBtn" href={"/review?bookingId="+encodeURIComponent(b._id)}><Star size={17}/> Rate service</a>}
+     <a className="cancelBookingBtn bookingAgainBtn" href="/customer/book"><RefreshCw size={16}/> Book again</a>
    </div>}
  </article>;
  return <main className="appPage">
